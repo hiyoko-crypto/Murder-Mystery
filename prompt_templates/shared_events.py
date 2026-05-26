@@ -1,28 +1,81 @@
 shared_events_template = """
-In the function shared_events(), we're going to initialize a timeline that includes shared events, interactions between suspects. This will serve as a framework for generating a consistent and intriguing mystery narrative. You're provided with a JSON object following a specific schema.
-
-The schema includes a series of timestamps corresponding to 15-minute intervals in the event. For each timestamp, you might have:
-
-1. A shared event: This is something significant that happens which most or all of the suspects are aware of or involved in. For example, a loud noise in the mansion, a power outage, or the discovery of the victim.
-
-2. Interactions: These are direct interactions between pairs of suspects. Each interaction is associated with a unique identifier, which we will use to generate a conversation for this interaction and recall it when needed. For instance, Suspect A and Suspect B might have a heated argument, or Suspect C might pull Suspect D aside for a private chat.
-
-Your task is to use this schema to outline a series of shared events and interactions that occur during the course of the event. This timeline will then be used as a foundation for generating each suspect's individual narrative.
-
-NOTE: The interaction pairs must only list suspects outlined in the schema. NOT THE VICTIM.
+You are generating a timeline for a murder mystery event.
+Based on the plot schema below, create a timeline of 10 timestamps (15-minute intervals).
 
 PLOT SCHEMA:
 {story_schema}
 
-IMPORTANT: YOU MUST NOT INCLUDE ANY EVENTS INVOLVING A DETECTIVE; THE MURDER MUST REMAIN UNSOLVED.
-IMPORTANT: ALL TIMESTAMPS MUST BE PRESENT IN YOUR RESPONSE, EVEN IF NO INTERACTION OCCURS AT THAT TIMESTAMP.
-IMPORTANT: Your response must contain AT LEAST 3 interaction pairs.
+RULES:
+- Do NOT include the victim or a detective in interactions.
+- Include AT LEAST 3 interaction pairs across the 10 timestamps.
+- All times in format HH:MM AM/PM.
 
-(ALL TIMES MUST BE IN FORMAT HH:MM AM/PM)
+Respond ONLY with a valid JSON object in this EXACT format:
 
-Your answer must include: timestamp_1, timestamp_2, timestamp_3, timestamp_4, timestamp_5, timestamp_6, timestamp_7, timestamp_8, timestamp_9, timestamp_10
-
-YOUR SHARED EVENTS SCHEMA:
+{{
+  "timestamp_1": {{
+    "time": "08:00 PM",
+    "shared_event": "Guests begin to arrive at the manor.",
+    "suspect_interaction_pairs": {{}}
+  }},
+  "timestamp_2": {{
+    "time": "08:15 PM",
+    "shared_event": null,
+    "suspect_interaction_pairs": {{
+      "interaction_id": "interaction_1",
+      "suspect_a": "Suspect Name A",
+      "suspect_b": "Suspect Name B"
+    }}
+  }},
+  "timestamp_3": {{
+    "time": "08:30 PM",
+    "shared_event": null,
+    "suspect_interaction_pairs": {{}}
+  }},
+  "timestamp_4": {{
+    "time": "08:45 PM",
+    "shared_event": null,
+    "suspect_interaction_pairs": {{
+      "interaction_id": "interaction_2",
+      "suspect_a": "Suspect Name C",
+      "suspect_b": "Suspect Name D"
+    }}
+  }},
+  "timestamp_5": {{
+    "time": "09:00 PM",
+    "shared_event": "A loud crash is heard from the study.",
+    "suspect_interaction_pairs": {{}}
+  }},
+  "timestamp_6": {{
+    "time": "09:15 PM",
+    "shared_event": null,
+    "suspect_interaction_pairs": {{
+      "interaction_id": "interaction_3",
+      "suspect_a": "Suspect Name A",
+      "suspect_b": "Suspect Name C"
+    }}
+  }},
+  "timestamp_7": {{
+    "time": "09:30 PM",
+    "shared_event": null,
+    "suspect_interaction_pairs": {{}}
+  }},
+  "timestamp_8": {{
+    "time": "09:45 PM",
+    "shared_event": "The victim is found dead.",
+    "suspect_interaction_pairs": {{}}
+  }},
+  "timestamp_9": {{
+    "time": "10:00 PM",
+    "shared_event": null,
+    "suspect_interaction_pairs": {{}}
+  }},
+  "timestamp_10": {{
+    "time": "10:15 PM",
+    "shared_event": "Police arrive at the manor.",
+    "suspect_interaction_pairs": {{}}
+  }}
+}}
 """
 
 

@@ -11,13 +11,10 @@ Methods:
         Processes a user message, retrieves relevant memories, and generates a suspect response.
 """
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
-from langchain.chains.question_answering import load_qa_chain
-from langchain.chat_models import ChatOpenAI
-from langchain.prompts import PromptTemplate
-from langchain.memory import ConversationBufferMemory
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_ollama import OllamaEmbeddings
+from langchain_community.vectorstores import Chroma
+from modules.llm_client import llm_messages
 
 
 class SuspectAgent:
@@ -31,90 +28,85 @@ class SuspectAgent:
         """
         self.suspect = plot.suspects[i]
         self.memory_path = self.suspect.memory_path
-        self.chat_memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_input")
+        self.chat_history = []  # list of {"role": ..., "content": ...}
 
         print(f"SUSPECT: {self.suspect.name}")
         print(f"MEMORY PATH: {self.memory_path}")
 
         # Load memory (suspect account)
-        with open(self.memory_path) as f:
+        with open(self.memory_path, encoding="utf-8") as f:
             memory_stream = f.read()
 
-        embeddings = OpenAIEmbeddings()
+        # Ollama embeddings (local)
+        embeddings = OllamaEmbeddings(
+            model="nomic-embed-text",
+            base_url="http://localhost:11434"
+        )
 
-        # Split text, upsert chunks into a ChromaDB instance
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,
             chunk_overlap=200,
             length_function=len,
         )
-
         texts = text_splitter.split_text(memory_stream)
 
-        # ChromaDB instance for similarity search + RAG
-        self.docsearch = Chroma.from_texts(
-            texts, embeddings
-        )
+        # ChromaDB for similarity search
+        self.docsearch = Chroma.from_texts(texts, embeddings)
 
-        # Build prompt template for conversation chain
-        template = "You are a suspect in a murder, and you are currently being questioned by the lead detective.\n\n"
-        template += f"Here are the details about the case: \n\n{plot.get_this_suspect_summary(i)}\n\n"
-
-        template += """
-
-        Here are the memories that pop into your head as you hear the detective's question:
-
-        {context}
-
-        Selectively choose which to incorporate into your response. But NEVER quote them directly. These are your internal thoughts.
-        """
+        # Build system prompt
+        system = "You are a suspect in a murder, and you are currently being questioned by the lead detective.\n\n"
+        system += f"Here are the details about the case:\n\n{plot.get_this_suspect_summary(i)}\n\n"
 
         if self.suspect.guilty:
-            template += """
-            
-            Remember, if you ARE guilty, you do not want the detective to know it. When the detective's question makes you think of the murder, you get very anxious and agitated and start to stutter.
-            """
+            system += (
+                "You are GUILTY. You do not want the detective to know it. "
+                "When the detective's question makes you think of the murder, "
+                "you get very anxious and agitated and start to stutter.\n\n"
+            )
         else:
-            template += """
+            system += (
+                "You are INNOCENT. If the detective wrongly accuses you, "
+                "you get really anxious and stutter a lot.\n\n"
+            )
 
-            If the detective begins to wrongly accuse you of being guilty, you get really anxious and stutter a lot.
-            """
-
-        template += """
-        
-        {chat_history}
-
-        Only answer this one question. Speak as your character would, based on their bio and tags--do not regurgitate these, but emobdy them. Do not be overly rigid and formal.
-
-        Detective's question: {human_input}
-        Your response to this question:"""
-
-        prompt = PromptTemplate(
-            input_variables=["chat_history", "human_input", "context"], template=template
+        system += (
+            "Only answer one question at a time. Speak as your character would, "
+            "based on their bio and tags — embody them, do not recite them. "
+            "Do not be overly rigid or formal.\n\n"
+            "Relevant memories will be provided with each question. "
+            "Selectively incorporate them — never quote them directly."
         )
 
-        # Build chain to use as conversational agent
-        self.chain = load_qa_chain(
-            ChatOpenAI(
-                temperature=0,
-                model="gpt-4"
-            ),
-            chain_type="stuff",
-            memory=self.chat_memory,
-            prompt=prompt
-        )
+        self.system_prompt = system
 
     def get_suspect_response(self, user_message):
         """
-        Processes a user message, retrieves relevant memories from the suspect's memory,
-        and generates a response based on the suspect's characteristics and the current context.
+        Retrieves relevant memories via similarity search, then generates a suspect response.
 
         Args:
-        user_message (str): The message from the user to which the suspect should respond.
+        user_message (str): The detective's question.
 
         Returns:
-        str: The suspect's response to the user's message.
+        str: The suspect's response.
         """
-        doc_search = self.docsearch.similarity_search(user_message, 4)
-        response = self.chain({"input_documents": doc_search, "human_input": user_message}, return_only_outputs=True)
-        return response.get("output_text")
+        docs = self.docsearch.similarity_search(user_message, k=4)
+        memory_context = "\n\n".join(doc.page_content for doc in docs)
+
+        user_content = (
+            f"[Memories surfacing in your mind]\n{memory_context}\n\n"
+            f"Detective's question: {user_message}"
+        )
+
+        messages = (
+            [{"role": "system", "content": self.system_prompt}]
+            + self.chat_history
+            + [{"role": "user", "content": user_content}]
+        )
+
+        reply = llm_messages(messages, temperature=0.7, quality=True)
+
+        # Store only the bare question/answer in history (without memory context)
+        self.chat_history.append({"role": "user", "content": user_message})
+        self.chat_history.append({"role": "assistant", "content": reply})
+
+        return reply

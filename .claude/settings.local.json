@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(venv/Scripts/python main.py)",
+      "PowerShell(ollama pull qwen2.5:3b 2>&1)",
+      "Bash(python -c \"import google.generativeai as genai; genai.configure\\(api_key='AIzaSyBmBxxt1sAOm0o1cr_ObFu0zsrNjYv2_CM'\\); model = genai.GenerativeModel\\('gemini-2.0-flash'\\); response = model.generate_content\\('Say hello in one word.'\\); print\\(response.text\\)\")",
+      "PowerShell(Get-Command py, python, python3 -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Command py -ErrorAction SilentlyContinue)"
+    ]
+  }
+}

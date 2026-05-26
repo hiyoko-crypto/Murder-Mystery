@@ -1,8 +1,5 @@
-import openai
-import os
 import threading
-
-openai.api_key = os.getenv("OPENAI_API_KEY")
+from .llm_client import llm
 
 
 def simulate_convo(interaction, prompt):
@@ -16,12 +13,9 @@ def simulate_convo(interaction, prompt):
     Returns:
         None: Stores the simulated conversation in the interaction object.
     """
-    simulated_convo = openai.ChatCompletion.create(
-        model='gpt-3.5-turbo-16k-0613',
-        messages=[{'role': 'system', 'content': prompt}],
-    )
-    print(simulated_convo.choices[0].message['content'])
-    interaction.set_text(simulated_convo.choices[0].message['content'])
+    text = llm(prompt)
+    print(text)
+    interaction.set_text(text)
 
 
 def generate_convo(interaction, suspect_a, suspect_b, suspect_a_action, suspect_b_action, plot):
@@ -39,7 +33,7 @@ def generate_convo(interaction, suspect_a, suspect_b, suspect_a_action, suspect_
     Returns:
         None: Calls simulate_convo function to generate and store the conversation.
     """
-    prompt = (f"Timestamp: {interaction.time}. Context: A murder has taken place. Details: \n{plot.get_info}. "
+    prompt = (f"Timestamp: {interaction.time}. Context: A murder has taken place. Details: \n{plot.get_info()}. "
               f"Suspect {suspect_a.name} details: \n\n{suspect_a.get_info()}. "
               f"Suspect {suspect_b.name} details: \n\n{suspect_b.get_info()}. "
               f"Simulate a conversation between "

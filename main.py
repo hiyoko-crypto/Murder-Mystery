@@ -18,23 +18,18 @@ Execution:
     If this script is run as the main module, it calls the main() function to start the game.
 """
 
-
-import openai
-import os
+import sys
+import shutil
 import time
 import traceback
+
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 from modules.make_save import make_save  # Import function to create a save directory and return its path
 from modules.story_init import initialize_story  # Import function to initialize a story
 from story_elements.pickle_plot import save_plot, load_plot  # Import functions to save and load the plot
 from modules.load_save import get_latest_saves  # Import function to get the path of the latest saves
 from suspect_agents.run_game import build_and_run_agents  # Import function to build and run agents in the game
 
-# Set the OpenAI API key from environment variables
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-if openai.api_key is None:
-    print("Error: OPENAI_API_KEY environment variable is not set.")
-    exit(1)
 
 
 def new_game():
@@ -63,7 +58,7 @@ def new_game():
                 print("RETRYING...")
                 time.sleep(3)
                 if save_path is not None:
-                    os.rmdir(save_path)
+                    shutil.rmtree(save_path, ignore_errors=True)
             else:
                 print("Max retries reached. Exiting...")
                 break
