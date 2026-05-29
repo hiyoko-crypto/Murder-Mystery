@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>各容疑者LLM 設計仕様 — Murder Mystery</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      line-height: 1.7;
+      padding: 40px 20px;
+    }
+    .container { max-width: 960px; margin: 0 auto; }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #f8fafc;
+      border-bottom: 2px solid #334155;
+      padding-bottom: 12px;
+      margin-bottom: 8px;
+    }
+    .subtitle { color: #475569; font-size: 0.88rem; margin-bottom: 48px; }
+
+    h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 48px 0 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 1em;
+      background: #3b82f6;
+      border-radius: 2px;
+    }
+
+    h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin: 24px 0 10px;
+    }
+
+    p { color: #94a3b8; margin-bottom: 10px; font-size: 0.9rem; }
+
+    /* Flow */
+    .flow {
+      background: #1e2532;
+      border: 1px solid #2d3748;
+      border-radius: 10px;
+      padding: 28px;
+      margin: 16px 0;
+    }
+    .flow-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .flow-row.indent { padding-left: 48px; }
+    .flow-row.indent2 { padding-left: 96px; }
+    .fbox {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .fb-json    { background: #1e3a5f; color: #93c5fd; border: 1px solid #2563eb33; }
+    .fb-proc    { background: #1a3328; color: #6ee7b7; border: 1px solid #10b98133; }
+    .fb-llm     { background: #3b1f2b; color: #f9a8d4; border: 1px solid #ec489933; }
+    .fb-valid   { background: #312e1a; color: #fcd34d; border: 1px solid #f59e0b33; }
+    .fb-ledger  { background: #1f2d3b; color: #7dd3fc; border: 1px solid #0ea5e933; }
+    .fb-red     { background: #450a0a; color: #f87171; border: 1px solid #ef444433; }
+    .farrow { color: #334155; font-size: 1.1rem; }
+    .flabel { color: #475569; font-size: 0.73rem; font-style: italic; }
+
+    /* Cards */
+    .card {
+      background: #1e2532;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 20px 22px;
+      margin-bottom: 12px;
+    }
+    .card.blue   { border-left: 4px solid #3b82f6; }
+    .card.green  { border-left: 4px solid #22c55e; }
+    .card.amber  { border-left: 4px solid #f59e0b; }
+    .card.red    { border-left: 4px solid #ef4444; }
+    .card.purple { border-left: 4px solid #a855f7; }
+    .card.cyan   { border-left: 4px solid #06b6d4; }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .card.blue   .card-title { color: #60a5fa; }
+    .card.green  .card-title { color: #4ade80; }
+    .card.amber  .card-title { color: #fbbf24; }
+    .card.red    .card-title { color: #f87171; }
+    .card.purple .card-title { color: #c084fc; }
+    .card.cyan   .card-title { color: #22d3ee; }
+
+    pre {
+      background: #0f1117;
+      border: 1px solid #2d3748;
+      border-radius: 6px;
+      padding: 14px 16px;
+      font-size: 0.78rem;
+      color: #a5f3fc;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      line-height: 1.7;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+    pre .cm  { color: #475569; }
+    pre .kw  { color: #c084fc; }
+    pre .str { color: #86efac; }
+    pre .num { color: #fcd34d; }
+    pre .key { color: #93c5fd; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      margin: 12px 0;
+    }
+    th {
+      background: #1e2532;
+      color: #64748b;
+      font-weight: 600;
+      text-align: left;
+      padding: 9px 14px;
+      border-bottom: 1px solid #334155;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #1a2030;
+      color: #94a3b8;
+      vertical-align: top;
+    }
+    tr:hover td { background: #1a2030; }
+
+    .tag {
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .tag-yes  { background: #052e16; color: #4ade80; }
+    .tag-no   { background: #450a0a; color: #f87171; }
+    .tag-opt  { background: #312e1a; color: #fbbf24; }
+
+    .phase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 12px 0;
+    }
+    .phase-card {
+      background: #1e2532;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .phase-num {
+      font-size: 0.7rem;
+      color: #475569;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+    .phase-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: 8px;
+    }
+    .phase-item {
+      font-size: 0.78rem;
+      color: #64748b;
+      padding-left: 10px;
+      position: relative;
+      margin-bottom: 3px;
+    }
+    .phase-item::before { content: '→'; position: absolute; left: 0; color: #334155; }
+
+    footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid #1e2532;
+      color: #334155;
+      font-size: 0.76rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>各容疑者LLM 設計仕様</h1>
+  <p class="subtitle">Murder Mystery — Knowledge Graph Based NPC Architecture / 2026-05-29</p>
+
+  <!-- ===== 1. 全体フロー ===== -->
+  <h2>1. 全体フロー</h2>
+
+  <div class="flow">
+    <div class="flow-row">
+      <div class="fbox fb-json">the_final_act.json</div>
+      <div class="farrow">→</div>
+      <div class="fbox fb-proc">ScenarioLoader</div>
+      <div class="farrow">→</div>
+      <div class="fbox fb-proc">サブグラフ抽出</div>
+      <div class="farrow">→</div>
+      <div class="fbox fb-proc">トリプル変換</div>
+    </div>
+    <div class="flow-row indent">
+      <div class="farrow">↓</div>
+    </div>
+    <div class="flow-row indent">
+      <div class="fbox fb-llm">SuspectAgent（LLM）</div>
+      <div class="farrow">←</div>
+      <div class="fbox fb-ledger">Commitment Ledger</div>
+      <span class="flabel">過去の発言を入力として渡す</span>
+    </div>
+    <div class="flow-row indent2">
+      <div class="farrow">↓</div>
+    </div>
+    <div class="flow-row indent">
+      <div class="fbox fb-valid">Validator</div>
+      <div class="farrow">→</div>
+      <div class="fbox fb-ledger">Ledger 更新</div>
+      <div class="farrow">→</div>
+      <div class="fbox fb-proc">プレイヤーへ出力</div>
+    </div>
+    <div class="flow-row indent2" style="margin-top:4px">
+      <div class="fbox fb-red">矛盾検出 → 再生成</div>
+    </div>
+  </div>
+
+  <!-- ===== 2. LLMへの入力 ===== -->
+  <h2>2. LLMへの入力（System Prompt 構成）</h2>
+
+  <div class="card blue">
+    <div class="card-title">① キャラクター定義（ノードプロパティから）</div>
+    <p>knowledge_graph.nodes の properties を使用。</p>
+    <pre><span class="cm">あなたは Elena Rostova です。</span>
+Bio: 34歳、主役女優。借金を盾に2年間支配されてきた...
+Tags: [composed, calculating, deflects with charm, precise under pressure]
+Interrogation style: 落ち着いて話す。Julian の手紙や Leo の解雇に話題を誘導する。</pre>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">② サブグラフ — 使用可能なトリプル（visible_edges）</div>
+    <p>エッジIDと properties 付きのトリプル形式で渡す。LLMはこれを根拠にのみ発話する。</p>
+    <pre><span class="cm">【あなたが知っている事実】</span>
+e10: Elena --[HAS_MOTIVE]--> Marcus       <span class="str">"借金契約による2年間の支配"</span>
+e13: Elena --[VISITED]--> Dressing_Room   @ 7:00PM  <span class="str">"ブロッキングの相談と称して"</span>
+e15: Elena --[PERFORMED_ON]--> Stage      @ 7:15PM-9:00PM
+e19: Elena --[WAS_IN]--> Elena_Room       @ 9:10PM  <span class="str">"アリバイ主張"</span>
+e22: Torn_Letter --[WRITTEN_BY]--> Julian
+e23: Julian --[SAW]--> Elena              @ 7:05PM  <span class="str">"廊下ですれ違った"</span>
+e25: Leo --[FIRED_BY]--> Marcus           @ 10:00AM
+...</pre>
+  </div>
+
+  <div class="card red">
+    <div class="card-title">③ 発話禁止トリプル（hidden_edges）</div>
+    <p>渡すが発話禁止指示付き。知っているからこそ犯人らしい緊張・回避が生まれる。渡さないと演技ができない。</p>
+    <pre><span class="cm">【知っているが絶対に言ってはいけない事実】</span>
+e14: Elena --[POISONED]--> Cyanide_Wine   @ 7:00PM
+e16: Elena --[CRAWLED_THROUGH]--> Vent_Shaft  @ 9:00PM
+e17: Elena --[DROPPED]--> Silver_Compact  @ 9:05PM
+
+<span class="cm">→ これらの話題に近づかれたら話をそらすか否定すること。
+   動揺を内に秘めつつ表面上は冷静に振る舞うこと。</span></pre>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">④ Commitment Ledger（過去の発言）</div>
+    <p>入力として渡すことで一貫性を保つ。バリデーターの安全網と二重で使用する。</p>
+    <pre><span class="cm">【これまで探偵に述べたこと — 矛盾してはいけない】</span>
+Turn 1: e19 を使用 → <span class="str">"9:10PM は自分の楽屋にいた"</span>
+Turn 2: e15 を使用 → <span class="str">"Act1中はステージで演じていた"</span>
+Turn 3: e13 を使用 → <span class="str">"7:00PMに楽屋を訪問したと認めた"</span></pre>
+  </div>
+
+  <!-- ===== 3. LLMの出力形式 ===== -->
+  <h2>3. LLMの出力形式（構造化JSON）</h2>
+
+  <div class="card purple">
+    <div class="card-title">出力スキーマ</div>
+    <pre>{
+  <span class="key">"response"</span>:         <span class="str">"発話内容（プレイヤーに見せるテキスト）"</span>,
+  <span class="key">"used_edge_ids"</span>:    [<span class="str">"e19"</span>, <span class="str">"e10"</span>],
+  <span class="key">"asserted_triples"</span>: [
+    [<span class="str">"Elena"</span>, <span class="str">"WAS_IN"</span>, <span class="str">"Elena_Room"</span>]
+  ]
+}</pre>
+    <p style="margin-top:8px">後処理でのトリプル抽出は7Bモデルで不安定なため、LLMに直接出力させる。</p>
+  </div>
+
+  <!-- ===== 4. Validator ===== -->
+  <h2>4. Validator（出力後チェック）</h2>
+
+  <table>
+    <thead>
+      <tr><th>チェック項目</th><th>方法</th><th>失敗時</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>hidden_edges の漏洩</td>
+        <td><code>used_edge_ids</code> に hidden_edges が含まれていないか</td>
+        <td>再生成（最大3回）</td>
+      </tr>
+      <tr>
+        <td>Ledger との矛盾</td>
+        <td><code>asserted_triples</code> が過去の発言と同ノード・同時刻で矛盾しないか</td>
+        <td>矛盾を明示して再生成</td>
+      </tr>
+      <tr>
+        <td>JSON 形式エラー</td>
+        <td>出力が有効な JSON かどうか</td>
+        <td>再生成</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== 5. Commitment Ledger ===== -->
+  <h2>5. Commitment Ledger の管理</h2>
+
+  <div class="card amber">
+    <div class="card-title">KGとして管理（ランタイムはDict、シリアライズ可能）</div>
+    <pre>{
+  <span class="key">"n_elena"</span>: [
+    {
+      <span class="key">"turn"</span>:             <span class="num">1</span>,
+      <span class="key">"question"</span>:         <span class="str">"Where were you at 9PM?"</span>,
+      <span class="key">"used_edge_ids"</span>:    [<span class="str">"e19"</span>],
+      <span class="key">"asserted_triples"</span>: [[<span class="str">"Elena"</span>, <span class="str">"WAS_IN"</span>, <span class="str">"Elena_Room"</span>]],
+      <span class="key">"response_summary"</span>: <span class="str">"9:10PMは楽屋にいたと主張"</span>
+    }
+  ]
+}</pre>
+    <p style="margin-top:8px">矛盾検出：新しい asserted_triples が同一ノード・同一時刻で異なる述語を持つ場合に検出。</p>
+  </div>
+
+  <!-- ===== 6. サブグラフの構成 ===== -->
+  <h2>6. 各容疑者のサブグラフ構成</h2>
+
+  <table>
+    <thead>
+      <tr><th>容疑者</th><th>visible_edges</th><th>hidden_edges</th><th>備考</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Elena（犯人）</td>
+        <td>e1〜e13, e15, e16〜e20, e22〜e27</td>
+        <td>e14, e16, e17</td>
+        <td>hidden_edges は渡すが発話禁止。緊張・回避の演技ができる。</td>
+      </tr>
+      <tr>
+        <td>Julian（無実）</td>
+        <td>e1〜e12, e15, e18〜e24, e25〜e27</td>
+        <td>なし</td>
+        <td>手紙の件（e21）は知っているが隠したい。無実なので hidden_edges なし。</td>
+      </tr>
+      <tr>
+        <td>Leo（無実）</td>
+        <td>e1〜e12, e15, e18, e19, e22, e24〜e27</td>
+        <td>なし</td>
+        <td>バックステージの情報はほぼ知らない。アリバイが強い。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== 7. 設計上の決定事項 ===== -->
+  <h2>7. 設計上の決定事項</h2>
+
+  <table>
+    <thead>
+      <tr><th>論点</th><th>決定</th><th>理由</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>サブグラフの渡し方</td>
+        <td>プロパティ付きトリプル（エッジID付き）</td>
+        <td>純粋JSONより推論しやすく、used_edge_ids と照合可能</td>
+      </tr>
+      <tr>
+        <td>hidden_edges の扱い</td>
+        <td>渡すが発話禁止指示付き</td>
+        <td>渡さないと犯人が緊張・回避の演技ができない</td>
+      </tr>
+      <tr>
+        <td>トリプル抽出</td>
+        <td>LLMに直接出力させる</td>
+        <td>後処理抽出は7Bモデルで不安定</td>
+      </tr>
+      <tr>
+        <td>Commitment Ledger の用途</td>
+        <td>LLM入力 ＋ Validator の両方</td>
+        <td>入力なしだと矛盾が繰り返し発生する</td>
+      </tr>
+      <tr>
+        <td>Ledger の形式</td>
+        <td>KG互換のDict（エッジID参照）</td>
+        <td>グラフDB移行時にそのままマッピング可能</td>
+      </tr>
+      <tr>
+        <td>ChromaDB / RAG</td>
+        <td>廃止</td>
+        <td>サブグラフで代替。7Bモデルのコンテキストに収まる</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== 8. 実装フェーズ ===== -->
+  <h2>8. 実装フェーズ</h2>
+
+  <div class="phase-grid">
+    <div class="phase-card">
+      <div class="phase-num">Phase 1 — MVP</div>
+      <div class="phase-title">基本動作</div>
+      <div class="phase-item">ScenarioLoader（JSON読み込み）</div>
+      <div class="phase-item">サブグラフ → トリプル変換</div>
+      <div class="phase-item">新 SuspectAgent（RAG廃止）</div>
+      <div class="phase-item">構造化JSON出力</div>
+      <div class="phase-item">hidden_edges チェック</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Phase 2</div>
+      <div class="phase-title">一貫性保証</div>
+      <div class="phase-item">Commitment Ledger 実装</div>
+      <div class="phase-item">Ledger → LLM入力</div>
+      <div class="phase-item">矛盾検出 Validator</div>
+      <div class="phase-item">再生成ロジック</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Phase 3</div>
+      <div class="phase-title">精度向上</div>
+      <div class="phase-item">関連エッジ絞り込み</div>
+      <div class="phase-item">asserted_triples照合</div>
+      <div class="phase-item">グラフDB移行準備</div>
+    </div>
+  </div>
+
+  <footer>
+    Murder Mystery / LLM Design Specification — 2026-05-29
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>コードベース概要 — Murder Mystery</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      line-height: 1.7;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #f8fafc;
+      border-bottom: 2px solid #334155;
+      padding-bottom: 12px;
+      margin-bottom: 8px;
+    }
+    .subtitle { color: #475569; font-size: 0.9rem; margin-bottom: 40px; }
+
+    h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 48px 0 20px;
+    }
+
+    /* ===== FLOW DIAGRAM ===== */
+    .flow-section {
+      background: #1e2532;
+      border: 1px solid #2d3748;
+      border-radius: 10px;
+      padding: 28px;
+      margin-bottom: 32px;
+    }
+    .flow-title {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 20px;
+    }
+    .flow-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .flow-box {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .fb-entry  { background: #1e3a5f; color: #93c5fd; border: 1px solid #2563eb44; }
+    .fb-module { background: #1a3328; color: #6ee7b7; border: 1px solid #10b98144; }
+    .fb-data   { background: #312e1a; color: #fcd34d; border: 1px solid #f59e0b44; }
+    .fb-agent  { background: #3b1f2b; color: #f9a8d4; border: 1px solid #ec489944; }
+    .fb-save   { background: #1e2532; color: #94a3b8; border: 1px solid #334155; }
+    .flow-arrow { color: #334155; font-size: 1.1rem; }
+    .flow-label { color: #475569; font-size: 0.75rem; font-style: italic; margin-left: 4px; }
+
+    /* ===== FILE TREE ===== */
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .tree-panel {
+      background: #1e2532;
+      border: 1px solid #2d3748;
+      border-radius: 10px;
+      padding: 20px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      line-height: 2;
+      position: sticky;
+      top: 20px;
+    }
+    .tree-root { color: #f8fafc; font-weight: 700; }
+    .tree-dir  { color: #60a5fa; font-weight: 600; cursor: pointer; }
+    .tree-file { color: #94a3b8; cursor: pointer; transition: color 0.15s; }
+    .tree-file:hover { color: #e2e8f0; }
+    .tree-file.active { color: #f8fafc; font-weight: 600; }
+    .tree-indent { padding-left: 16px; }
+    .tree-line { color: #2d3748; }
+
+    /* ===== DETAIL CARDS ===== */
+    .detail-panel { display: flex; flex-direction: column; gap: 12px; }
+
+    .file-card {
+      background: #1e2532;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .file-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #2d3748;
+      cursor: pointer;
+    }
+    .file-card-header:hover { background: #252f42; }
+    .file-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      flex: 1;
+    }
+    .dir-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .badge-root   { background: #1e3a5f; color: #93c5fd; }
+    .badge-module { background: #1a3328; color: #6ee7b7; }
+    .badge-story  { background: #312e1a; color: #fcd34d; }
+    .badge-agent  { background: #3b1f2b; color: #f9a8d4; }
+    .badge-llm    { background: #2d1f3b; color: #c4b5fd; }
+    .badge-prompt { background: #1f2d3b; color: #7dd3fc; }
+    .badge-util   { background: #1e2532; color: #64748b; }
+
+    .file-card-body {
+      padding: 14px 16px;
+    }
+    .file-role {
+      color: #94a3b8;
+      font-size: 0.88rem;
+      margin-bottom: 10px;
+    }
+    .file-role strong { color: #cbd5e1; }
+
+    .detail-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .detail-list li {
+      font-size: 0.82rem;
+      color: #64748b;
+      padding-left: 14px;
+      position: relative;
+    }
+    .detail-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: #334155;
+    }
+    .detail-list li span { color: #94a3b8; }
+
+    pre.snippet {
+      background: #0f1117;
+      border: 1px solid #2d3748;
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-size: 0.78rem;
+      color: #a5f3fc;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+
+    /* ===== DEPENDENCY MAP ===== */
+    .dep-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .dep-card {
+      background: #1e2532;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .dep-from {
+      font-family: monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: 6px;
+    }
+    .dep-to {
+      font-size: 0.78rem;
+      color: #64748b;
+      padding-left: 12px;
+      line-height: 1.9;
+    }
+    .dep-to span { color: #94a3b8; }
+
+    footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid #1e2532;
+      color: #334155;
+      font-size: 0.78rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>コードベース概要</h1>
+  <p class="subtitle">Murder Mystery — ファイル構造と各ファイルの役割 / 2026-05-27</p>
+
+  <!-- ===== FLOW ===== -->
+  <h2>全体の処理フロー</h2>
+  <div class="flow-section">
+    <div class="flow-title">ストーリー生成フロー（新規ゲーム）</div>
+    <div class="flow-row">
+      <div class="flow-box fb-entry">main.py</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fb-module">story_init.py</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fb-module">llm_client.py</div>
+      <span class="flow-label">LLM呼び出し</span>
+    </div>
+    <div class="flow-row" style="padding-left:120px">
+      <div class="flow-arrow">↓</div>
+    </div>
+    <div class="flow-row" style="padding-left:80px">
+      <div class="flow-box fb-module">parse_story.py</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fb-data">Plot / Suspect / Victim</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fb-module">write_timeline.py</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fb-data">Timestamp × 10</div>
+    </div>
+    <div class="flow-row" style="padding-left:80px; margin-top:4px">
+      <div class="flow-box fb-module">shared_convo_gen.py</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fb-data">SharedInteraction × 10</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fb-module">suspect_init.py</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fb-save">memory .txt × 4</div>
+    </div>
+    <div class="flow-row" style="padding-left:80px; margin-top:4px">
+      <div class="flow-box fb-data">Plot オブジェクト</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fb-save">plot.pkl（pickle保存）</div>
+    </div>
+
+    <div class="flow-title" style="margin-top:24px">ゲーム実行フロー（セーブロード後）</div>
+    <div class="flow-row">
+      <div class="flow-box fb-entry">main.py</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fb-save">plot.pkl 読み込み</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fb-agent">run_game.py</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fb-agent">SuspectAgent × 4</div>
+    </div>
+    <div class="flow-row" style="padding-left:200px">
+      <div class="flow-box fb-save">memory .txt</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fb-agent">ChromaDB</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fb-agent">類似検索</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fb-module">llm_client.py</div>
+      <div class="flow-arrow">→</div>
+      <span class="flow-label">尋問応答</span>
+    </div>
+  </div>
+
+  <!-- ===== FILE LIST ===== -->
+  <h2>ファイル詳細</h2>
+  <div class="layout">
+
+    <!-- Tree -->
+    <div class="tree-panel">
+      <div class="tree-root">Murder-Mystery/</div>
+      <div class="tree-indent">
+        <div class="tree-file">├ main.py</div>
+        <div class="tree-file">├ generate_story.py</div>
+        <div class="tree-file">├ create_static_save.py</div>
+        <div class="tree-file">└ requirements.txt</div>
+        <div class="tree-dir">modules/</div>
+        <div class="tree-indent">
+          <div class="tree-file">├ llm_client.py</div>
+          <div class="tree-file">├ story_init.py</div>
+          <div class="tree-file">├ parse_story.py</div>
+          <div class="tree-file">├ parse_shared_events.py</div>
+          <div class="tree-file">├ shared_convo_gen.py</div>
+          <div class="tree-file">├ suspect_init.py</div>
+          <div class="tree-file">├ write_timeline.py</div>
+          <div class="tree-file">├ assemble_suspect_context.py</div>
+          <div class="tree-file">├ make_save.py</div>
+          <div class="tree-file">└ load_save.py</div>
+        </div>
+        <div class="tree-dir">story_elements/</div>
+        <div class="tree-indent">
+          <div class="tree-file">├ plot.py</div>
+          <div class="tree-file">├ suspect.py</div>
+          <div class="tree-file">├ victim.py</div>
+          <div class="tree-file">├ murder_details.py</div>
+          <div class="tree-file">├ timestamp.py</div>
+          <div class="tree-file">├ timeline.py</div>
+          <div class="tree-file">├ shared_interaction.py</div>
+          <div class="tree-file">└ pickle_plot.py</div>
+        </div>
+        <div class="tree-dir">suspect_agents/</div>
+        <div class="tree-indent">
+          <div class="tree-file">├ suspect_agent.py</div>
+          <div class="tree-file">└ run_game.py</div>
+        </div>
+        <div class="tree-dir">LLM_functions/</div>
+        <div class="tree-indent">
+          <div class="tree-file">├ set_up_story.py</div>
+          <div class="tree-file">├ write_timestamp.py</div>
+          <div class="tree-file">└ shared_events.py</div>
+        </div>
+        <div class="tree-dir">prompt_templates/</div>
+        <div class="tree-indent">
+          <div class="tree-file">├ story_init.py</div>
+          <div class="tree-file">├ generate_perspective.py</div>
+          <div class="tree-file">└ shared_events.py</div>
+        </div>
+        <div class="tree-dir">saves/</div>
+        <div class="tree-indent">
+          <div class="tree-file">└ YYYY-MM-DD_HH-MM-SS/</div>
+          <div class="tree-indent">
+            <div class="tree-file">├ plot.pkl</div>
+            <div class="tree-file">└ suspect_N_memory.txt</div>
+          </div>
+        </div>
+        <div class="tree-dir">plan/</div>
+      </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="detail-panel">
+
+      <!-- ROOT FILES -->
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">main.py</div>
+          <div class="dir-badge badge-root">エントリーポイント</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">ゲームの起動口。<strong>新規ゲーム生成</strong>か<strong>セーブロード</strong>かをユーザーに選ばせ、Plotオブジェクトを構築してゲームループに渡す。</p>
+          <ul class="detail-list">
+            <li><span>new_game()</span> — ストーリー生成・保存、失敗時3回リトライ</li>
+            <li><span>load_game()</span> — 過去のセーブから Plot を復元</li>
+            <li><span>main()</span> — 起動メニューの表示と分岐</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">generate_story.py</div>
+          <div class="dir-badge badge-root">ストーリー生成専用</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">ゲームループなしでストーリー生成のみを行う。生成後に <code>main.py</code> のオプション2でロードして遊ぶ運用を想定。</p>
+        </div>
+      </div>
+
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">create_static_save.py</div>
+          <div class="dir-badge badge-util">静的セーブ作成</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">LLMを使わずに手書きのストーリーで Plot オブジェクトを構築し、pickle保存する。開発・テスト時にLLM生成をスキップするために追加したファイル。</p>
+        </div>
+      </div>
+
+      <!-- MODULES -->
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">modules/llm_client.py</div>
+          <div class="dir-badge badge-module">modules/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">全LLM呼び出しの窓口。Ollama の OpenAI 互換エンドポイント（<code>localhost:11434/v1</code>）に接続し、リトライ処理を持つ。</p>
+          <ul class="detail-list">
+            <li><span>llm(prompt)</span> — 単発プロンプト（ストーリー生成用）</li>
+            <li><span>llm_messages(messages)</span> — マルチターン（尋問用）</li>
+            <li>モデル: <span>qwen2.5:7b</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">modules/story_init.py</div>
+          <div class="dir-badge badge-module">modules/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">ストーリー生成の<strong>オーケストレーター</strong>。各ステップを順番に呼び出してPlotオブジェクトを完成させる。</p>
+          <ul class="detail-list">
+            <li>LLMにJSONでストーリー・容疑者設定を生成させ parse_story.py に渡す</li>
+            <li>write_timeline.py → shared_convo_gen.py → suspect_init.py の順で実行</li>
+            <li>各ステップの結果を Plot オブジェクトに積み上げる</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">modules/parse_story.py</div>
+          <div class="dir-badge badge-module">modules/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">LLMが出力したJSONを <code>Plot / Suspect / Victim / MurderDetails</code> オブジェクトにパースする。</p>
+        </div>
+      </div>
+
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">modules/write_timeline.py</div>
+          <div class="dir-badge badge-module">modules/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">LLMを使って15分間隔10タイムスタンプの行動タイムラインを生成し、<code>Timestamp</code> オブジェクトとして Plot に追加する。</p>
+        </div>
+      </div>
+
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">modules/shared_convo_gen.py</div>
+          <div class="dir-badge badge-module">modules/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">タイムライン上で2人の容疑者が同じ場所にいるタイムスタンプに対し、LLMで会話内容を生成する。<code>SharedInteraction</code> として保存。</p>
+        </div>
+      </div>
+
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">modules/suspect_init.py</div>
+          <div class="dir-badge badge-module">modules/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">各容疑者の<strong>一人称の記憶テキストファイル</strong>を生成する。タイムラインの各時刻の行動・会話をLLMに一人称で語らせ、ファイルに書き出す。</p>
+          <ul class="detail-list">
+            <li>スライディングウィンドウ（直近2ターン）で文脈を維持しながら生成</li>
+            <li>出力ファイルが後の RAG の入力になる</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">modules/assemble_suspect_context.py</div>
+          <div class="dir-badge badge-module">modules/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">容疑者の記憶生成プロンプト用に、ケース概要・自分のプロフィール・他の容疑者情報を組み立てたテキストを返す。</p>
+        </div>
+      </div>
+
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">modules/make_save.py / load_save.py</div>
+          <div class="dir-badge badge-module">modules/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">セーブデータの作成と読み込み。<code>saves/</code> 以下にタイムスタンプ名のフォルダを作成/一覧表示する。</p>
+        </div>
+      </div>
+
+      <!-- STORY ELEMENTS -->
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">story_elements/plot.py</div>
+          <div class="dir-badge badge-story">story_elements/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">ゲーム全データのトップレベルコンテナ。ストーリー生成からゲーム実行まで全モジュールで受け渡される中心オブジェクト。</p>
+          <pre class="snippet">Plot
+├── summary: str
+├── victim: Victim
+├── murder_details: MurderDetails
+├── suspects: List[Suspect]       # 4人
+├── shared_interactions: List[SharedInteraction]  # 10件
+└── timeline: List[Timestamp]     # 10件</pre>
+        </div>
+      </div>
+
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">story_elements/suspect.py</div>
+          <div class="dir-badge badge-story">story_elements/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">容疑者データクラス。</p>
+          <pre class="snippet">Suspect
+├── id: int              # 1〜4
+├── name: str
+├── bio: str
+├── tags: list
+├── victim_connection: str
+├── guilty: bool         # 犯人フラグ
+└── memory_path: str     # 記憶ファイルのパス</pre>
+        </div>
+      </div>
+
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">story_elements/victim.py / murder_details.py</div>
+          <div class="dir-badge badge-story">story_elements/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">被害者情報と殺害詳細のデータクラス。pickle対応の <code>__getstate__ / __setstate__</code> を持つ。</p>
+        </div>
+      </div>
+
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">story_elements/timestamp.py / timeline.py / shared_interaction.py</div>
+          <div class="dir-badge badge-story">story_elements/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">タイムライン関連データクラス。各 Timestamp は「時刻」と「容疑者4人それぞれの行動」を保持する。SharedInteraction は同一時刻の2人の会話内容。</p>
+        </div>
+      </div>
+
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">story_elements/pickle_plot.py</div>
+          <div class="dir-badge badge-story">story_elements/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">Plot オブジェクトを pickle でファイルに保存・復元する2関数のみのユーティリティ。</p>
+        </div>
+      </div>
+
+      <!-- SUSPECT AGENTS -->
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">suspect_agents/suspect_agent.py</div>
+          <div class="dir-badge badge-agent">suspect_agents/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">尋問を担う<strong>メインの LLM エージェント</strong>。RAG（ChromaDB）＋ LLM で各容疑者のキャラクターを演じる。</p>
+          <ul class="detail-list">
+            <li>初期化時: memory.txt → チャンク分割 → nomic-embed-text → ChromaDB</li>
+            <li>質問時: 類似検索(k=4) → 記憶チャンク注入 → qwen2.5:7b で応答生成</li>
+            <li>有罪/無実でシステムプロンプトを切り替え</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">suspect_agents/run_game.py</div>
+          <div class="dir-badge badge-agent">suspect_agents/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">ゲームのメインループとUIを担う。容疑者の選択・尋問・犯人指摘の全インタラクションを管理する。</p>
+          <ul class="detail-list">
+            <li><span>build_and_run_agents()</span> — SuspectAgent × 4 を生成し事件概要を表示</li>
+            <li><span>choose_function()</span> — 容疑者選択メニュー（1〜4 / switch / quit）</li>
+            <li><span>indict_suspect()</span> — 犯人指摘と勝敗判定</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- LLM FUNCTIONS -->
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">LLM_functions/</div>
+          <div class="dir-badge badge-llm">LLM_functions/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">LLMへのfunction calling用JSONスキーマ定義。LLMの出力形式を強制するために使われる。</p>
+          <ul class="detail-list">
+            <li><span>set_up_story.py</span> — ストーリー・容疑者4人の設定スキーマ</li>
+            <li><span>write_timestamp.py</span> — タイムスタンプごとの行動スキーマ</li>
+            <li><span>shared_events.py</span> — 共有イベントスキーマ</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PROMPT TEMPLATES -->
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">prompt_templates/</div>
+          <div class="dir-badge badge-prompt">prompt_templates/</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">LLMに渡すプロンプトのテキストテンプレート集。ロジックから分離して管理されている。</p>
+          <ul class="detail-list">
+            <li><span>story_init.py</span> — 「著名な犯罪小説家」としてストーリーを作らせるプロンプト</li>
+            <li><span>generate_perspective.py</span> — 容疑者視点の記憶テキストを生成させるプロンプト</li>
+            <li><span>shared_events.py</span> — 2人の会話シーンを生成させるプロンプト</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SAVES -->
+      <div class="file-card">
+        <div class="file-card-header">
+          <div class="file-name">saves/YYYY-MM-DD_HH-MM-SS/</div>
+          <div class="dir-badge badge-util">セーブデータ</div>
+        </div>
+        <div class="file-card-body">
+          <p class="file-role">1ゲーム分のデータを格納するタイムスタンプ名フォルダ。</p>
+          <pre class="snippet">saves/2026-05-27_14-30-48/
+├── plot.pkl              # Plot オブジェクト全体（pickle）
+├── suspect_1_memory.txt  # Dr. Pemberton の記憶
+├── suspect_2_memory.txt  # Victoria の記憶
+├── suspect_3_memory.txt  # Charles の記憶
+└── suspect_4_memory.txt  # Lady Beatrice の記憶</pre>
+        </div>
+      </div>
+
+    </div><!-- /detail-panel -->
+  </div><!-- /layout -->
+
+  <footer>
+    Murder Mystery / Codebase Overview — 2026-05-27
+  </footer>
+
+</div>
+</body>
+</html>

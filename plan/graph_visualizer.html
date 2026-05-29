@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Knowledge Graph — The Final Act</title>
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f1117; color: #e2e8f0; font-family: 'Helvetica Neue', Arial, sans-serif; }
+
+    #header {
+      padding: 20px 28px 16px;
+      border-bottom: 1px solid #1e2532;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    #header h1 { font-size: 1.1rem; color: #f8fafc; font-weight: 700; }
+    #header p  { font-size: 0.8rem; color: #475569; }
+
+    .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-left: auto;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+    .legend-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    #controls {
+      padding: 10px 28px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #1e2532;
+    }
+    .btn {
+      padding: 5px 14px;
+      border-radius: 5px;
+      border: 1px solid #334155;
+      background: #1e2532;
+      color: #94a3b8;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn:hover  { background: #252f42; color: #e2e8f0; }
+    .btn.active { background: #1e3a5f; color: #93c5fd; border-color: #3b82f6; }
+
+    #main {
+      display: flex;
+      height: calc(100vh - 105px);
+    }
+
+    #network {
+      flex: 1;
+    }
+
+    #sidebar {
+      width: 300px;
+      background: #1e2532;
+      border-left: 1px solid #2d3748;
+      padding: 20px;
+      overflow-y: auto;
+      font-size: 0.82rem;
+    }
+    #sidebar h2 { font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+    #sidebar .empty { color: #334155; font-style: italic; }
+
+    .node-detail { }
+    .node-detail .nd-label { font-size: 1rem; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+    .node-detail .nd-type  { font-size: 0.72rem; color: #64748b; margin-bottom: 14px; }
+    .nd-section { margin-bottom: 14px; }
+    .nd-section-title { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; margin-bottom: 6px; }
+    .nd-prop { color: #94a3b8; line-height: 1.6; }
+    .nd-prop strong { color: #cbd5e1; }
+    .nd-edge {
+      background: #0f1117;
+      border: 1px solid #2d3748;
+      border-radius: 5px;
+      padding: 7px 10px;
+      margin-bottom: 5px;
+      font-size: 0.78rem;
+    }
+    .nd-edge .rel  { color: #fbbf24; font-weight: 600; font-size: 0.7rem; }
+    .nd-edge .node { color: #93c5fd; }
+    .nd-edge .time { color: #475569; font-size: 0.7rem; }
+    .nd-edge .detail { color: #64748b; font-size: 0.7rem; margin-top: 2px; }
+    .tag {
+      display: inline-block;
+      padding: 1px 7px;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-right: 4px;
+      margin-bottom: 3px;
+    }
+    .tag-guilty   { background: #450a0a; color: #f87171; }
+    .tag-innocent { background: #052e16; color: #34d399; }
+    .tag-victim   { background: #1c1917; color: #a8a29e; }
+    .tag-weapon   { background: #3b1f2b; color: #f9a8d4; }
+    .tag-evidence { background: #312e1a; color: #fcd34d; }
+    .tag-redherring { background: #1a2030; color: #64748b; }
+    .tag-scene    { background: #1e3a5f; color: #93c5fd; }
+    .tag-alibi    { background: #1a3328; color: #6ee7b7; }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div>
+    <h1>Knowledge Graph — "The Final Act"</h1>
+    <p>ノードをクリックすると詳細を表示 / ドラッグで移動 / スクロールでズーム</p>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div>被害者</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fb923c"></div>容疑者（犯人）</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#60a5fa"></div>容疑者（無実）</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f472b6"></div>アイテム</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div>場所</div>
+  </div>
+</div>
+
+<div id="controls">
+  <button class="btn active" onclick="filterAll(this)">全て表示</button>
+  <button class="btn" onclick="filterGroup('character', this)">人物のみ</button>
+  <button class="btn" onclick="filterGroup('item', this)">アイテムのみ</button>
+  <button class="btn" onclick="filterGroup('location', this)">場所のみ</button>
+  <button class="btn" onclick="filterSuspect('Elena', this)">Elena の知識</button>
+  <button class="btn" onclick="filterSuspect('Julian', this)">Julian の知識</button>
+  <button class="btn" onclick="filterSuspect('Leo', this)">Leo の知識</button>
+</div>
+
+<div id="main">
+  <div id="network"></div>
+  <div id="sidebar">
+    <h2>詳細</h2>
+    <p class="empty">ノードをクリックしてください</p>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const NODES_DATA = {
+  "Marcus":         { type: "character", role: "victim",             label: "Marcus Vance",     bio: "被害者。俳優・投資家を脅迫していた残酷な演劇監督。" },
+  "Elena":          { type: "character", role: "suspect",  guilty: true,  label: "Elena Rostova",    bio: "主役女優。借金契約を盾に2年間支配されてきた。犯人。" },
+  "Julian":         { type: "character", role: "suspect",  guilty: false, label: "Dr. Julian Wilde", bio: "投資家・自称医師。偽造資格を根拠に脅されていた。無実。" },
+  "Leo":            { type: "character", role: "suspect",  guilty: false, label: "Leo Cross",         bio: "舞台スタッフ。当日の朝に不当解雇された。無実。" },
+  "Cyanide_Wine":   { type: "item",      role: "murder_weapon",      label: "ワイングラス（毒入り）", desc: "机上で発見。シアン化物を検出。凶器。" },
+  "Torn_Letter":    { type: "item",      role: "blackmail_evidence", label: "破れた手紙",           desc: "ゴミ箱から発見。J.W.署名。Julianの偽造資格に言及。" },
+  "Silver_Compact": { type: "item",      role: "physical_evidence",  label: "銀のコンパクト",       desc: "換気シャフト内で発見。E.R.の刻印あり。Elena の所有物。" },
+  "Vent_Grate":     { type: "item",      role: "physical_evidence",  label: "換気口グレート",       desc: "ドレッシングルーム内で外れた状態で発見。事前に工作済み。" },
+  "Locked_Door":    { type: "item",      role: "red_herring",        label: "施錠されたドア",       desc: "内側から施錠。鍵はMarcusのポケットに。密室は偽の手がかり。" },
+  "Dressing_Room":  { type: "location",  role: "crime_scene",        label: "ドレッシングルーム",   desc: "犯行現場。Marcus が毒で死亡。" },
+  "Vent_Shaft":     { type: "location",  role: "escape_route",       label: "換気シャフト",         desc: "逃走経路。ElenaのルームとMarcusのルームを繋ぐ。" },
+  "Elena_Room":     { type: "location",  role: "suspect_location",   label: "Elenaの楽屋",         desc: "Elenaのドレッシングルーム。シャフト入口あり。" },
+  "Lobby":          { type: "location",  role: "alibi_location",     label: "ロビー",               desc: "Julianが投資家と会話。確実なアリバイ場所。" },
+  "Bar":            { type: "location",  role: "alibi_location",     label: "バー",                 desc: "Leoが一晩中滞在。バーテンダーが証言。" },
+  "Stage":          { type: "location",  role: "alibi_location",     label: "ステージ",             desc: "Act 1中、Elena が全観客の前で公演。" },
+};
+
+const EDGES_DATA = [
+  { id:"e1",  from:"Marcus",        to:"Dressing_Room", rel:"FOUND_DEAD_IN",    visible_to:"all" },
+  { id:"e2",  from:"Cyanide_Wine",  to:"Dressing_Room", rel:"FOUND_IN",         visible_to:"all" },
+  { id:"e3",  from:"Cyanide_Wine",  to:"Marcus",        rel:"KILLED",           visible_to:"all" },
+  { id:"e4",  from:"Torn_Letter",   to:"Dressing_Room", rel:"FOUND_IN",         visible_to:"all" },
+  { id:"e5",  from:"Vent_Grate",    to:"Dressing_Room", rel:"FOUND_IN",         visible_to:"all" },
+  { id:"e6",  from:"Locked_Door",   to:"Dressing_Room", rel:"FOUND_IN",         visible_to:"all" },
+  { id:"e7",  from:"Silver_Compact",to:"Vent_Shaft",    rel:"FOUND_IN",         visible_to:"all" },
+  { id:"e8",  from:"Vent_Shaft",    to:"Dressing_Room", rel:"CONNECTS_TO",      visible_to:"all" },
+  { id:"e9",  from:"Vent_Shaft",    to:"Elena_Room",    rel:"CONNECTS_TO",      visible_to:"all" },
+
+  { id:"e10", from:"Elena",         to:"Marcus",        rel:"HAS_MOTIVE",       visible_to:"all",  detail:"借金契約による支配" },
+  { id:"e11", from:"Julian",        to:"Marcus",        rel:"HAS_MOTIVE",       visible_to:"all",  detail:"偽造資格の脅迫" },
+  { id:"e12", from:"Leo",           to:"Marcus",        rel:"HAS_MOTIVE",       visible_to:"all",  detail:"不当解雇" },
+
+  { id:"e13", from:"Elena",         to:"Dressing_Room", rel:"VISITED",          visible_to:"Elena,Julian", time:"7:00 PM", detail:"ブロッキングの相談と称して" },
+  { id:"e14", from:"Elena",         to:"Cyanide_Wine",  rel:"POISONED",         visible_to:"Elena",        time:"7:00 PM", hidden:true },
+  { id:"e15", from:"Elena",         to:"Stage",         rel:"PERFORMED_ON",     visible_to:"all",          time:"7:15-9:00 PM" },
+  { id:"e16", from:"Elena",         to:"Vent_Shaft",    rel:"CRAWLED_THROUGH",  visible_to:"Elena",        time:"9:00 PM", hidden:true },
+  { id:"e17", from:"Elena",         to:"Silver_Compact",rel:"DROPPED",          visible_to:"Elena",        time:"9:05 PM", hidden:true },
+  { id:"e18", from:"Elena",         to:"Silver_Compact",rel:"OWNS",             visible_to:"all" },
+  { id:"e19", from:"Elena",         to:"Elena_Room",    rel:"WAS_IN",           visible_to:"all",          time:"9:10 PM", detail:"アリバイ主張" },
+
+  { id:"e20", from:"Julian",        to:"Dressing_Room", rel:"VISITED",          visible_to:"Julian,Elena", time:"6:45 PM", detail:"脅迫に対する直接交渉" },
+  { id:"e21", from:"Julian",        to:"Torn_Letter",   rel:"WROTE",            visible_to:"Julian",       time:"7:00 PM" },
+  { id:"e22", from:"Torn_Letter",   to:"Julian",        rel:"WRITTEN_BY",       visible_to:"all" },
+  { id:"e23", from:"Julian",        to:"Elena",         rel:"SAW",              visible_to:"Julian",       time:"7:05 PM", detail:"廊下でElenaとすれ違った" },
+  { id:"e24", from:"Julian",        to:"Lobby",         rel:"HAS_ALIBI",        visible_to:"all",          time:"9:00-9:30 PM", detail:"投資家Barton・Finchと会話" },
+
+  { id:"e25", from:"Leo",           to:"Marcus",        rel:"FIRED_BY",         visible_to:"all",          time:"10:00 AM" },
+  { id:"e26", from:"Leo",           to:"Bar",           rel:"HAS_ALIBI",        visible_to:"all",          time:"8:00 PM-", detail:"バーテンダーTommy証言" },
+  { id:"e27", from:"Leo",           to:"Dressing_Room", rel:"CANNOT_ACCESS",    visible_to:"all",          detail:"入場パス没収済み" },
+];
+
+// ===== COLOR SCHEME =====
+function nodeColor(n) {
+  if (n.type === "character") {
+    if (n.role === "victim")  return { bg:"#7f1d1d", border:"#ef4444", font:"#fca5a5" };
+    if (n.guilty)             return { bg:"#7c2d12", border:"#f97316", font:"#fed7aa" };
+    return                           { bg:"#1e3a5f", border:"#3b82f6", font:"#93c5fd" };
+  }
+  if (n.type === "item") {
+    if (n.role === "murder_weapon")    return { bg:"#4a044e", border:"#d946ef", font:"#f0abfc" };
+    if (n.role === "red_herring")      return { bg:"#1c1917", border:"#57534e", font:"#a8a29e" };
+    return                                    { bg:"#3b1f2b", border:"#ec4899", font:"#f9a8d4" };
+  }
+  if (n.type === "location") {
+    if (n.role === "crime_scene")   return { bg:"#1a2e1a", border:"#16a34a", font:"#86efac" };
+    if (n.role === "escape_route")  return { bg:"#1a2e1a", border:"#22c55e", font:"#bbf7d0" };
+    return                                 { bg:"#1a2e1a", border:"#4ade80", font:"#d1fae5" };
+  }
+  return { bg:"#1e2532", border:"#475569", font:"#94a3b8" };
+}
+
+function edgeColor(e) {
+  if (e.hidden)             return "#dc2626";
+  if (e.rel === "KILLED")   return "#ef4444";
+  if (e.rel === "HAS_MOTIVE") return "#f97316";
+  if (e.rel === "HAS_ALIBI") return "#22c55e";
+  if (e.rel.includes("FOUND")) return "#a855f7";
+  return "#334155";
+}
+
+// ===== BUILD VIS DATASET =====
+let allNodes = [], allEdges = [];
+
+Object.entries(NODES_DATA).forEach(([id, n]) => {
+  const c = nodeColor(n);
+  allNodes.push({
+    id, label: n.label,
+    color: { background: c.bg, border: c.border, highlight: { background: c.bg, border: "#f8fafc" } },
+    font:  { color: c.font, size: 13, face: "Helvetica Neue" },
+    shape: n.type === "location" ? "box" : n.type === "item" ? "diamond" : "ellipse",
+    borderWidth: 2,
+    margin: 8,
+  });
+});
+
+EDGES_DATA.forEach(e => {
+  allEdges.push({
+    id: e.id,
+    from: e.from, to: e.to,
+    label: e.rel,
+    color: { color: edgeColor(e), highlight: "#f8fafc" },
+    font:  { color: edgeColor(e), size: 10, face: "Helvetica Neue", strokeWidth: 0, align: "middle" },
+    arrows: { to: { enabled: true, scaleFactor: 0.6 } },
+    dashes: !!e.hidden,
+    width: e.hidden ? 2 : 1,
+    smooth: { type: "curvedCW", roundness: 0.15 },
+  });
+});
+
+const nodes = new vis.DataSet(allNodes);
+const edges = new vis.DataSet(allEdges);
+
+const container = document.getElementById("network");
+const network = new vis.Network(container, { nodes, edges }, {
+  physics: {
+    solver: "forceAtlas2Based",
+    forceAtlas2Based: { gravitationalConstant: -60, centralGravity: 0.005, springLength: 140, springConstant: 0.06 },
+    stabilization: { iterations: 200 },
+  },
+  interaction: { hover: true, tooltipDelay: 100 },
+  layout: { improvedLayout: true },
+});
+
+// ===== SIDEBAR =====
+network.on("click", function(params) {
+  if (params.nodes.length === 0) return;
+  const id = params.nodes[0];
+  const n  = NODES_DATA[id];
+  const sidebar = document.getElementById("sidebar");
+
+  const connectedEdges = EDGES_DATA.filter(e => e.from === id || e.to === id);
+
+  const roleTags = {
+    victim:            '<span class="tag tag-victim">被害者</span>',
+    suspect_guilty:    '<span class="tag tag-guilty">容疑者・犯人</span>',
+    suspect_innocent:  '<span class="tag tag-innocent">容疑者・無実</span>',
+    murder_weapon:     '<span class="tag tag-weapon">凶器</span>',
+    blackmail_evidence:'<span class="tag tag-evidence">証拠</span>',
+    physical_evidence: '<span class="tag tag-evidence">物的証拠</span>',
+    red_herring:       '<span class="tag tag-redherring">偽の手がかり</span>',
+    crime_scene:       '<span class="tag tag-scene">犯行現場</span>',
+    escape_route:      '<span class="tag tag-scene">逃走経路</span>',
+    alibi_location:    '<span class="tag tag-alibi">アリバイ場所</span>',
+    suspect_location:  '<span class="tag tag-alibi">容疑者の場所</span>',
+  };
+  const roleKey = n.role === "suspect" ? (n.guilty ? "suspect_guilty" : "suspect_innocent") : n.role;
+  const roleTag = roleTags[roleKey] || "";
+
+  const descText = n.bio || n.desc || "";
+
+  const edgeHTML = connectedEdges.map(e => {
+    const direction = e.from === id ? `→ <span class="node">${NODES_DATA[e.to]?.label || e.to}</span>` : `← <span class="node">${NODES_DATA[e.from]?.label || e.from}</span>`;
+    const timeStr   = e.time   ? `<div class="time">${e.time}</div>` : "";
+    const detailStr = e.detail ? `<div class="detail">${e.detail}</div>` : "";
+    const hiddenStr = e.hidden ? `<div class="detail" style="color:#ef4444">🔴 探偵には隠蔽</div>` : "";
+    return `<div class="nd-edge"><span class="rel">${e.rel}</span> ${direction}${timeStr}${detailStr}${hiddenStr}</div>`;
+  }).join("");
+
+  sidebar.innerHTML = `
+    <div class="node-detail">
+      <div class="nd-label">${n.label}</div>
+      <div class="nd-type">${n.type} / ${n.role} ${roleTag}</div>
+      <div class="nd-section">
+        <div class="nd-section-title">説明</div>
+        <div class="nd-prop">${descText}</div>
+      </div>
+      <div class="nd-section">
+        <div class="nd-section-title">関係するエッジ（${connectedEdges.length}件）</div>
+        ${edgeHTML || '<div class="nd-prop" style="color:#475569">なし</div>'}
+      </div>
+    </div>
+  `;
+});
+
+// ===== FILTERS =====
+function setButtons(active) {
+  document.querySelectorAll(".btn").forEach(b => b.classList.remove("active"));
+  active.classList.add("active");
+}
+
+function filterAll(btn) {
+  setButtons(btn);
+  nodes.update(allNodes);
+  edges.update(allEdges);
+}
+
+function filterGroup(type, btn) {
+  setButtons(btn);
+  const visible = new Set(Object.entries(NODES_DATA).filter(([,n]) => n.type === type).map(([id]) => id));
+  const updatedNodes = allNodes.map(n => ({ ...n, hidden: !visible.has(n.id) }));
+  const updatedEdges = allEdges.map(e => ({ ...e, hidden: !visible.has(e.from) && !visible.has(e.to) }));
+  nodes.update(updatedNodes);
+  edges.update(updatedEdges);
+}
+
+function filterSuspect(name, btn) {
+  setButtons(btn);
+  const edgeData = EDGES_DATA.filter(e => e.visible_to && (e.visible_to === "all" || e.visible_to.includes(name)));
+  const visibleNodeIds = new Set();
+  edgeData.forEach(e => { visibleNodeIds.add(e.from); visibleNodeIds.add(e.to); });
+  visibleNodeIds.add(name);
+
+  const updatedNodes = allNodes.map(n => ({ ...n, hidden: !visibleNodeIds.has(n.id) }));
+  const visibleEdgeIds = new Set(edgeData.map(e => e.id));
+  const updatedEdges = allEdges.map(e => ({ ...e, hidden: !visibleEdgeIds.has(e.id) }));
+  nodes.update(updatedNodes);
+  edges.update(updatedEdges);
+}
+</script>
+</body>
+</html>

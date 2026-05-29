@@ -1,0 +1,269 @@
+{
+  "scenario_id": "the_final_act",
+  "title": "The Final Act",
+  "setting": "The Meridian Theatre, downtown. Opening night of 'Shadows of Guilt'. The murder occurs during intermission at approximately 9:15 PM. The theatre holds 400 guests; cast and crew number around 30.",
+
+  "murder_details": {
+    "summary": "Marcus Vance was poisoned with cyanide dissolved in his private wine glass. The poison was introduced before Act 1. He drank from the glass during intermission and died alone in his locked dressing room at approximately 9:15 PM.",
+    "setting": "Marcus's private dressing room, backstage at the Meridian Theatre.",
+    "weapon": "Cyanide dissolved in wine",
+    "action": "Elena Rostova dissolved cyanide into Marcus's wine glass during a pre-show visit, then confirmed his death via the ventilation shaft after Act 1.",
+    "locked_room_note": "Marcus locked the door himself after Elena left via the vent shaft, unaware he had already been poisoned."
+  },
+
+  "knowledge_graph": {
+
+    "nodes": [
+
+      {
+        "id": "n_marcus",
+        "labels": ["Character", "Victim"],
+        "properties": {
+          "name": "Marcus Vance",
+          "role": "victim",
+          "bio": "Marcus Vance, 54, is a celebrated but ruthless theatre director known for his exacting standards and complete disregard for the people around him. He built his career by exploiting those who depended on him — holding debts, secrets, and contracts over their heads. On the night of his death he was found slumped at his dressing room desk, a glass of cyanide-laced wine beside him."
+        }
+      },
+
+      {
+        "id": "n_elena",
+        "labels": ["Character", "Suspect"],
+        "properties": {
+          "name": "Elena Rostova",
+          "role": "suspect",
+          "guilty": true,
+          "bio": "Elena Rostova, 34, is the lead actress of 'Shadows of Guilt'. Born in St. Petersburg, she rose quickly to prominence — but her gambling debts followed her. Two years ago, Marcus quietly purchased her debt contracts, transforming himself into her controller. Composed and precise on stage, she is brittle and calculating off it.",
+          "tags": ["composed", "calculating", "deflects with charm", "precise under pressure", "hides panic behind poise"],
+          "victim_connection": "Marcus held Elena's debt contracts and controlled every aspect of her professional and personal life for two years.",
+          "motive": "Freedom. With Marcus dead, the debt contracts die with him.",
+          "alibi_claim": "I was in my dressing room the entire intermission, touching up my makeup and greeting well-wishers.",
+          "interrogation_style": "Calm and composed. Deflects with charm. Steers suspicion toward Julian's letter or Leo's dismissal. Becomes flustered only if directly confronted with the compact mirror or the ventilation shaft."
+        }
+      },
+
+      {
+        "id": "n_julian",
+        "labels": ["Character", "Suspect"],
+        "properties": {
+          "name": "Dr. Julian Wilde",
+          "role": "suspect",
+          "guilty": false,
+          "bio": "Dr. Julian Wilde, 52, presents himself as a respected physician and patron of the arts. In reality, his medical credentials were purchased from an unaccredited institution fifteen years ago. He has poured significant funds into the Meridian Theatre. Three months ago, Marcus stumbled upon evidence of the fraudulent qualifications and began extracting money.",
+          "tags": ["authoritative", "verbose", "sweats under direct questioning", "name-drops frequently", "defensive about credentials"],
+          "victim_connection": "Marcus discovered Julian's fabricated medical credentials and was blackmailing him for cash payments in exchange for silence.",
+          "motive": "Marcus had escalating financial demands. Julian was running out of patience and money.",
+          "alibi_claim": "I was in the front-row stalls during Act 1 and in the lobby with Barton and Finch for the entire intermission. Ask them.",
+          "interrogation_style": "Authoritative and slightly condescending. Volunteers alibi quickly. Becomes evasive only when questioned about the torn letter or his credentials. Redirects suspicion toward Leo."
+        }
+      },
+
+      {
+        "id": "n_leo",
+        "labels": ["Character", "Suspect"],
+        "properties": {
+          "name": "Leo Cross",
+          "role": "suspect",
+          "guilty": false,
+          "bio": "Leo Cross, 43, has worked as a stagehand in theatre for over twenty years. He joined the Meridian crew eight months ago. That morning, Marcus berated him in front of the full crew over a minor prop placement error and fired him on the spot. Despite having his pass revoked, Leo showed up that evening to see the opening night of the show he had helped build.",
+          "tags": ["blunt", "emotional", "loyal to crew", "no filter", "obviously angry but honest"],
+          "victim_connection": "Marcus fired Leo without warning that morning after a trivial dispute, ending eight months of work.",
+          "motive": "Anger and humiliation over wrongful termination.",
+          "alibi_claim": "I was at the bar all night. Ask Tommy. I couldn't have got backstage even if I'd tried — they took my pass.",
+          "interrogation_style": "Blunt and defensive. Admits anger openly but insists on alibi without hesitation. Gets frustrated if pressed. Not smooth enough to be a convincing liar — which is why he isn't one."
+        }
+      },
+
+      {
+        "id": "n_cyanide_wine",
+        "labels": ["Item", "MurderWeapon"],
+        "properties": {
+          "name": "Cyanide Wine Glass",
+          "description": "Marcus's personal wine glass, found on his dressing room desk. Laboratory analysis confirms cyanide poisoning.",
+          "significance": "Murder weapon. Cyanide was introduced before Act 1 by Elena."
+        }
+      },
+
+      {
+        "id": "n_torn_letter",
+        "labels": ["Item", "Evidence"],
+        "properties": {
+          "name": "Torn Letter",
+          "description": "Several torn pieces of paper found in Marcus's bin, reassembled. An angry warning signed with the initials J.W., threatening to expose the blackmail. References a fraudulent medical licence.",
+          "significance": "Written by Julian Wilde. Strong evidence of motive — but Julian was not present when the poison took effect."
+        }
+      },
+
+      {
+        "id": "n_silver_compact",
+        "labels": ["Item", "Evidence"],
+        "properties": {
+          "name": "Silver Compact Mirror",
+          "description": "A small silver makeup compact, engraved with the initials E.R. Found inside the ventilation shaft, roughly halfway between Elena's dressing room and Marcus's.",
+          "significance": "Physical evidence placing Elena inside the ventilation shaft. She dropped it while crawling back after confirming Marcus's death."
+        }
+      },
+
+      {
+        "id": "n_vent_grate",
+        "labels": ["Item", "Evidence"],
+        "properties": {
+          "name": "Ventilation Grate",
+          "description": "The grate covering the vent entrance in Marcus's dressing room was found unscrewed and leaning against the wall. Screwdriver marks on the frame are old, suggesting prior tampering.",
+          "significance": "Confirms someone entered or exited via the shaft. Elena had loosened it during preparation."
+        }
+      },
+
+      {
+        "id": "n_locked_door",
+        "labels": ["Item", "RedHerring"],
+        "properties": {
+          "name": "Locked Door",
+          "description": "The dressing room door was locked from the inside with a deadbolt. The only key was found in Marcus's jacket pocket.",
+          "significance": "Red herring. Marcus locked it himself after Elena had already left via the vent shaft."
+        }
+      },
+
+      {
+        "id": "n_dressing_room",
+        "labels": ["Location", "CrimeScene"],
+        "properties": {
+          "name": "Marcus's Dressing Room",
+          "description": "Private room backstage. Locked from inside. Contains desk, mirror, wine glass, torn letter, unsealed vent grate."
+        }
+      },
+
+      {
+        "id": "n_vent_shaft",
+        "labels": ["Location", "EscapeRoute"],
+        "properties": {
+          "name": "Ventilation Shaft",
+          "description": "Narrow shaft running behind the backstage wall. Connects Elena's dressing room to Marcus's via the backstage corridor."
+        }
+      },
+
+      {
+        "id": "n_elena_room",
+        "labels": ["Location"],
+        "properties": {
+          "name": "Elena's Dressing Room",
+          "description": "Adjacent to Marcus's room. The vent shaft entrance is here. Elena was seen here during intermission by guests."
+        }
+      },
+
+      {
+        "id": "n_lobby",
+        "labels": ["Location", "AlibiLocation"],
+        "properties": {
+          "name": "Theatre Lobby",
+          "description": "Public foyer. Julian Wilde was here with investors Barton and Finch during the entire intermission."
+        }
+      },
+
+      {
+        "id": "n_bar",
+        "labels": ["Location", "AlibiLocation"],
+        "properties": {
+          "name": "Theatre Bar",
+          "description": "Ground-floor bar. Leo Cross was here from 8:00 PM onward, confirmed by bartender Tommy Reeves."
+        }
+      },
+
+      {
+        "id": "n_stage",
+        "labels": ["Location", "AlibiLocation"],
+        "properties": {
+          "name": "Stage",
+          "description": "Main performance space. Elena was visible here throughout Act 1 (7:15 PM – 9:00 PM)."
+        }
+      }
+
+    ],
+
+    "edges": [
+      { "id": "e1",  "from": "n_marcus",         "rel": "FOUND_DEAD_IN",    "to": "n_dressing_room",  "properties": { "visible_to": "all" } },
+      { "id": "e2",  "from": "n_cyanide_wine",    "rel": "FOUND_IN",         "to": "n_dressing_room",  "properties": { "visible_to": "all" } },
+      { "id": "e3",  "from": "n_cyanide_wine",    "rel": "KILLED",           "to": "n_marcus",         "properties": { "visible_to": "all" } },
+      { "id": "e4",  "from": "n_torn_letter",     "rel": "FOUND_IN",         "to": "n_dressing_room",  "properties": { "visible_to": "all" } },
+      { "id": "e5",  "from": "n_vent_grate",      "rel": "FOUND_IN",         "to": "n_dressing_room",  "properties": { "visible_to": "all" } },
+      { "id": "e6",  "from": "n_locked_door",     "rel": "FOUND_IN",         "to": "n_dressing_room",  "properties": { "visible_to": "all" } },
+      { "id": "e7",  "from": "n_silver_compact",  "rel": "FOUND_IN",         "to": "n_vent_shaft",     "properties": { "visible_to": "all" } },
+      { "id": "e8",  "from": "n_vent_shaft",      "rel": "CONNECTS_TO",      "to": "n_dressing_room",  "properties": { "visible_to": "all" } },
+      { "id": "e9",  "from": "n_vent_shaft",      "rel": "CONNECTS_TO",      "to": "n_elena_room",     "properties": { "visible_to": "all" } },
+
+      { "id": "e10", "from": "n_elena",           "rel": "HAS_MOTIVE",       "to": "n_marcus",         "properties": { "visible_to": "all",            "detail": "Debt contracts — Marcus controlled her career" } },
+      { "id": "e11", "from": "n_julian",          "rel": "HAS_MOTIVE",       "to": "n_marcus",         "properties": { "visible_to": "all",            "detail": "Fake credentials — Marcus was blackmailing him" } },
+      { "id": "e12", "from": "n_leo",             "rel": "HAS_MOTIVE",       "to": "n_marcus",         "properties": { "visible_to": "all",            "detail": "Wrongful termination on the morning of the murder" } },
+
+      { "id": "e13", "from": "n_elena",           "rel": "VISITED",          "to": "n_dressing_room",  "properties": { "visible_to": ["n_elena", "n_julian"], "time": "7:00 PM", "detail": "Claimed to discuss blocking notes" } },
+      { "id": "e14", "from": "n_elena",           "rel": "POISONED",         "to": "n_cyanide_wine",   "properties": { "visible_to": ["n_elena"],      "time": "7:00 PM", "hidden_from_detective": true } },
+      { "id": "e15", "from": "n_elena",           "rel": "PERFORMED_ON",     "to": "n_stage",          "properties": { "visible_to": "all",            "time": "7:15 PM - 9:00 PM" } },
+      { "id": "e16", "from": "n_elena",           "rel": "CRAWLED_THROUGH",  "to": "n_vent_shaft",     "properties": { "visible_to": ["n_elena"],      "time": "9:00 PM", "hidden_from_detective": true } },
+      { "id": "e17", "from": "n_elena",           "rel": "DROPPED",          "to": "n_silver_compact", "properties": { "visible_to": ["n_elena"],      "time": "9:05 PM", "hidden_from_detective": true } },
+      { "id": "e18", "from": "n_elena",           "rel": "OWNS",             "to": "n_silver_compact", "properties": { "visible_to": "all" } },
+      { "id": "e19", "from": "n_elena",           "rel": "WAS_IN",           "to": "n_elena_room",     "properties": { "visible_to": "all",            "time": "9:10 PM", "detail": "Alibi claim: touching up makeup" } },
+
+      { "id": "e20", "from": "n_julian",          "rel": "VISITED",          "to": "n_dressing_room",  "properties": { "visible_to": ["n_julian", "n_elena"], "time": "6:45 PM", "detail": "Confronted Marcus over blackmail demands" } },
+      { "id": "e21", "from": "n_julian",          "rel": "WROTE",            "to": "n_torn_letter",    "properties": { "visible_to": ["n_julian"],     "time": "7:00 PM" } },
+      { "id": "e22", "from": "n_torn_letter",     "rel": "WRITTEN_BY",       "to": "n_julian",         "properties": { "visible_to": "all" } },
+      { "id": "e23", "from": "n_julian",          "rel": "SAW",              "to": "n_elena",          "properties": { "visible_to": ["n_julian", "n_elena"], "time": "7:05 PM", "detail": "Passed each other in the corridor outside Marcus's room" } },
+      { "id": "e24", "from": "n_julian",          "rel": "HAS_ALIBI",        "to": "n_lobby",          "properties": { "visible_to": "all",            "time": "9:00 PM - 9:30 PM", "detail": "With investors Barton and Finch" } },
+
+      { "id": "e25", "from": "n_leo",             "rel": "FIRED_BY",         "to": "n_marcus",         "properties": { "visible_to": "all",            "time": "10:00 AM" } },
+      { "id": "e26", "from": "n_leo",             "rel": "HAS_ALIBI",        "to": "n_bar",            "properties": { "visible_to": "all",            "time": "8:00 PM onward", "detail": "Confirmed by bartender Tommy Reeves" } },
+      { "id": "e27", "from": "n_leo",             "rel": "CANNOT_ACCESS",    "to": "n_dressing_room",  "properties": { "visible_to": "all",            "detail": "Backstage pass revoked after firing" } }
+    ]
+  },
+
+  "suspects": [
+    {
+      "node_id": "n_elena",
+      "subgraph": {
+        "visible_edges": ["e1","e2","e3","e4","e5","e6","e7","e8","e9","e10","e11","e12","e13","e14","e15","e16","e17","e18","e19","e20","e22","e23","e24","e25","e26","e27"],
+        "hidden_edges":  ["e14","e16","e17"]
+      },
+      "timeline": [
+        { "time": "6:30 PM",          "action": "Arrived at theatre. Collected cyanide obtained earlier that week." },
+        { "time": "7:00 PM",          "action": "Visited Marcus's dressing room under pretence of discussing Act 2 blocking notes. Dissolved cyanide into his wine glass while his back was turned." },
+        { "time": "7:15 PM-9:00 PM",  "action": "Performed Act 1 on stage, visible to the entire audience." },
+        { "time": "9:00 PM",          "action": "Used two-minute blackout to access vent shaft from her dressing room. Crawled through to Marcus's room." },
+        { "time": "9:05 PM",          "action": "Confirmed Marcus was dead. Crawled back. Accidentally dropped silver compact in the shaft." },
+        { "time": "9:10 PM",          "action": "Returned to dressing room, repaired makeup, greeted visiting guests as normal." },
+        { "time": "9:20 PM",          "action": "Crew discovered body. Elena expressed shock with the other cast members." }
+      ]
+    },
+    {
+      "node_id": "n_julian",
+      "subgraph": {
+        "visible_edges": ["e1","e2","e3","e4","e5","e6","e7","e8","e9","e10","e11","e12","e15","e18","e19","e20","e21","e22","e23","e24","e25","e26","e27"],
+        "hidden_edges":  []
+      },
+      "timeline": [
+        { "time": "6:45 PM",          "action": "Went to Marcus's dressing room to confront him about the latest blackmail demand." },
+        { "time": "7:00 PM",          "action": "Wrote Marcus an angry letter threatening to go to the press. Tore it up and left pieces in Marcus's bin." },
+        { "time": "7:05 PM",          "action": "Left the dressing room. Passed Elena Rostova in the corridor." },
+        { "time": "7:30 PM-9:00 PM",  "action": "Sat in the front row of the stalls. Visible to dozens of audience members." },
+        { "time": "9:00 PM-9:30 PM",  "action": "In the lobby talking with investors Barton and Finch. Multiple witnesses." }
+      ]
+    },
+    {
+      "node_id": "n_leo",
+      "subgraph": {
+        "visible_edges": ["e1","e2","e3","e4","e5","e6","e7","e8","e9","e10","e11","e12","e15","e18","e19","e22","e24","e25","e26","e27"],
+        "hidden_edges":  []
+      },
+      "timeline": [
+        { "time": "10:00 AM",         "action": "Fired by Marcus in front of the full stage crew over a misplaced prop." },
+        { "time": "8:00 PM",          "action": "Arrived at theatre. Backstage pass revoked — went to the ground-floor bar." },
+        { "time": "8:00 PM-10:00 PM", "action": "At the bar all evening. Spoke with bartender Tommy Reeves. Bought three rounds." },
+        { "time": "9:20 PM",          "action": "Heard the commotion from the bar when the body was discovered. Stayed put until questioned." }
+      ]
+    }
+  ],
+
+  "solution": {
+    "killer_node": "n_elena",
+    "key_evidence_edges": ["e14","e16","e17","e18"],
+    "red_herring_edges":  ["e21","e22","e12"],
+    "explanation": "Elena poisoned Marcus's wine at 7:00 PM then escaped via the vent shaft after Act 1. Her silver compact, found in the shaft, is the decisive physical evidence. Julian looks guilty due to the torn letter but has a solid alibi. Leo has the strongest emotional motive but had no backstage access."
+  }
+}

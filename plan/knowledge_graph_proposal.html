@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知識グラフ導入提案 — Murder Mystery</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      line-height: 1.7;
+      padding: 40px 20px;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #f8fafc;
+      border-bottom: 2px solid #334155;
+      padding-bottom: 12px;
+      margin-bottom: 32px;
+    }
+    h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 40px 0 16px;
+    }
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin: 20px 0 8px;
+    }
+
+    p { color: #94a3b8; margin-bottom: 12px; }
+
+    /* Section cards */
+    .card {
+      background: #1e2532;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .card.red   { border-left: 4px solid #f87171; }
+    .card.amber { border-left: 4px solid #fbbf24; }
+    .card.green { border-left: 4px solid #34d399; }
+    .card.blue  { border-left: 4px solid #60a5fa; }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .card.red   .card-title { color: #f87171; }
+    .card.amber .card-title { color: #fbbf24; }
+    .card.green .card-title { color: #34d399; }
+    .card.blue  .card-title { color: #60a5fa; }
+
+    /* Code blocks */
+    pre {
+      background: #0f1117;
+      border: 1px solid #2d3748;
+      border-radius: 6px;
+      padding: 16px;
+      font-size: 0.82rem;
+      overflow-x: auto;
+      margin: 12px 0;
+      color: #a5f3fc;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      line-height: 1.6;
+    }
+
+    /* Flow diagram */
+    .flow {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0;
+    }
+    .flow-box {
+      background: #1e2532;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      color: #e2e8f0;
+      white-space: nowrap;
+    }
+    .flow-arrow { color: #475569; font-size: 1.2rem; }
+
+    /* Comparison table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.88rem;
+    }
+    th {
+      background: #1e2532;
+      color: #94a3b8;
+      font-weight: 600;
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid #334155;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #1e2532;
+      color: #94a3b8;
+      vertical-align: top;
+    }
+    tr:hover td { background: #1a2030; }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .tag.bad  { background: #450a0a; color: #f87171; }
+    .tag.good { background: #052e16; color: #34d399; }
+
+    /* Graph visual */
+    .graph-container {
+      background: #0f1117;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 24px;
+      margin: 16px 0;
+      font-family: monospace;
+      font-size: 0.82rem;
+      line-height: 1.9;
+      color: #64748b;
+    }
+    .node-global  { color: #f8fafc; font-weight: 700; }
+    .node-person  { color: #60a5fa; }
+    .node-event   { color: #fbbf24; }
+    .node-place   { color: #34d399; }
+    .node-object  { color: #f87171; }
+    .edge         { color: #475569; }
+    .node-guilty  { color: #f87171; font-weight: 700; }
+    .subgraph-title { color: #94a3b8; font-size: 0.78rem; margin-top: 16px; }
+
+    footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid #1e2532;
+      color: #334155;
+      font-size: 0.78rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>知識グラフ導入提案</h1>
+  <p>Murder Mystery ゲームにおける現状の問題点と、知識グラフを用いた改善の意義をまとめたドキュメント。</p>
+
+  <!-- ===== SECTION 1 ===== -->
+  <h2>1. 現在のアーキテクチャ</h2>
+
+  <h3>処理フロー</h3>
+  <div class="flow">
+    <div class="flow-box">メモリ .txt</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">チャンク分割</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">nomic-embed-text</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">ChromaDB</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">類似検索 (k=4)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">LLMプロンプトに注入</div>
+  </div>
+
+  <h3>プロンプト構造</h3>
+  <pre>
+[system]
+You are a suspect in a murder...
+{plot summary}
+{innocent/guilty instruction}
+
+[user]
+[Memories surfacing in your mind]
+{ChromaDB から取得した類似チャンク × 4}
+
+Detective's question: {プレイヤーの質問}
+  </pre>
+
+  <!-- ===== SECTION 2 ===== -->
+  <h2>2. 現状の問題点</h2>
+
+  <div class="card red">
+    <div class="card-title">問題 1 ― キャラクターの混同</div>
+    <p>
+      LLM が会話ターンを重ねるうちに「自分が誰であるか」を見失う。
+      Dr. Pemberton が自分自身を第三者として言及する例が実際に発生した。
+    </p>
+    <pre>
+// 実際の応答例（Dr. Pemberton への質問）
+"I spoke with Dr. Pemberton there..."
+// → 自分自身を第三者として言及している
+    </pre>
+    <p><strong>根本原因：</strong>システムプロンプトにキャラクター名の明示的なアンカーがなく、長い会話履歴の中でアイデンティティが薄れる。</p>
+  </div>
+
+  <div class="card red">
+    <div class="card-title">問題 2 ― 事実の捏造（ハルシネーション）</div>
+    <p>
+      Charles Ashworth がメモリファイルに存在しない行動（「10:30PMに帰宅した」）を作り上げた。
+      LLM が記憶として与えられた事実を無視し、もっともらしい回答を生成してしまう。
+    </p>
+    <pre>
+// メモリファイル
+"From about 9:30 to 10:30 I was in the billiard room..."
+
+// 実際の応答
+"By 10:30 PM, I had left to go back home."
+// → 全く異なる事実を捏造している
+    </pre>
+    <p><strong>根本原因：</strong>自由テキストのチャンクは「参考情報」として扱われ、LLM がそれを厳守する拘束力がない。</p>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">問題 3 ― チャンクの文脈欠落</div>
+    <p>
+      1000文字でチャンク分割されるため、関連する前後の文脈が別チャンクに切り離される。
+      「10:45PMに書斎に入った」という事実がその理由（バッグを取りに行った）と分断される場合がある。
+    </p>
+    <p><strong>根本原因：</strong>テキストの意味単位ではなく文字数でチャンクを作るため、意味的な完結性が保証されない。</p>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">問題 4 ― キャラクター間の情報漏洩</div>
+    <p>
+      システムプロンプトに全容疑者の情報が含まれており、LLM が他のキャラクターの視点や情報を誤って使用する可能性がある。
+      「Victoria が書斎にいた」という情報を知らないはずのキャラクターが言及するリスクがある。
+    </p>
+  </div>
+
+  <!-- ===== SECTION 3 ===== -->
+  <h2>3. 知識グラフによる改善</h2>
+
+  <h3>グラフ構造のイメージ</h3>
+  <div class="graph-container">
+    <span class="node-global">【全体グラフ（真実）】</span><br><br>
+
+    <span class="node-person">Victoria</span>
+    <span class="edge"> ──[10:15PM に入室]──→ </span>
+    <span class="node-place">書斎</span>
+    <span class="edge"> ──[を使用]──→ </span>
+    <span class="node-object">ヒ素</span>
+    <span class="edge"> ──[注入先]──→ </span>
+    <span class="node-object">ブランデーデカンタ</span><br>
+
+    <span class="node-person">Pemberton</span>
+    <span class="edge"> ──[10:45PM に入室]──→ </span>
+    <span class="node-place">書斎</span>
+    <span class="edge"> ──[目的]──→ </span>
+    <span class="node-object">医療バッグ回収</span><br>
+
+    <span class="node-person">Charles</span>
+    <span class="edge"> ──[10:45PM に到達]──→ </span>
+    <span class="node-place">書斎前廊下</span>
+    <span class="edge"> ──[行動]──→ </span>
+    <span class="node-event">引き返した</span><br>
+
+    <span class="node-person">Sir Reginald</span>
+    <span class="edge"> ──[11:45PM]──→ </span>
+    <span class="node-event">死亡</span>
+    <span class="edge"> ──[原因]──→ </span>
+    <span class="node-object">ヒ素中毒</span><br><br>
+
+    <span class="subgraph-title">--- Victoria のサブグラフ（本人に与える情報）---</span><br>
+    <span class="node-guilty">Victoria</span>
+    <span class="edge"> ──[知っている]──→ </span>
+    <span class="node-event">殺害事実</span>
+    <span class="edge"> ──[隠蔽指示]──→ </span>
+    <span class="node-event">探偵には言わない</span><br>
+    <span class="node-guilty">Victoria</span>
+    <span class="edge"> ──[アリバイとして主張]──→ </span>
+    <span class="node-place">入口ホール (10:30-11:00)</span><br><br>
+
+    <span class="subgraph-title">--- Pemberton のサブグラフ（本人に与える情報）---</span><br>
+    <span class="node-person">Pemberton</span>
+    <span class="edge"> ──[知っている]──→ </span>
+    <span class="node-event">自分の行動</span><br>
+    <span class="node-person">Pemberton</span>
+    <span class="edge"> ──[知らない]──→ </span>
+    <span class="node-event">Victoria の書斎入室</span>
+  </div>
+
+  <!-- ===== SECTION 4 ===== -->
+  <h2>4. 現在の RAG との比較</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>観点</th>
+        <th>現在（RAG）</th>
+        <th>知識グラフ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>事実の拘束力</td>
+        <td><span class="tag bad">弱い</span> 参考情報として渡すだけ</td>
+        <td><span class="tag good">強い</span> グラフのエッジが「言えること」を規定</td>
+      </tr>
+      <tr>
+        <td>キャラクター分離</td>
+        <td><span class="tag bad">不完全</span> 全容疑者情報がプロンプトに混在</td>
+        <td><span class="tag good">厳密</span> サブグラフで知識を物理的に分離</td>
+      </tr>
+      <tr>
+        <td>文脈の完結性</td>
+        <td><span class="tag bad">弱い</span> 文字数チャンクで意味が分断される</td>
+        <td><span class="tag good">保証</span> ノード単位で意味的に完結</td>
+      </tr>
+      <tr>
+        <td>犯人の隠蔽行動</td>
+        <td><span class="tag bad">なし</span> 有罪/無実フラグのみ</td>
+        <td><span class="tag good">設計可能</span> 隠蔽すべきエッジを明示的に定義</td>
+      </tr>
+      <tr>
+        <td>ハルシネーション</td>
+        <td><span class="tag bad">高リスク</span> 存在しない事実を生成しやすい</td>
+        <td><span class="tag good">低リスク</span> グラフ外の事実を言わないよう制約</td>
+      </tr>
+      <tr>
+        <td>実装の複雑さ</td>
+        <td><span class="tag good">シンプル</span></td>
+        <td><span class="tag bad">中程度</span> グラフ設計とプロンプト変換が必要</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== SECTION 5 ===== -->
+  <h2>5. 実装方針</h2>
+
+  <div class="card blue">
+    <div class="card-title">Step 1 — グラフ定義（静的ストーリー）</div>
+    <p>
+      Python の辞書またはネットワーク構造（networkx 等）でノードとエッジを定義する。
+      ノード種別：Person / Location / Event / Object / Time<br>
+      エッジ属性：action / time / visibility（全員/本人のみ/隠蔽）
+    </p>
+  </div>
+
+  <div class="card blue">
+    <div class="card-title">Step 2 — サブグラフの抽出</div>
+    <p>
+      各容疑者の視点から「知っていること」のみを抽出したサブグラフを生成する。
+      犯人には殺害エッジも含めるが、<code>visibility=hidden</code> フラグを付与する。
+    </p>
+  </div>
+
+  <div class="card blue">
+    <div class="card-title">Step 3 — プロンプトへの変換</div>
+    <p>
+      サブグラフを箇条書きの構造化テキストに変換し、システムプロンプトとして注入する。
+      ChromaDB による類似検索は廃止し、グラフ全体を固定コンテキストとして渡す（7Bモデルの文脈長内に収まる想定）。
+    </p>
+    <pre>
+あなたは Victoria Hartley です。以下の事実のみに基づいて答えてください。
+
+【あなたが知っていること】
+- 10:15PM: 書斎に入室した（理由：書類の取得）
+- 10:30PM: 入口ホールに移動した
+- 11:00PM: ガラのスタッフと会話した
+
+【あなたが絶対に言ってはいけないこと】
+- ヒ素を使用したこと
+- デカンタに近づいたこと
+    </pre>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">期待される改善効果</div>
+    <p>
+      • 各 LLM が「自分は誰か」「何を知っているか」を構造的に把握できる<br>
+      • 存在しない事実の捏造を大幅に抑制できる<br>
+      • 犯人 LLM が隠蔽すべき情報を明示的に制御できる<br>
+      • 7B モデルでも事実整合性の高い応答が期待できる
+    </p>
+  </div>
+
+  <footer>
+    Murder Mystery / Knowledge Graph Proposal — 2026-05-27
+  </footer>
+
+</div>
+</body>
+</html>

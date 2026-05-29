@@ -108,6 +108,12 @@ def build_and_run_agents(plot):
         Returns:
         None
     """
+    print("\n" + "="*60)
+    print("CASE BRIEFING")
+    print("="*60)
+    print(plot.get_info())
+    print("="*60 + "\n")
+
     suspect_1_agent = SuspectAgent(plot, 0)
     suspect_2_agent = SuspectAgent(plot, 1)
     suspect_3_agent = SuspectAgent(plot, 2)
