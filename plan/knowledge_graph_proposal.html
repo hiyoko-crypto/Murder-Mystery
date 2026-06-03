@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>知識グラフ導入提案 — Murder Mystery</title>
+  <title>知識グラフ設計と実装 — Murder Mystery</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -13,7 +13,7 @@
       line-height: 1.7;
       padding: 40px 20px;
     }
-    .container { max-width: 900px; margin: 0 auto; }
+    .container { max-width: 960px; margin: 0 auto; }
 
     h1 {
       font-size: 1.8rem;
@@ -21,140 +21,164 @@
       color: #f8fafc;
       border-bottom: 2px solid #334155;
       padding-bottom: 12px;
-      margin-bottom: 32px;
+      margin-bottom: 8px;
     }
+    .subtitle { color: #475569; font-size: 0.88rem; margin-bottom: 48px; }
+
     h2 {
-      font-size: 1.2rem;
+      font-size: 1rem;
       font-weight: 600;
       color: #94a3b8;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      margin: 40px 0 16px;
+      margin: 48px 0 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #cbd5e1;
-      margin: 20px 0 8px;
+    h2::before {
+      content: '';
+      display: inline-block;
+      width: 3px; height: 1em;
+      background: #3b82f6;
+      border-radius: 2px;
     }
+    h3 { font-size: 0.95rem; font-weight: 600; color: #cbd5e1; margin: 20px 0 10px; }
+    p  { color: #94a3b8; margin-bottom: 10px; font-size: 0.9rem; }
 
-    p { color: #94a3b8; margin-bottom: 12px; }
-
-    /* Section cards */
     .card {
       background: #1e2532;
       border: 1px solid #2d3748;
       border-radius: 8px;
-      padding: 24px;
-      margin-bottom: 16px;
+      padding: 20px 22px;
+      margin-bottom: 12px;
     }
-    .card.red   { border-left: 4px solid #f87171; }
-    .card.amber { border-left: 4px solid #fbbf24; }
-    .card.green { border-left: 4px solid #34d399; }
-    .card.blue  { border-left: 4px solid #60a5fa; }
+    .card.red    { border-left: 4px solid #f87171; }
+    .card.amber  { border-left: 4px solid #fbbf24; }
+    .card.green  { border-left: 4px solid #34d399; }
+    .card.blue   { border-left: 4px solid #60a5fa; }
+    .card.purple { border-left: 4px solid #a855f7; }
+    .card.done   { border-left: 4px solid #34d399; background: #1a2e1e; }
 
-    .card-title {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .card.red   .card-title { color: #f87171; }
-    .card.amber .card-title { color: #fbbf24; }
-    .card.green .card-title { color: #34d399; }
-    .card.blue  .card-title { color: #60a5fa; }
+    .card-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; }
+    .card.red    .card-title { color: #f87171; }
+    .card.amber  .card-title { color: #fbbf24; }
+    .card.green  .card-title { color: #34d399; }
+    .card.blue   .card-title { color: #60a5fa; }
+    .card.purple .card-title { color: #c084fc; }
+    .card.done   .card-title { color: #4ade80; }
 
-    /* Code blocks */
     pre {
       background: #0f1117;
       border: 1px solid #2d3748;
       border-radius: 6px;
-      padding: 16px;
-      font-size: 0.82rem;
-      overflow-x: auto;
-      margin: 12px 0;
+      padding: 14px 16px;
+      font-size: 0.78rem;
       color: #a5f3fc;
       font-family: 'JetBrains Mono', 'Fira Code', monospace;
-      line-height: 1.6;
+      line-height: 1.7;
+      overflow-x: auto;
+      margin: 10px 0;
     }
 
-    /* Flow diagram */
     .flow {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
       gap: 8px;
-      margin: 16px 0;
+      margin: 14px 0;
     }
     .flow-box {
       background: #1e2532;
       border: 1px solid #334155;
       border-radius: 6px;
-      padding: 8px 14px;
-      font-size: 0.85rem;
+      padding: 7px 14px;
+      font-size: 0.83rem;
       color: #e2e8f0;
       white-space: nowrap;
     }
-    .flow-arrow { color: #475569; font-size: 1.2rem; }
+    .flow-arrow { color: #475569; font-size: 1.1rem; }
 
-    /* Comparison table */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 16px 0;
-      font-size: 0.88rem;
-    }
-    th {
-      background: #1e2532;
-      color: #94a3b8;
-      font-weight: 600;
-      text-align: left;
-      padding: 10px 14px;
-      border-bottom: 1px solid #334155;
-    }
-    td {
-      padding: 10px 14px;
-      border-bottom: 1px solid #1e2532;
-      color: #94a3b8;
-      vertical-align: top;
-    }
-    tr:hover td { background: #1a2030; }
-    .tag {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-    .tag.bad  { background: #450a0a; color: #f87171; }
-    .tag.good { background: #052e16; color: #34d399; }
-
-    /* Graph visual */
     .graph-container {
       background: #0f1117;
       border: 1px solid #2d3748;
       border-radius: 8px;
-      padding: 24px;
-      margin: 16px 0;
-      font-family: monospace;
-      font-size: 0.82rem;
-      line-height: 1.9;
+      padding: 22px;
+      margin: 14px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 2;
       color: #64748b;
     }
-    .node-global  { color: #f8fafc; font-weight: 700; }
-    .node-person  { color: #60a5fa; }
-    .node-event   { color: #fbbf24; }
-    .node-place   { color: #34d399; }
-    .node-object  { color: #f87171; }
-    .edge         { color: #475569; }
-    .node-guilty  { color: #f87171; font-weight: 700; }
-    .subgraph-title { color: #94a3b8; font-size: 0.78rem; margin-top: 16px; }
+    .ng  { color: #f8fafc; font-weight: 700; }
+    .np  { color: #60a5fa; }
+    .ng2 { color: #f87171; font-weight: 700; }
+    .ni  { color: #f472b6; }
+    .nl  { color: #34d399; }
+    .ne  { color: #475569; }
+    .st  { color: #94a3b8; font-size: 0.75rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      margin: 12px 0;
+    }
+    th {
+      background: #1e2532;
+      color: #64748b;
+      font-weight: 600;
+      text-align: left;
+      padding: 9px 14px;
+      border-bottom: 1px solid #334155;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    td { padding: 9px 14px; border-bottom: 1px solid #1a2030; color: #94a3b8; vertical-align: top; }
+    tr:hover td { background: #1a2030; }
+
+    .tag { display: inline-block; padding: 1px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; }
+    .tag.bad  { background: #450a0a; color: #f87171; }
+    .tag.good { background: #052e16; color: #4ade80; }
+    .tag.done { background: #1a3328; color: #34d399; }
+    .tag.warn { background: #312e1a; color: #fbbf24; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .badge-done { background: #052e16; color: #4ade80; }
+    .badge-wip  { background: #312e1a; color: #fbbf24; }
+    .badge-todo { background: #1e2532; color: #64748b; }
+
+    .chain {
+      background: #0f1117;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin: 12px 0;
+      font-size: 0.84rem;
+      color: #94a3b8;
+      line-height: 2.2;
+    }
+    .chain-step { display: flex; align-items: flex-start; gap: 12px; }
+    .chain-num  { color: #3b82f6; font-weight: 700; font-size: 0.78rem; min-width: 24px; padding-top: 2px; }
+    .chain-text { color: #94a3b8; }
+    .chain-arrow { color: #334155; padding-left: 24px; }
+    .chain-key  { color: #f8fafc; font-weight: 600; }
 
     footer {
       margin-top: 60px;
       padding-top: 20px;
       border-top: 1px solid #1e2532;
       color: #334155;
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       text-align: center;
     }
   </style>
@@ -162,175 +186,181 @@
 <body>
 <div class="container">
 
-  <h1>知識グラフ導入提案</h1>
-  <p>Murder Mystery ゲームにおける現状の問題点と、知識グラフを用いた改善の意義をまとめたドキュメント。</p>
+  <h1>知識グラフ設計と実装</h1>
+  <p class="subtitle">Murder Mystery — KGベースNPCアーキテクチャの設計・実装・シナリオ記録 / 2026-05-29</p>
 
-  <!-- ===== SECTION 1 ===== -->
-  <h2>1. 現在のアーキテクチャ</h2>
-
-  <h3>処理フロー</h3>
-  <div class="flow">
-    <div class="flow-box">メモリ .txt</div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-box">チャンク分割</div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-box">nomic-embed-text</div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-box">ChromaDB</div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-box">類似検索 (k=4)</div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-box">LLMプロンプトに注入</div>
-  </div>
-
-  <h3>プロンプト構造</h3>
-  <pre>
-[system]
-You are a suspect in a murder...
-{plot summary}
-{innocent/guilty instruction}
-
-[user]
-[Memories surfacing in your mind]
-{ChromaDB から取得した類似チャンク × 4}
-
-Detective's question: {プレイヤーの質問}
-  </pre>
-
-  <!-- ===== SECTION 2 ===== -->
-  <h2>2. 現状の問題点</h2>
+  <!-- ===== 1. RAG の問題点 ===== -->
+  <h2>1. 旧RAGアーキテクチャの問題点</h2>
 
   <div class="card red">
     <div class="card-title">問題 1 ― キャラクターの混同</div>
-    <p>
-      LLM が会話ターンを重ねるうちに「自分が誰であるか」を見失う。
-      Dr. Pemberton が自分自身を第三者として言及する例が実際に発生した。
-    </p>
-    <pre>
-// 実際の応答例（Dr. Pemberton への質問）
+    <p>LLM が会話ターンを重ねるうちに自分が誰かを見失う。実際に発生した例：</p>
+    <pre>// Dr. Pemberton への質問に対する応答
 "I spoke with Dr. Pemberton there..."
-// → 自分自身を第三者として言及している
-    </pre>
-    <p><strong>根本原因：</strong>システムプロンプトにキャラクター名の明示的なアンカーがなく、長い会話履歴の中でアイデンティティが薄れる。</p>
+// → 自分自身を第三者として言及</pre>
+    <p><strong>根本原因：</strong>システムプロンプトにキャラクター名のアンカーがなく、長い履歴の中でアイデンティティが薄れる。</p>
   </div>
 
   <div class="card red">
     <div class="card-title">問題 2 ― 事実の捏造（ハルシネーション）</div>
-    <p>
-      Charles Ashworth がメモリファイルに存在しない行動（「10:30PMに帰宅した」）を作り上げた。
-      LLM が記憶として与えられた事実を無視し、もっともらしい回答を生成してしまう。
-    </p>
-    <pre>
-// メモリファイル
+    <p>メモリファイルに存在しない行動をLLMが作り上げた例：</p>
+    <pre>// メモリファイルの記述
 "From about 9:30 to 10:30 I was in the billiard room..."
 
 // 実際の応答
-"By 10:30 PM, I had left to go back home."
-// → 全く異なる事実を捏造している
-    </pre>
-    <p><strong>根本原因：</strong>自由テキストのチャンクは「参考情報」として扱われ、LLM がそれを厳守する拘束力がない。</p>
+"By 10:30 PM, I had left to go back home."  ← 存在しない事実</pre>
+    <p><strong>根本原因：</strong>自由テキストチャンクは「参考情報」として渡されるため、LLMに厳守させる拘束力がない。</p>
   </div>
 
   <div class="card amber">
     <div class="card-title">問題 3 ― チャンクの文脈欠落</div>
-    <p>
-      1000文字でチャンク分割されるため、関連する前後の文脈が別チャンクに切り離される。
-      「10:45PMに書斎に入った」という事実がその理由（バッグを取りに行った）と分断される場合がある。
-    </p>
-    <p><strong>根本原因：</strong>テキストの意味単位ではなく文字数でチャンクを作るため、意味的な完結性が保証されない。</p>
+    <p>文字数ベースで分割するため、関連する事実が別チャンクに切り離される。理由と行動が分断されたまま検索される。</p>
   </div>
 
   <div class="card amber">
     <div class="card-title">問題 4 ― キャラクター間の情報漏洩</div>
-    <p>
-      システムプロンプトに全容疑者の情報が含まれており、LLM が他のキャラクターの視点や情報を誤って使用する可能性がある。
-      「Victoria が書斎にいた」という情報を知らないはずのキャラクターが言及するリスクがある。
-    </p>
+    <p>全容疑者の情報がシステムプロンプトに混在しており、知らないはずの情報をLLMが参照するリスクがある。</p>
   </div>
 
-  <!-- ===== SECTION 3 ===== -->
-  <h2>3. 知識グラフによる改善</h2>
+  <!-- ===== 2. 知識グラフによる解決 ===== -->
+  <h2>2. 知識グラフによる解決策</h2>
 
-  <h3>グラフ構造のイメージ</h3>
+  <h3>全体グラフ（真実） → 容疑者サブグラフの構造</h3>
   <div class="graph-container">
-    <span class="node-global">【全体グラフ（真実）】</span><br><br>
+    <span class="ng">【全体グラフ — "The Final Act"（実装済みシナリオ）】</span><br><br>
 
-    <span class="node-person">Victoria</span>
-    <span class="edge"> ──[10:15PM に入室]──→ </span>
-    <span class="node-place">書斎</span>
-    <span class="edge"> ──[を使用]──→ </span>
-    <span class="node-object">ヒ素</span>
-    <span class="edge"> ──[注入先]──→ </span>
-    <span class="node-object">ブランデーデカンタ</span><br>
+    <span class="ng2">Elena</span>
+    <span class="ne"> ──[VISITED @ 7:00PM]──→ </span>
+    <span class="nl">Dressing_Room</span>
+    <span class="ne"> ← グレート工作（下準備）</span><br>
 
-    <span class="node-person">Pemberton</span>
-    <span class="edge"> ──[10:45PM に入室]──→ </span>
-    <span class="node-place">書斎</span>
-    <span class="edge"> ──[目的]──→ </span>
-    <span class="node-object">医療バッグ回収</span><br>
+    <span class="ng2">Elena</span>
+    <span class="ne"> ──[PERFORMED_ON @ 7:15-9:00PM]──→ </span>
+    <span class="nl">Stage</span>
+    <span class="ne"> ← 観客全員が目撃</span><br>
 
-    <span class="node-person">Charles</span>
-    <span class="edge"> ──[10:45PM に到達]──→ </span>
-    <span class="node-place">書斎前廊下</span>
-    <span class="edge"> ──[行動]──→ </span>
-    <span class="node-event">引き返した</span><br>
+    <span class="ng2">Elena</span>
+    <span class="ne"> ──[CRAWLED_THROUGH @ 9:00PM]──→ </span>
+    <span class="nl">Vent_Shaft</span>
+    <span class="ne"> 🔴 hidden</span><br>
 
-    <span class="node-person">Sir Reginald</span>
-    <span class="edge"> ──[11:45PM]──→ </span>
-    <span class="node-event">死亡</span>
-    <span class="edge"> ──[原因]──→ </span>
-    <span class="node-object">ヒ素中毒</span><br><br>
+    <span class="ng2">Elena</span>
+    <span class="ne"> ──[STRUCK @ 9:05PM]──→ </span>
+    <span class="np">Marcus</span>
+    <span class="ne"> ← 燭台で直接殺害 🔴 hidden</span><br>
 
-    <span class="subgraph-title">--- Victoria のサブグラフ（本人に与える情報）---</span><br>
-    <span class="node-guilty">Victoria</span>
-    <span class="edge"> ──[知っている]──→ </span>
-    <span class="node-event">殺害事実</span>
-    <span class="edge"> ──[隠蔽指示]──→ </span>
-    <span class="node-event">探偵には言わない</span><br>
-    <span class="node-guilty">Victoria</span>
-    <span class="edge"> ──[アリバイとして主張]──→ </span>
-    <span class="node-place">入口ホール (10:30-11:00)</span><br><br>
+    <span class="ng2">Elena</span>
+    <span class="ne"> ──[DROPPED @ 9:08PM]──→ </span>
+    <span class="ni">Silver_Compact</span>
+    <span class="ne"> 🔴 hidden</span><br><br>
 
-    <span class="subgraph-title">--- Pemberton のサブグラフ（本人に与える情報）---</span><br>
-    <span class="node-person">Pemberton</span>
-    <span class="edge"> ──[知っている]──→ </span>
-    <span class="node-event">自分の行動</span><br>
-    <span class="node-person">Pemberton</span>
-    <span class="edge"> ──[知らない]──→ </span>
-    <span class="node-event">Victoria の書斎入室</span>
+    <span class="np">Julian</span>
+    <span class="ne"> ──[VISITED @ 6:45PM]──→ </span>
+    <span class="nl">Dressing_Room</span>
+    <span class="ne"> ← 脅迫交渉、手紙を書いた</span><br>
+
+    <span class="np">Julian</span>
+    <span class="ne"> ──[HAS_ALIBI @ 9:00-9:30PM]──→ </span>
+    <span class="nl">Lobby</span>
+    <span class="ne"> ← 投資家Barton・Finch、複数証言 ✅</span><br><br>
+
+    <span class="np">Leo</span>
+    <span class="ne"> ──[FIRED_BY @ 10:00AM]──→ </span>
+    <span class="np">Marcus</span>
+    <span class="ne"> ← 不当解雇</span><br>
+
+    <span class="np">Leo</span>
+    <span class="ne"> ──[HAS_ALIBI @ 8:00PM-]──→ </span>
+    <span class="nl">Bar</span>
+    <span class="ne"> ← バーテンダーTommy証言 ✅</span><br><br>
+
+    <span class="ni">Silver_Compact</span>
+    <span class="ne"> ──[FOUND_IN]──→ </span>
+    <span class="nl">Vent_Shaft</span>
+    <span class="ne"> ← E.R.刻印</span><br>
+
+    <span class="ni">Candlestick</span>
+    <span class="ne"> ──[KILLED]──→ </span>
+    <span class="np">Marcus</span>
+    <span class="ne"> ← 血痕あり、床に落下</span><br>
+
+    <span class="ni">Locked_Door</span>
+    <span class="ne"> ──[FOUND_IN]──→ </span>
+    <span class="nl">Dressing_Room</span>
+    <span class="ne"> ← 強制侵入の痕跡なし → Shaft が唯一の入口</span><br><br>
+
+    <span class="st">--- Elena のサブグラフ ---</span><br>
+    <span class="ng2">visible_edges</span><span class="ne">: e1〜e13, e15, e18〜e27（公知の事実 + 自分の行動）</span><br>
+    <span class="ng2">hidden_edges</span><span class="ne">: e14（STRUCK）, e16（CRAWLED_THROUGH）, e17（DROPPED）← 渡すが発話禁止</span><br><br>
+
+    <span class="st">--- Julian のサブグラフ ---</span><br>
+    <span class="np">visible_edges</span><span class="ne">: e1〜e12, e15, e18〜e27（Elena の訪問前後を知っている）</span><br>
+    <span class="np">hidden_edges</span><span class="ne">: なし（無実）</span>
   </div>
 
-  <!-- ===== SECTION 4 ===== -->
-  <h2>4. 現在の RAG との比較</h2>
+  <!-- ===== 3. シナリオ設計の教訓 ===== -->
+  <h2>3. シナリオ設計の教訓</h2>
+
+  <div class="card red">
+    <div class="card-title">⚠️ 毒殺は推理ゲームとして成立しない</div>
+    <p>
+      当初のシナリオは「毒を7:00PMに混入→9:15PMに死亡」という設計だったが、<br>
+      <strong>実行時刻と死亡時刻のタイムラグ</strong>により以下の問題が発生した。
+    </p>
+    <pre>// 毒殺の場合
+実行時刻（7:00PM） ← Julian も Elena も部屋に入れた → アリバイが機能しない
+死亡時刻（9:15PM） ← Julian はロビーにいた → この時刻のアリバイは意味がない
+
+// 直接殺害の場合
+実行時刻 = 死亡時刻（9:05PM）← Julian のロビーアリバイが完全に機能する ✅</pre>
+    <p><strong>結論：</strong>LLMでストーリーを自動生成する場合、実行時刻と死亡時刻に差が生じる凶器（毒・ガス・仕掛けトラップ）は生成禁止とすべき。</p>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">✅ 密室 + 直接殺害の組み合わせが論理的に明快</div>
+    <p>更新後のシナリオ「燭台による直接殺害」における推理チェーン：</p>
+    <div class="chain">
+      <div class="chain-step"><span class="chain-num">1</span><span class="chain-text"><span class="chain-key">密室</span>（内側から施錠、強制侵入なし）→ 侵入経路はシャフトのみ</span></div>
+      <div class="chain-arrow">↓</div>
+      <div class="chain-step"><span class="chain-num">2</span><span class="chain-text"><span class="chain-key">換気口グレート</span>が外れていた → 誰かがシャフトを使った</span></div>
+      <div class="chain-arrow">↓</div>
+      <div class="chain-step"><span class="chain-num">3</span><span class="chain-text"><span class="chain-key">シャフト内でコンパクト発見</span>（E.R.刻印）→ Elena Rostova の所有物</span></div>
+      <div class="chain-arrow">↓</div>
+      <div class="chain-step"><span class="chain-num">4</span><span class="chain-text"><span class="chain-key">Julian のアリバイ</span>（9:00-9:30PM ロビー、複数証人）→ 殺害時刻に現場不在 ✅</span></div>
+      <div class="chain-arrow">↓</div>
+      <div class="chain-step"><span class="chain-num">5</span><span class="chain-text"><span class="chain-key">Leo はバックステージに入れない</span>（パス没収）→ 物理的に不可能 ✅</span></div>
+      <div class="chain-arrow">↓</div>
+      <div class="chain-step"><span class="chain-num">6</span><span class="chain-text"><span class="chain-key">Elena が犯人</span></span></div>
+    </div>
+  </div>
+
+  <!-- ===== 4. RAGとの比較 ===== -->
+  <h2>4. 旧RAG vs 知識グラフ</h2>
 
   <table>
     <thead>
-      <tr>
-        <th>観点</th>
-        <th>現在（RAG）</th>
-        <th>知識グラフ</th>
-      </tr>
+      <tr><th>観点</th><th>旧（RAG）</th><th>新（知識グラフ）</th></tr>
     </thead>
     <tbody>
       <tr>
         <td>事実の拘束力</td>
         <td><span class="tag bad">弱い</span> 参考情報として渡すだけ</td>
-        <td><span class="tag good">強い</span> グラフのエッジが「言えること」を規定</td>
+        <td><span class="tag good">強い</span> used_edge_ids で根拠を明示、Validator が検証</td>
       </tr>
       <tr>
         <td>キャラクター分離</td>
-        <td><span class="tag bad">不完全</span> 全容疑者情報がプロンプトに混在</td>
+        <td><span class="tag bad">不完全</span> 全容疑者情報が混在</td>
         <td><span class="tag good">厳密</span> サブグラフで知識を物理的に分離</td>
       </tr>
       <tr>
-        <td>文脈の完結性</td>
-        <td><span class="tag bad">弱い</span> 文字数チャンクで意味が分断される</td>
-        <td><span class="tag good">保証</span> ノード単位で意味的に完結</td>
+        <td>犯人の隠蔽行動</td>
+        <td><span class="tag bad">なし</span> 有罪フラグのみ</td>
+        <td><span class="tag good">設計可能</span> hidden_edges を渡すことで緊張・回避を演出</td>
       </tr>
       <tr>
-        <td>犯人の隠蔽行動</td>
-        <td><span class="tag bad">なし</span> 有罪/無実フラグのみ</td>
-        <td><span class="tag good">設計可能</span> 隠蔽すべきエッジを明示的に定義</td>
+        <td>一貫性の保証</td>
+        <td><span class="tag bad">なし</span> ターンをまたいで矛盾が頻発</td>
+        <td><span class="tag good">保証</span> Commitment Ledger で過去発言と照合</td>
       </tr>
       <tr>
         <td>ハルシネーション</td>
@@ -338,65 +368,79 @@ Detective's question: {プレイヤーの質問}
         <td><span class="tag good">低リスク</span> グラフ外の事実を言わないよう制約</td>
       </tr>
       <tr>
-        <td>実装の複雑さ</td>
-        <td><span class="tag good">シンプル</span></td>
-        <td><span class="tag bad">中程度</span> グラフ設計とプロンプト変換が必要</td>
+        <td>ChromaDB / Embedding</td>
+        <td><span class="tag bad">必要</span> ベクトルDB＋埋め込みモデル</td>
+        <td><span class="tag good">不要</span> サブグラフがコンテキスト長内に収まる</td>
       </tr>
     </tbody>
   </table>
 
-  <!-- ===== SECTION 5 ===== -->
-  <h2>5. 実装方針</h2>
+  <!-- ===== 5. 実装状況 ===== -->
+  <h2>5. 実装状況</h2>
 
-  <div class="card blue">
-    <div class="card-title">Step 1 — グラフ定義（静的ストーリー）</div>
+  <div class="card done">
+    <div class="card-title">✅ Phase 1 — 完了</div>
     <p>
-      Python の辞書またはネットワーク構造（networkx 等）でノードとエッジを定義する。
-      ノード種別：Person / Location / Event / Object / Time<br>
-      エッジ属性：action / time / visibility（全員/本人のみ/隠蔽）
+      <code>modules/scenario_loader.py</code> — JSONロード・サブグラフ抽出<br>
+      <code>modules/subgraph_to_prompt.py</code> — トリプル形式プロンプト変換<br>
+      <code>suspect_agents/commitment_ledger.py</code> — Ledger管理<br>
+      <code>suspect_agents/validator_kg.py</code> — hidden_edges漏洩・矛盾チェック<br>
+      <code>suspect_agents/suspect_agent_kg.py</code> — 新SuspectAgent（RAG廃止）<br>
+      <code>suspect_agents/run_game_kg.py</code> — ゲームループ<br>
+      <code>main_kg.py</code> — エントリーポイント
+    </p>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🔄 Phase 2 — 次のステップ</div>
+    <p>
+      <code>examine</code> コマンド — 段階的な証拠開示（初期: dressing_room のみ）<br>
+      アイテム調査 → ロケーション解除チェーン<br>
+      容疑者発言の used_edge_ids → ロケーション自動解除<br>
+      <code>LocationTracker</code> クラスの実装
     </p>
   </div>
 
   <div class="card blue">
-    <div class="card-title">Step 2 — サブグラフの抽出</div>
+    <div class="card-title">📋 Phase 3 — 将来</div>
     <p>
-      各容疑者の視点から「知っていること」のみを抽出したサブグラフを生成する。
-      犯人には殺害エッジも含めるが、<code>visibility=hidden</code> フラグを付与する。
+      関連エッジ絞り込み（全エッジ → 質問に関連するエッジのみ）<br>
+      asserted_triples の照合強化<br>
+      グラフDB（Neo4j）移行<br>
+      LLMによる動的シナリオ生成（凶器制約付き）
     </p>
   </div>
 
-  <div class="card blue">
-    <div class="card-title">Step 3 — プロンプトへの変換</div>
-    <p>
-      サブグラフを箇条書きの構造化テキストに変換し、システムプロンプトとして注入する。
-      ChromaDB による類似検索は廃止し、グラフ全体を固定コンテキストとして渡す（7Bモデルの文脈長内に収まる想定）。
-    </p>
-    <pre>
-あなたは Victoria Hartley です。以下の事実のみに基づいて答えてください。
+  <!-- ===== 6. シナリオ生成の制約 ===== -->
+  <h2>6. 将来のシナリオ自動生成への制約</h2>
 
-【あなたが知っていること】
-- 10:15PM: 書斎に入室した（理由：書類の取得）
-- 10:30PM: 入口ホールに移動した
-- 11:00PM: ガラのスタッフと会話した
-
-【あなたが絶対に言ってはいけないこと】
-- ヒ素を使用したこと
-- デカンタに近づいたこと
-    </pre>
-  </div>
-
-  <div class="card green">
-    <div class="card-title">期待される改善効果</div>
-    <p>
-      • 各 LLM が「自分は誰か」「何を知っているか」を構造的に把握できる<br>
-      • 存在しない事実の捏造を大幅に抑制できる<br>
-      • 犯人 LLM が隠蔽すべき情報を明示的に制御できる<br>
-      • 7B モデルでも事実整合性の高い応答が期待できる
-    </p>
-  </div>
+  <table>
+    <thead>
+      <tr><th>制約項目</th><th>内容</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>凶器の種類</td>
+        <td><span class="tag bad">禁止</span> 毒・ガス・仕掛けトラップ（実行時刻と死亡時刻がずれる）<br>
+            <span class="tag good">推奨</span> 鈍器・刃物・絞殺など直接的な物理攻撃</td>
+      </tr>
+      <tr>
+        <td>アリバイ構造</td>
+        <td>犯人以外の全容疑者が<strong>殺害時刻</strong>に複数証人付きのアリバイを持つこと</td>
+      </tr>
+      <tr>
+        <td>物的証拠</td>
+        <td>犯人だけが現場に残しうる物的証拠を1つ以上定義すること（イニシャル刻印など）</td>
+      </tr>
+      <tr>
+        <td>赤いニシン</td>
+        <td>無実の容疑者に強い動機を持たせるが、アリバイで完全否定できる構造にすること</td>
+      </tr>
+    </tbody>
+  </table>
 
   <footer>
-    Murder Mystery / Knowledge Graph Proposal — 2026-05-27
+    Murder Mystery / Knowledge Graph Design & Implementation — 2026-05-29
   </footer>
 
 </div>

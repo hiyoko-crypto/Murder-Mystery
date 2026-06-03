@@ -4,11 +4,11 @@
   "setting": "The Meridian Theatre, downtown. Opening night of 'Shadows of Guilt'. The murder occurs during intermission at approximately 9:15 PM. The theatre holds 400 guests; cast and crew number around 30.",
 
   "murder_details": {
-    "summary": "Marcus Vance was poisoned with cyanide dissolved in his private wine glass. The poison was introduced before Act 1. He drank from the glass during intermission and died alone in his locked dressing room at approximately 9:15 PM.",
+    "summary": "Marcus Vance was struck and killed with a brass candlestick in his private dressing room during intermission at approximately 9:05 PM. The room was locked from the inside. The murderer entered and exited through the ventilation shaft.",
     "setting": "Marcus's private dressing room, backstage at the Meridian Theatre.",
-    "weapon": "Cyanide dissolved in wine",
-    "action": "Elena Rostova dissolved cyanide into Marcus's wine glass during a pre-show visit, then confirmed his death via the ventilation shaft after Act 1.",
-    "locked_room_note": "Marcus locked the door himself after Elena left via the vent shaft, unaware he had already been poisoned."
+    "weapon": "Brass candlestick (found on the floor, bloodied)",
+    "action": "Elena Rostova crawled through the ventilation shaft into Marcus's locked dressing room during the intermission blackout and struck him with the brass candlestick on his desk.",
+    "locked_room_note": "Marcus locked his dressing room at the start of intermission, as was his habit. The vent shaft was the only possible entry point — making the unscrewed grate and the compact mirror inside the shaft decisive evidence."
   },
 
   "knowledge_graph": {
@@ -21,7 +21,7 @@
         "properties": {
           "name": "Marcus Vance",
           "role": "victim",
-          "bio": "Marcus Vance, 54, is a celebrated but ruthless theatre director known for his exacting standards and complete disregard for the people around him. He built his career by exploiting those who depended on him — holding debts, secrets, and contracts over their heads. On the night of his death he was found slumped at his dressing room desk, a glass of cyanide-laced wine beside him."
+          "bio": "Marcus Vance, 54, is a celebrated but ruthless theatre director known for his exacting standards and complete disregard for the people around him. He built his career by exploiting those who depended on him — holding debts, secrets, and contracts over their heads. On the night of his death he was found slumped on the floor of his dressing room, struck by a brass candlestick. The door was locked from the inside."
         }
       },
 
@@ -37,7 +37,7 @@
           "victim_connection": "Marcus held Elena's debt contracts and controlled every aspect of her professional and personal life for two years.",
           "motive": "Freedom. With Marcus dead, the debt contracts die with him.",
           "alibi_claim": "I was in my dressing room the entire intermission, touching up my makeup and greeting well-wishers.",
-          "interrogation_style": "Calm and composed. Deflects with charm. Steers suspicion toward Julian's letter or Leo's dismissal. Becomes flustered only if directly confronted with the compact mirror or the ventilation shaft."
+          "interrogation_style": "Calm and composed. Deflects with charm. Steers suspicion toward Julian's letter or Leo's dismissal. If asked about the ventilation shaft, the candlestick, or the compact mirror, become visibly anxious and redirect immediately. Never acknowledge entering the shaft or striking Marcus."
         }
       },
 
@@ -74,12 +74,12 @@
       },
 
       {
-        "id": "n_cyanide_wine",
+        "id": "n_candlestick",
         "labels": ["Item", "MurderWeapon"],
         "properties": {
-          "name": "Cyanide Wine Glass",
-          "description": "Marcus's personal wine glass, found on his dressing room desk. Laboratory analysis confirms cyanide poisoning.",
-          "significance": "Murder weapon. Cyanide was introduced before Act 1 by Elena."
+          "name": "Brass Candlestick",
+          "description": "A heavy brass candlestick from Marcus's dressing room desk, found on the floor beside the body. One end is bloodied.",
+          "significance": "The murder weapon. Someone struck Marcus with considerable force. The bloodied end was found facing the desk."
         }
       },
 
@@ -89,7 +89,7 @@
         "properties": {
           "name": "Torn Letter",
           "description": "Several torn pieces of paper found in Marcus's bin, reassembled. An angry warning signed with the initials J.W., threatening to expose the blackmail. References a fraudulent medical licence.",
-          "significance": "Written by Julian Wilde. Strong evidence of motive — but Julian was not present when the poison took effect."
+          "significance": "Written by Julian Wilde. The initials and content point directly to him — but whether he had opportunity is still unclear."
         }
       },
 
@@ -99,7 +99,7 @@
         "properties": {
           "name": "Silver Compact Mirror",
           "description": "A small silver makeup compact, engraved with the initials E.R. Found inside the ventilation shaft, roughly halfway between Elena's dressing room and Marcus's.",
-          "significance": "Physical evidence placing Elena inside the ventilation shaft. She dropped it while crawling back after confirming Marcus's death."
+          "significance": "Someone dropped this inside the shaft. The initials suggest its owner — but ownership alone does not place them at the scene at the time of the murder."
         }
       },
 
@@ -109,17 +109,17 @@
         "properties": {
           "name": "Ventilation Grate",
           "description": "The grate covering the vent entrance in Marcus's dressing room was found unscrewed and leaning against the wall. Screwdriver marks on the frame are old, suggesting prior tampering.",
-          "significance": "Confirms someone entered or exited via the shaft. Elena had loosened it during preparation."
+          "significance": "The screwdriver marks on the frame are old — this was loosened deliberately, and not recently. Someone planned ahead."
         }
       },
 
       {
         "id": "n_locked_door",
-        "labels": ["Item", "RedHerring"],
+        "labels": ["Item", "Evidence"],
         "properties": {
           "name": "Locked Door",
-          "description": "The dressing room door was locked from the inside with a deadbolt. The only key was found in Marcus's jacket pocket.",
-          "significance": "Red herring. Marcus locked it himself after Elena had already left via the vent shaft."
+          "description": "The dressing room door was locked from the inside with a deadbolt during intermission. The only key was found in Marcus's jacket pocket. No signs of forced entry on the door.",
+          "significance": "No forced entry. The door was bolted from inside and the key was on the body. How did the killer get in — and out?"
         }
       },
 
@@ -128,7 +128,7 @@
         "labels": ["Location", "CrimeScene"],
         "properties": {
           "name": "Marcus's Dressing Room",
-          "description": "Private room backstage. Locked from inside. Contains desk, mirror, wine glass, torn letter, unsealed vent grate."
+          "description": "Private room backstage. Locked from inside with no forced entry. Contains desk, bloodied brass candlestick on the floor, torn letter in the bin, unsealed ventilation grate."
         }
       },
 
@@ -181,8 +181,8 @@
 
     "edges": [
       { "id": "e1",  "from": "n_marcus",         "rel": "FOUND_DEAD_IN",    "to": "n_dressing_room",  "properties": { "visible_to": "all" } },
-      { "id": "e2",  "from": "n_cyanide_wine",    "rel": "FOUND_IN",         "to": "n_dressing_room",  "properties": { "visible_to": "all" } },
-      { "id": "e3",  "from": "n_cyanide_wine",    "rel": "KILLED",           "to": "n_marcus",         "properties": { "visible_to": "all" } },
+      { "id": "e2",  "from": "n_candlestick",      "rel": "FOUND_IN",         "to": "n_dressing_room",  "properties": { "visible_to": "all" } },
+      { "id": "e3",  "from": "n_candlestick",      "rel": "KILLED",           "to": "n_marcus",         "properties": { "visible_to": "all" } },
       { "id": "e4",  "from": "n_torn_letter",     "rel": "FOUND_IN",         "to": "n_dressing_room",  "properties": { "visible_to": "all" } },
       { "id": "e5",  "from": "n_vent_grate",      "rel": "FOUND_IN",         "to": "n_dressing_room",  "properties": { "visible_to": "all" } },
       { "id": "e6",  "from": "n_locked_door",     "rel": "FOUND_IN",         "to": "n_dressing_room",  "properties": { "visible_to": "all" } },
@@ -194,8 +194,8 @@
       { "id": "e11", "from": "n_julian",          "rel": "HAS_MOTIVE",       "to": "n_marcus",         "properties": { "visible_to": "all",            "detail": "Fake credentials — Marcus was blackmailing him" } },
       { "id": "e12", "from": "n_leo",             "rel": "HAS_MOTIVE",       "to": "n_marcus",         "properties": { "visible_to": "all",            "detail": "Wrongful termination on the morning of the murder" } },
 
-      { "id": "e13", "from": "n_elena",           "rel": "VISITED",          "to": "n_dressing_room",  "properties": { "visible_to": ["n_elena", "n_julian"], "time": "7:00 PM", "detail": "Claimed to discuss blocking notes" } },
-      { "id": "e14", "from": "n_elena",           "rel": "POISONED",         "to": "n_cyanide_wine",   "properties": { "visible_to": ["n_elena"],      "time": "7:00 PM", "hidden_from_detective": true } },
+      { "id": "e13", "from": "n_elena",           "rel": "VISITED",          "to": "n_dressing_room",  "properties": { "visible_to": ["n_elena", "n_julian"], "time": "7:00 PM", "detail": "Claimed to discuss blocking notes; secretly loosened the vent grate" } },
+      { "id": "e14", "from": "n_elena",           "rel": "STRUCK",           "to": "n_marcus",         "properties": { "visible_to": ["n_elena"],      "time": "9:05 PM", "detail": "Killed Marcus with the brass candlestick after entering via the shaft", "hidden_from_detective": true } },
       { "id": "e15", "from": "n_elena",           "rel": "PERFORMED_ON",     "to": "n_stage",          "properties": { "visible_to": "all",            "time": "7:15 PM - 9:00 PM" } },
       { "id": "e16", "from": "n_elena",           "rel": "CRAWLED_THROUGH",  "to": "n_vent_shaft",     "properties": { "visible_to": ["n_elena"],      "time": "9:00 PM", "hidden_from_detective": true } },
       { "id": "e17", "from": "n_elena",           "rel": "DROPPED",          "to": "n_silver_compact", "properties": { "visible_to": ["n_elena"],      "time": "9:05 PM", "hidden_from_detective": true } },
@@ -218,17 +218,17 @@
     {
       "node_id": "n_elena",
       "subgraph": {
-        "visible_edges": ["e1","e2","e3","e4","e5","e6","e7","e8","e9","e10","e11","e12","e13","e14","e15","e16","e17","e18","e19","e20","e22","e23","e24","e25","e26","e27"],
+        "visible_edges": ["e1","e2","e3","e4","e5","e6","e7","e8","e9","e10","e11","e12","e13","e15","e18","e19","e20","e22","e23","e24","e25","e26","e27"],
         "hidden_edges":  ["e14","e16","e17"]
       },
       "timeline": [
-        { "time": "6:30 PM",          "action": "Arrived at theatre. Collected cyanide obtained earlier that week." },
-        { "time": "7:00 PM",          "action": "Visited Marcus's dressing room under pretence of discussing Act 2 blocking notes. Dissolved cyanide into his wine glass while his back was turned." },
+        { "time": "7:00 PM",          "action": "Visited Marcus's dressing room under the pretence of discussing Act 2 blocking notes. Used the opportunity to quietly loosen the ventilation grate with a small screwdriver she had brought." },
         { "time": "7:15 PM-9:00 PM",  "action": "Performed Act 1 on stage, visible to the entire audience." },
-        { "time": "9:00 PM",          "action": "Used two-minute blackout to access vent shaft from her dressing room. Crawled through to Marcus's room." },
-        { "time": "9:05 PM",          "action": "Confirmed Marcus was dead. Crawled back. Accidentally dropped silver compact in the shaft." },
-        { "time": "9:10 PM",          "action": "Returned to dressing room, repaired makeup, greeted visiting guests as normal." },
-        { "time": "9:20 PM",          "action": "Crew discovered body. Elena expressed shock with the other cast members." }
+        { "time": "9:00 PM",          "action": "Act 1 ends. Used the two-minute blackout to slip into the vent shaft from her dressing room." },
+        { "time": "9:05 PM",          "action": "Entered Marcus's locked dressing room via the shaft. Struck Marcus with the brass candlestick on his desk. He died immediately." },
+        { "time": "9:08 PM",          "action": "Crawled back through the shaft. Accidentally dropped her silver compact mirror inside." },
+        { "time": "9:10 PM",          "action": "Returned to her dressing room, repaired makeup, greeted visiting guests as normal." },
+        { "time": "9:20 PM",          "action": "Crew discovered body. Elena expressed shock alongside the other cast members." }
       ]
     },
     {
@@ -260,10 +260,63 @@
     }
   ],
 
+  "examine_rules": {
+    "locations": {
+      "n_dressing_room": {
+        "initially_available": true,
+        "unlock_from_testimony": false,
+        "items_present": ["n_candlestick", "n_torn_letter", "n_vent_grate", "n_locked_door"],
+        "description": "Marcus's dressing room is eerily still. The body has been removed, but everything else remains untouched by order of the detective. The desk is scattered with papers. A faint smell of cologne lingers."
+      },
+      "n_vent_shaft": {
+        "initially_available": false,
+        "unlock_from_testimony": false,
+        "unlock_from_item": "n_vent_grate",
+        "items_present": ["n_silver_compact"],
+        "description": "You crouch and peer into the ventilation shaft. It is narrow but passable for a slim adult. The dust on the floor is disturbed — a clear trail suggests someone crawled through here recently."
+      },
+      "n_lobby": {
+        "initially_available": false,
+        "unlock_from_testimony": true,
+        "items_present": [],
+        "description": "The theatre lobby. Staff and guests confirm that Dr. Julian Wilde was here during the entire intermission, deep in conversation with investors Barton and Finch. No one recalls him leaving."
+      },
+      "n_bar": {
+        "initially_available": false,
+        "unlock_from_testimony": true,
+        "items_present": [],
+        "description": "The ground-floor bar. Bartender Tommy Reeves confirms Leo Cross arrived around 8:00 PM and did not leave his stool all evening. Three rounds of drinks, paid in cash."
+      },
+      "n_elena_room": {
+        "initially_available": false,
+        "unlock_from_testimony": true,
+        "items_present": [],
+        "description": "Elena Rostova's dressing room, directly adjacent to Marcus's. The ventilation shaft entrance is visible here — the grate on this side is also loosely fitted."
+      }
+    },
+    "items": {
+      "n_candlestick": {
+        "unlocks_location": null
+      },
+      "n_torn_letter": {
+        "unlocks_location": null
+      },
+      "n_vent_grate": {
+        "unlocks_location": "n_vent_shaft"
+      },
+      "n_locked_door": {
+        "unlocks_location": null
+      },
+      "n_silver_compact": {
+        "unlocks_location": null
+      }
+    }
+  },
+
   "solution": {
     "killer_node": "n_elena",
     "key_evidence_edges": ["e14","e16","e17","e18"],
     "red_herring_edges":  ["e21","e22","e12"],
-    "explanation": "Elena poisoned Marcus's wine at 7:00 PM then escaped via the vent shaft after Act 1. Her silver compact, found in the shaft, is the decisive physical evidence. Julian looks guilty due to the torn letter but has a solid alibi. Leo has the strongest emotional motive but had no backstage access."
+    "explanation": "Elena entered Marcus's locked dressing room via the ventilation shaft during intermission and struck him with the brass candlestick. The logical chain: locked door with no forced entry → shaft was the only entry point → vent grate was unscrewed → compact with E.R. initials found in shaft → Elena owns the compact. Julian is cleared by his confirmed alibi (lobby with investors Barton and Finch at 9:00-9:30 PM, exactly when the murder occurred). Leo had no backstage access. The torn letter implicating Julian is a red herring — his alibi is airtight for the murder time."
   }
 }
