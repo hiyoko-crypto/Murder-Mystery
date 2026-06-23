@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KG Runtime Flow - Murder Mystery</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: #101114;
+      color: #d7d7dc;
+      line-height: 1.7;
+    }
+
+    header {
+      background: #171923;
+      border-bottom: 1px solid #3b82f6;
+      padding: 36px 56px;
+    }
+
+    header h1 {
+      color: #fff;
+      font-size: 2rem;
+      letter-spacing: 0.04em;
+    }
+
+    header p {
+      color: #a1a1aa;
+      margin-top: 8px;
+      font-size: 0.92rem;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 44px 32px;
+    }
+
+    section { margin-bottom: 54px; }
+
+    h2 {
+      color: #60a5fa;
+      font-size: 1.15rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-left: 4px solid #60a5fa;
+      padding-left: 14px;
+      margin-bottom: 22px;
+    }
+
+    h3 {
+      color: #86efac;
+      font-size: 1rem;
+      margin: 24px 0 10px;
+    }
+
+    p {
+      color: #b4b4bd;
+      margin-bottom: 10px;
+    }
+
+    code {
+      font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+      background: #27272a;
+      color: #86efac;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.86em;
+    }
+
+    pre {
+      background: #18181b;
+      border: 1px solid #2f3037;
+      border-radius: 8px;
+      color: #e4e4e7;
+      padding: 16px 18px;
+      overflow-x: auto;
+      font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+      font-size: 0.83rem;
+      line-height: 1.6;
+      margin: 12px 0;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .card {
+      background: #18181b;
+      border: 1px solid #2f3037;
+      border-radius: 8px;
+      padding: 18px 20px;
+    }
+
+    .label {
+      color: #8b8b95;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 5px;
+    }
+
+    .value {
+      color: #e4e4e7;
+      font-size: 0.94rem;
+    }
+
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .flow-box {
+      min-width: 128px;
+      background: #1f2430;
+      border: 1px solid #3f4554;
+      border-radius: 6px;
+      padding: 10px 14px;
+      color: #d7d7dc;
+      text-align: center;
+      font-size: 0.82rem;
+    }
+
+    .flow-box strong {
+      color: #93c5fd;
+      display: block;
+      font-size: 0.86rem;
+    }
+
+    .flow-arrow {
+      color: #6b7280;
+      padding: 0 2px;
+      font-size: 1.1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 10px;
+    }
+
+    th {
+      background: #27272a;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      font-size: 0.72rem;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    td {
+      border-bottom: 1px solid #2f3037;
+      color: #d4d4d8;
+      padding: 11px 12px;
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .note {
+      background: #182018;
+      border: 1px solid #2f5d36;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #bbf7d0;
+      font-size: 0.9rem;
+      margin-top: 12px;
+    }
+
+    .warn {
+      background: #241c12;
+      border: 1px solid #854d0e;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #fde68a;
+      font-size: 0.9rem;
+      margin-top: 12px;
+    }
+
+    .file-list {
+      list-style: none;
+      border-top: 1px solid #2f3037;
+    }
+
+    .file-list li {
+      display: flex;
+      gap: 14px;
+      border-bottom: 1px solid #2f3037;
+      padding: 12px 0;
+      font-size: 0.9rem;
+    }
+
+    .file-path {
+      min-width: 280px;
+      color: #86efac;
+      font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+      font-size: 0.82rem;
+    }
+
+    .file-desc { color: #b4b4bd; }
+
+    footer {
+      border-top: 1px solid #2f3037;
+      color: #71717a;
+      text-align: center;
+      padding: 30px;
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 760px) {
+      header { padding: 26px 22px; }
+      main { padding: 28px 16px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .file-list li { display: block; }
+      .file-path { display: block; min-width: 0; margin-bottom: 5px; }
+      .flow-box { width: 100%; }
+      .flow-arrow { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>KG Runtime Flow</h1>
+  <p>作成日: 2026-06-23 | 対象: 現行KG版 Murder Mystery | エントリーポイント: <code>python main_kg.py</code></p>
+</header>
+
+<main>
+
+<section>
+  <h2>1. 現在の全体像</h2>
+  <div class="grid-3">
+    <div class="card">
+      <div class="label">内部言語</div>
+      <div class="value">KG、プロンプト、質問の正規化、一次回答は英語で統一。日本語モードでは最後に表示翻訳する。</div>
+    </div>
+    <div class="card">
+      <div class="label">KG規模</div>
+      <div class="value"><code>16 nodes / 29 edges</code>。旧 <code>timeline</code> は削除済み。</div>
+    </div>
+    <div class="card">
+      <div class="label">サブグラフ</div>
+      <div class="value">質問検索ではなく、容疑者ごとにJSONへ明示したedge IDリストを使う。</div>
+    </div>
+  </div>
+
+  <div class="flow">
+    <div class="flow-box"><strong>Scenario JSON</strong>KG + subgraph</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>ScenarioLoader</strong>edge実体化</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>System Prompt</strong>英語triple化</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>LLM</strong>英語JSON応答</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Validator</strong>検証</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Ledger</strong>記録</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Translator</strong>日本語表示</div>
+  </div>
+</section>
+
+<section>
+  <h2>2. 起動時の構築</h2>
+  <p>
+    <code>build_and_run_game()</code> でシナリオを読み込み、共有の <code>CommitmentLedger</code> と
+    <code>LocationTracker</code> を作成する。その後、容疑者ごとに <code>SuspectAgentKG</code> を生成する。
+  </p>
+
+  <pre>loader  = ScenarioLoader(scenario_path)
+ledger  = CommitmentLedger()
+tracker = LocationTracker(loader)
+
+agents = [
+    SuspectAgentKG(loader, node_id, ledger)
+    for node_id in loader.get_all_suspect_node_ids()
+]</pre>
+
+  <table>
+    <thead>
+      <tr><th>要素</th><th>役割</th><th>保存場所</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>ScenarioLoader</code></td>
+        <td>JSONを読み込み、<code>nodes</code>、<code>edges</code>、<code>suspects</code> をID辞書化する。</td>
+        <td><code>modules/scenario_loader.py</code></td>
+      </tr>
+      <tr>
+        <td><code>CommitmentLedger</code></td>
+        <td>容疑者ごとの過去発言、使用edge、asserted triplesをメモリ上に保存する。</td>
+        <td><code>suspect_agents/commitment_ledger.py</code></td>
+      </tr>
+      <tr>
+        <td><code>SuspectAgentKG</code></td>
+        <td>容疑者ごとのサブグラフを保持し、尋問時にLLMを呼ぶ。</td>
+        <td><code>suspect_agents/suspect_agent_kg.py</code></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>3. サブグラフ抽出</h2>
+  <p>
+    現在のサブグラフ抽出は動的なグラフ探索ではない。<code>scenarios/the_final_act.json</code> の
+    <code>suspects[].subgraph.visible_edges</code> と <code>hidden_edges</code> に書かれたedge IDを、
+    <code>ScenarioLoader.get_subgraph()</code> が実体のedge dictへ変換する。
+  </p>
+
+  <pre>{
+  "node":            self.nodes[node_id],
+  "visible_edges":   [self.edges[eid], ...],
+  "hidden_edges":    [self.edges[eid], ...],
+  "hidden_edge_ids": set([...]),
+  "timeline":        []
+}</pre>
+
+  <table>
+    <thead>
+      <tr><th>分類</th><th>LLMへの渡し方</th><th>意味</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>visible_edges</code></td>
+        <td><code>[Facts you know]</code> に入る。</td>
+        <td>容疑者が話してよい事実。公開情報や本人が知っていても漏らしてよい情報。</td>
+      </tr>
+      <tr>
+        <td><code>hidden_edges</code></td>
+        <td><code>[Facts you know but must NOT reveal]</code> に入る。</td>
+        <td>容疑者は知っているが、探偵に明かしてはいけない真相。</td>
+      </tr>
+      <tr>
+        <td><code>hidden_edge_ids</code></td>
+        <td>LLMには直接の禁止リストとして入るほか、validatorにも渡る。</td>
+        <td>回答JSONの <code>used_edge_ids</code> に含まれたら漏洩として拒否する。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    旧 <code>timeline</code> の重要情報はKG edgeへ統合済み。現在の尋問プロンプトは、KG edgeを情報源として使う。
+  </div>
+</section>
+
+<section>
+  <h2>4. LLM入力</h2>
+  <p>
+    尋問時、LLMへ渡すmessageは <code>system</code> と <code>user</code> の2つ。systemには容疑者設定とサブグラフ、
+    userにはプレイヤーの質問を入れる。日本語モードでは、先に質問を英語へ正規化する。
+  </p>
+
+  <pre>question_for_llm = user_message
+if get_lang() == "ja":
+    question_for_llm = translate_question_to_english(user_message)
+
+messages = [
+    {"role": "system", "content": system_content},
+    {"role": "user", "content": f"Detective: {question_for_llm}"}
+]</pre>
+
+  <h3>system prompt の中身</h3>
+  <table>
+    <thead>
+      <tr><th>ブロック</th><th>内容</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Character identity</td>
+        <td><code>name</code>、<code>bio</code>、<code>tags</code>、<code>interrogation_style</code>。</td>
+      </tr>
+      <tr>
+        <td>Facts you know</td>
+        <td>visible edgeを拡張tripleとして列挙する。</td>
+      </tr>
+      <tr>
+        <td>Facts you know but must NOT reveal</td>
+        <td>hidden edgeを拡張tripleとして列挙し、漏らさないよう指示する。</td>
+      </tr>
+      <tr>
+        <td>Commitment ledger</td>
+        <td>2ターン目以降、直近最大6ターンの発言要約を入れる。</td>
+      </tr>
+      <tr>
+        <td>Output format</td>
+        <td><code>response</code>、<code>used_edge_ids</code>、<code>asserted_triples</code> を持つJSONのみを要求する。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>edgeの渡し方</h3>
+  <p>edgeは純粋な3要素だけではなく、edge ID、時刻、detailを付けた拡張tripleとして渡す。</p>
+
+  <pre>e13: Elena Rostova --[VISITED]--> Marcus's Dressing Room  @ 7:00 PM  "Claimed to discuss blocking notes; secretly loosened the vent grate with a small screwdriver"</pre>
+
+  <h3>LLMに要求する出力</h3>
+  <pre>{
+  "response": "Your spoken response in English",
+  "used_edge_ids": ["e1", "e2"],
+  "asserted_triples": [["Subject", "REL", "Object"]]
+}</pre>
+</section>
+
+<section>
+  <h2>5. Validator</h2>
+  <p>
+    LLMの生出力はそのまま表示せず、<code>validate_response()</code> を通す。
+    失敗した場合は最大3回まで、エラー内容を添えて再生成を求める。
+  </p>
+
+  <div class="flow">
+    <div class="flow-box"><strong>Raw LLM Output</strong>文字列</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>JSON parse</strong>抽出とparse</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Fields</strong>必須確認</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Hidden leak</strong>edge ID確認</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Ledger</strong>矛盾確認</div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>検証</th><th>条件</th><th>失敗例</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>JSON parse</td>
+        <td>出力からJSONオブジェクトを抽出してparseできること。</td>
+        <td>自然文だけ、壊れたJSON。</td>
+      </tr>
+      <tr>
+        <td>必須フィールド</td>
+        <td><code>response</code> が文字列として存在すること。</td>
+        <td><code>{"answer": "..."}</code></td>
+      </tr>
+      <tr>
+        <td>hidden edge漏洩</td>
+        <td><code>used_edge_ids</code> に <code>hidden_edge_ids</code> が含まれないこと。</td>
+        <td>Elenaが <code>e14</code>、<code>e16</code>、<code>e17</code>、<code>e28</code> を使用edgeとして申告する。</td>
+      </tr>
+      <tr>
+        <td>ledger矛盾</td>
+        <td>新しい <code>asserted_triples</code> が過去発言のtripleと衝突しないこと。</td>
+        <td>以前と同じsubject + relationで、objectだけ違う。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    現在のhidden漏洩チェックは <code>used_edge_ids</code> ベース。回答本文が秘匿事実を漏らしているのにedge IDを申告しなかった場合、意味レベルでは検出できない。
+  </div>
+</section>
+
+<section>
+  <h2>6. Ledger</h2>
+  <p>
+    Ledgerはメモリ上に保存される。1つの <code>CommitmentLedger</code> を全エージェントで共有するが、
+    中身は <code>node_id</code> ごとに分かれる。
+  </p>
+
+  <pre>{
+  "n_elena": [
+    {
+      "turn": 1,
+      "question": "...",
+      "used_edge_ids": ["e19"],
+      "asserted_triples": [
+        ["Elena Rostova", "WAS_IN", "Elena's Dressing Room"]
+      ],
+      "response_summary": "I was in my dressing room..."
+    }
+  ]
+}</pre>
+
+  <h3>保存タイミング</h3>
+  <p>
+    LLM出力がvalidatorを通過した後、<code>add_turn()</code> で保存する。
+    保存されるのは、質問、使用edge、asserted triples、応答の短い要約。
+  </p>
+
+  <h3>LLMへの渡し方</h3>
+  <p>
+    <code>get_ledger_text(node_id, max_turns=6)</code> が直近最大6ターンを短いテキストに変換し、
+    system promptの <code>[What you have told the detective so far - maintain consistency]</code> に挿入する。
+  </p>
+
+  <pre>Turn 1 (edges: e19): I was in my dressing room...
+Turn 2 (edges: e13): I went to Marcus's room earlier...</pre>
+
+  <h3>矛盾チェック</h3>
+  <p>
+    新しい <code>asserted_triples</code> と過去の <code>asserted_triples</code> を比較する。
+    現在の条件は <code>subject</code> と <code>relation</code> が同じで、<code>object</code> が違う場合のみ矛盾。
+  </p>
+
+  <pre>past: ["Elena Rostova", "WAS_IN", "Elena's Dressing Room"]
+new:  ["Elena Rostova", "WAS_IN", "Theatre Lobby"]
+
+=> contradiction</pre>
+
+  <div class="warn">
+    現在の矛盾チェックは時刻や否定を見ない。将来的には <code>time</code> と <code>polarity</code> を持つ構造化claimへ拡張するとよい。
+  </div>
+</section>
+
+<section>
+  <h2>7. 日本語モード</h2>
+  <p>
+    日本語モードでは、プレイヤーの質問をまず <code>translate_question_to_english()</code> で英語へ正規化する。
+    その英語質問をKGプロンプトへ渡し、一次回答も英語JSONで生成する。validatorを通過してledgerへ保存した後、
+    表示直前に <code>translate_response()</code> で日本語へ変換する。
+  </p>
+
+  <div class="flow">
+    <div class="flow-box"><strong>Japanese question</strong>入力</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>English question</strong>質問正規化</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>English prompt</strong>KG推論</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>English JSON</strong>response取得</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Validator</strong>事実検証</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Ledger</strong>英語で保存</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Japanese</strong>表示翻訳</div>
+  </div>
+
+  <p>
+    質問翻訳と応答翻訳の両方で、事実の追加、削除、推測、変更を禁止している。
+    固有名詞は <code>display_names_ja</code> の対応表を使う。
+  </p>
+</section>
+
+<section>
+  <h2>8. Location Tracker</h2>
+  <p>
+    <code>LocationTracker</code> は、プレイヤーの探索進行をメモリ上で管理する。
+    追跡しているのは、調査可能な場所、調査済みの場所、発見済みアイテムの3種類。
+  </p>
+
+  <pre>self.known_locations     # プレイヤーが調査可能な場所
+self.examined_locations  # すでに調べた場所
+self.found_items         # 発見済みアイテム</pre>
+
+  <h3>初期状態</h3>
+  <p>
+    <code>examine_rules.locations</code> のうち、<code>initially_available: true</code> の場所だけが
+    <code>known_locations</code> に入る。現在は <code>n_dressing_room</code>、つまりマーカスの楽屋から始まる。
+  </p>
+
+  <div class="flow">
+    <div class="flow-box"><strong>Known location</strong>楽屋</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Examine location</strong>証拠品発見</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Examine item</strong>場所解放</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Testimony</strong>証言で場所解放</div>
+  </div>
+
+  <h3>場所を調べる</h3>
+  <p>
+    <code>examine_location(location_id)</code> は、場所を <code>examined_locations</code> に追加し、
+    その場所の <code>items_present</code> を <code>found_items</code> に追加する。
+    楽屋を調べると、燭台、破れた手紙、換気口、鍵のかかった扉が見つかる。
+  </p>
+
+  <h3>アイテムを調べる</h3>
+  <p>
+    <code>examine_item(item_id)</code> は、<code>examine_rules.items[item_id].unlocks_location</code> を見る。
+    現在は <code>n_vent_grate</code> を調べると <code>n_vent_shaft</code> が解放される。
+  </p>
+
+  <pre>"n_vent_grate": {
+  "unlocks_location": "n_vent_shaft"
+}</pre>
+
+  <h3>証言から場所を解放する</h3>
+  <p>
+    容疑者の回答後、<code>active_agent.last_used_edge_ids</code> を
+    <code>unlock_from_testimony()</code> に渡す。各edgeの <code>from</code> / <code>to</code> に場所ノードが含まれ、
+    その場所の <code>unlock_from_testimony</code> が <code>true</code> なら、新しい調査場所として解放される。
+  </p>
+
+  <pre>response = current_fn(user_input)
+newly = tracker.unlock_from_testimony(active_agent.last_used_edge_ids)</pre>
+
+  <table>
+    <thead>
+      <tr><th>場所</th><th>解放条件</th><th>例</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>n_dressing_room</code></td>
+        <td>最初から解放済み。</td>
+        <td>事件現場として最初に調査できる。</td>
+      </tr>
+      <tr>
+        <td><code>n_vent_shaft</code></td>
+        <td>アイテム <code>n_vent_grate</code> を調べる。</td>
+        <td>換気口を調べると換気ダクトが調査可能になる。</td>
+      </tr>
+      <tr>
+        <td><code>n_lobby</code></td>
+        <td>証言edgeに含まれる。</td>
+        <td>Julianの <code>e24</code> が使われるとロビーが解放される。</td>
+      </tr>
+      <tr>
+        <td><code>n_bar</code></td>
+        <td>証言edgeに含まれる。</td>
+        <td>Leoの <code>e26</code> が使われるとバーが解放される。</td>
+      </tr>
+      <tr>
+        <td><code>n_elena_room</code></td>
+        <td>証言edgeに含まれる。</td>
+        <td>Elenaの楽屋に関係するedgeが使われると解放される。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    現在の証言ベース解放は <code>used_edge_ids</code> に依存する。回答本文で場所に触れていても、LLMが対応edge IDを申告しなければ場所は解放されない。
+  </div>
+</section>
+
+<section>
+  <h2>9. 現在の制約と次の改善候補</h2>
+  <table>
+    <thead>
+      <tr><th>項目</th><th>現在</th><th>改善候補</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>サブグラフ抽出</td>
+        <td>JSONの明示edge IDリスト。</td>
+        <td><code>visible_to</code> から自動生成する仕組みを追加すると、シナリオ作成時の重複を減らせる。</td>
+      </tr>
+      <tr>
+        <td>hidden漏洩検出</td>
+        <td><code>used_edge_ids</code> のみ確認。</td>
+        <td>回答本文とhidden factsの意味的近さを検査する二段階validatorを追加する。</td>
+      </tr>
+      <tr>
+        <td>矛盾検出</td>
+        <td>同一subject + relation + 異なるobjectのみ。</td>
+        <td><code>time</code>、<code>polarity</code>、<code>confidence</code> を含むclaim形式にする。</td>
+      </tr>
+      <tr>
+        <td>ledger永続化</td>
+        <td><code>to_dict()</code> と <code>from_dict()</code> はあるが、ゲーム保存には未接続。</td>
+        <td>セーブデータへledgerを含める。</td>
+      </tr>
+      <tr>
+        <td>場所解放</td>
+        <td><code>used_edge_ids</code> に依存。</td>
+        <td>回答本文や <code>asserted_triples</code> から場所参照を補助的に検出する。</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>10. 関連ファイル</h2>
+  <ul class="file-list">
+    <li><span class="file-path">main_kg.py</span><span class="file-desc">エントリーポイント。言語選択後、KGゲームを起動する。</span></li>
+    <li><span class="file-path">suspect_agents/run_game_kg.py</span><span class="file-desc">ゲームループ。<code>ScenarioLoader</code>、<code>CommitmentLedger</code>、各容疑者エージェントを作る。</span></li>
+    <li><span class="file-path">modules/scenario_loader.py</span><span class="file-desc">シナリオJSONを読み込み、容疑者ごとのサブグラフを構築する。</span></li>
+    <li><span class="file-path">modules/location_tracker.py</span><span class="file-desc">調査可能な場所、調査済み場所、発見済みアイテムを追跡する。</span></li>
+    <li><span class="file-path">modules/subgraph_to_prompt.py</span><span class="file-desc">サブグラフを英語system promptへ変換する。</span></li>
+    <li><span class="file-path">suspect_agents/suspect_agent_kg.py</span><span class="file-desc">質問の英語正規化、LLM呼び出し、validator、ledger保存、日本語表示翻訳を接続する。</span></li>
+    <li><span class="file-path">suspect_agents/validator_kg.py</span><span class="file-desc">LLM出力JSON、hidden edge漏洩、ledger矛盾を検証する。</span></li>
+    <li><span class="file-path">suspect_agents/commitment_ledger.py</span><span class="file-desc">過去発言を保存し、直近履歴のprompt化とtriple矛盾チェックを行う。</span></li>
+    <li><span class="file-path">modules/translator.py</span><span class="file-desc">日本語質問を英語へ、英語の検証済み回答を日本語表示へ変換する。</span></li>
+    <li><span class="file-path">scenarios/the_final_act.json</span><span class="file-desc">KG、容疑者サブグラフ、表示名、調査ルール、解答を定義する。</span></li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  KG Runtime Flow | Murder Mystery | 2026-06-23
+</footer>
+
+</body>
+</html>

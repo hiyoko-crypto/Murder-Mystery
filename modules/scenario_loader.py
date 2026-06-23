@@ -46,6 +46,9 @@ class ScenarioLoader:
             return node["properties"].get("name", node_id)
         return node_id
 
+    def get_display_names_ja(self) -> dict:
+        return self.data.get("display_names_ja", {})
+
     # ------------------------------------------------------------------
     # Subgraph extraction
     # ------------------------------------------------------------------

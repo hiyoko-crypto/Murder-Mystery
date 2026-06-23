@@ -4,8 +4,10 @@ Validator for KG-grounded suspect responses.
 Checks:
   1. JSON parse validity
   2. Required fields present
-  3. hidden_edges not leaked in used_edge_ids
-  4. Commitment ledger contradiction
+  3. used_edge_ids type and visible-edge subset
+  4. hidden_edges not leaked in used_edge_ids
+  5. asserted_triples type
+  6. Commitment ledger contradiction
 """
 
 import json
@@ -25,6 +27,7 @@ def _extract_json(text: str) -> str:
 
 def validate_response(
     raw_output: str,
+    visible_edge_ids: set,
     hidden_edge_ids: set,
     ledger: CommitmentLedger,
     node_id: str,
@@ -44,22 +47,46 @@ def validate_response(
     except json.JSONDecodeError as e:
         return False, None, f"JSONパースエラー: {e}"
 
+    if not isinstance(parsed, dict):
+        return False, None, "LLM出力JSONはオブジェクトである必要があります"
+
     # 2. Required fields
     if "response" not in parsed or not isinstance(parsed["response"], str):
         return False, None, "'response' フィールドが存在しないか無効です"
+    if "used_edge_ids" not in parsed:
+        return False, None, "'used_edge_ids' フィールドが存在しません"
+    if "asserted_triples" not in parsed:
+        return False, None, "'asserted_triples' フィールドが存在しません"
 
-    parsed.setdefault("used_edge_ids", [])
-    parsed.setdefault("asserted_triples", [])
+    # 3. used_edge_ids type and allowed range
+    used_edge_ids = parsed["used_edge_ids"]
+    if not isinstance(used_edge_ids, list):
+        return False, None, "'used_edge_ids' は配列である必要があります"
+    if not all(isinstance(eid, str) for eid in used_edge_ids):
+        return False, None, "'used_edge_ids' の各要素は文字列である必要があります"
 
-    # 3. Hidden edge leakage
-    used    = set(parsed["used_edge_ids"])
-    leaked  = used & hidden_edge_ids
+    used = set(used_edge_ids)
+    leaked = used & hidden_edge_ids
     if leaked:
-        return False, None, f"hidden_edges が漏洩しています: {leaked}"
+        return False, None, f"hidden_edges が漏洩しています: {sorted(leaked)}"
 
-    # 4. Ledger contradiction
+    unsupported_edges = used - visible_edge_ids
+    if unsupported_edges:
+        return False, None, f"使用できないedge IDが含まれています: {sorted(unsupported_edges)}"
+
+    # 4. asserted_triples type
+    asserted_triples = parsed["asserted_triples"]
+    if not isinstance(asserted_triples, list):
+        return False, None, "'asserted_triples' は配列である必要があります"
+    for triple in asserted_triples:
+        if not isinstance(triple, list) or len(triple) != 3:
+            return False, None, "'asserted_triples' の各要素は長さ3の配列である必要があります"
+        if not all(isinstance(part, str) for part in triple):
+            return False, None, "'asserted_triples' の各要素は文字列である必要があります"
+
+    # 5. Ledger contradiction
     contradicted, reason = ledger.check_contradiction(
-        node_id, parsed["asserted_triples"]
+        node_id, asserted_triples
     )
     if contradicted:
         return False, None, f"Ledger矛盾: {reason}"

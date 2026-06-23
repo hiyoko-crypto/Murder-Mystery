@@ -17,6 +17,19 @@ DEFAULT_SCENARIO = os.path.join(
 )
 
 
+def _select_language() -> str:
+    print("Select language / 言語を選択してください:")
+    print("  1. English")
+    print("  2. 日本語")
+    while True:
+        choice = input("Enter 1 or 2: ").strip()
+        if choice == "1":
+            return "en"
+        if choice == "2":
+            return "ja"
+        print("Please enter 1 or 2.")
+
+
 def main() -> None:
     scenario_path = DEFAULT_SCENARIO
 
@@ -31,8 +44,10 @@ def main() -> None:
         print(f"Scenario file not found: {scenario_path}")
         sys.exit(1)
 
+    language = _select_language()
+
     from suspect_agents.run_game_kg import build_and_run_game
-    build_and_run_game(scenario_path)
+    build_and_run_game(scenario_path, language)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,716 @@
+<title>GameSession — API リファレンス</title>
+<style>
+  :root {
+    --ground: #0f1117;
+    --surface: #1a1d27;
+    --border: #2a2d3a;
+    --text: #c8cad4;
+    --dim: #6b6f80;
+    --accent: #7c9fc0;
+    --accent2: #c07c7c;
+    --green: #7cc09a;
+    --mono: 'Courier New', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ground);
+    color: var(--text);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 0 0 80px;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 60px 32px;
+  }
+
+  header h1 {
+    font-family: var(--mono);
+    font-size: 1.8rem;
+    font-weight: normal;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+
+  header .subtitle {
+    color: var(--dim);
+    font-size: 0.9rem;
+    margin-top: 6px;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 100vh;
+  }
+
+  nav {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 32px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  nav a {
+    display: block;
+    padding: 7px 24px;
+    color: var(--dim);
+    text-decoration: none;
+    font-size: 0.83rem;
+    font-family: var(--mono);
+    transition: color 0.15s;
+  }
+
+  nav a:hover { color: var(--text); }
+  nav .nav-section {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #444;
+    padding: 20px 24px 4px;
+  }
+
+  main {
+    padding: 48px 60px;
+    max-width: 860px;
+  }
+
+  section { margin-bottom: 64px; }
+
+  h2 {
+    font-family: var(--mono);
+    font-size: 1rem;
+    color: var(--accent);
+    font-weight: normal;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h3 {
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    color: var(--text);
+    font-weight: normal;
+    margin: 28px 0 10px;
+  }
+
+  p { margin-bottom: 12px; color: var(--text); }
+
+  .role-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    border-radius: 2px;
+    margin-bottom: 24px;
+  }
+
+  .role-box p { margin: 0; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.85em;
+    background: #1e2130;
+    padding: 1px 5px;
+    border-radius: 2px;
+    color: #a8c8e0;
+  }
+
+  pre {
+    background: #111420;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: #b0b8c8;
+    margin: 14px 0;
+  }
+
+  .kw { color: #7c9fc0; }
+  .cls { color: #c0a07c; }
+  .fn { color: #7cc09a; }
+  .str { color: #a07cc0; }
+  .cm { color: #4a5060; font-style: italic; }
+  .ret { color: #c07c9a; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+    margin: 14px 0;
+  }
+
+  th {
+    text-align: left;
+    color: var(--dim);
+    font-weight: normal;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #1e2130;
+    vertical-align: top;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+  }
+
+  td:first-child { color: var(--accent2); }
+  td:nth-child(2) { color: var(--accent); }
+  td:nth-child(3) { color: var(--text); font-family: inherit; font-size: 0.85rem; }
+
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 16px 0;
+  }
+
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #1a1d27;
+  }
+
+  .flow-step:last-child { border-bottom: none; }
+
+  .step-num {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--dim);
+    min-width: 28px;
+    padding-top: 2px;
+  }
+
+  .step-body { flex: 1; }
+  .step-body strong { color: var(--accent2); font-weight: normal; font-family: var(--mono); font-size: 0.85rem; }
+  .step-body p { margin: 2px 0 0; font-size: 0.88rem; color: var(--dim); }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    padding: 2px 7px;
+    border-radius: 2px;
+    margin-right: 4px;
+  }
+
+  .tag-be { background: #1a2530; color: var(--accent); border: 1px solid #243040; }
+  .tag-fe { background: #1a2520; color: var(--green); border: 1px solid #243530; }
+  .tag-todo { background: #2a2015; color: #c09050; border: 1px solid #3a3020; }
+
+  .method-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+  }
+
+  .method-sig {
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    color: var(--green);
+    margin-bottom: 10px;
+  }
+
+  .method-desc { font-size: 0.9rem; margin-bottom: 14px; }
+
+  .io-row {
+    display: flex;
+    gap: 32px;
+    font-size: 0.85rem;
+  }
+
+  .io-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--dim);
+    margin-bottom: 4px;
+  }
+
+  .io-val { font-family: var(--mono); color: var(--accent2); font-size: 0.85rem; }
+
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .compare-col {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 20px;
+  }
+
+  .compare-col h4 {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--dim);
+    font-weight: normal;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .compare-col ul { list-style: none; }
+  .compare-col li {
+    font-size: 0.85rem;
+    font-family: var(--mono);
+    padding: 4px 0;
+    color: var(--text);
+  }
+
+  .compare-col li::before { content: '→ '; color: var(--dim); }
+
+  @media (max-width: 700px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { display: none; }
+    main { padding: 24px 20px; }
+    header { padding: 24px 20px; }
+    .compare-grid { grid-template-columns: 1fr; }
+    .io-row { flex-direction: column; gap: 12px; }
+  }
+</style>
+
+<header>
+  <h1>game_session.py</h1>
+  <div class="subtitle">Murder Mystery — バックエンドAPIリファレンス</div>
+</header>
+
+<div class="layout">
+  <nav>
+    <div class="nav-section">概要</div>
+    <a href="#role">役割</a>
+    <a href="#init">初期化</a>
+    <a href="#ask-flow">ask() の内部フロー</a>
+    <div class="nav-section">データクラス</div>
+    <a href="#dataclasses">全データクラス</a>
+    <div class="nav-section">メソッド</div>
+    <a href="#get_briefing">get_briefing()</a>
+    <a href="#switch_suspect">switch_suspect()</a>
+    <a href="#ask">ask()</a>
+    <a href="#ask_stream">ask_stream()</a>
+    <a href="#get_examine_options">get_examine_options()</a>
+    <a href="#examine_location">examine_location()</a>
+    <a href="#examine_item">examine_item()</a>
+    <a href="#indict">indict()</a>
+    <a href="#get_state">get_state()</a>
+    <div class="nav-section">使用例</div>
+    <a href="#cli-vs-react">CLI vs React</a>
+  </nav>
+
+  <main>
+
+    <!-- ── 役割 ── -->
+    <section id="role">
+      <h2># 役割：フロントエンドとゲームロジックの境界線</h2>
+      <div class="role-box">
+        <p><code>GameSession</code> はゲームの唯一のエントリーポイント。CLI・React・FastAPI など、どのフロントエンドからでもこの1クラスを呼ぶだけでゲームが動く。LLM呼び出し・KG参照・バリデーションはすべて内部に隠蔽されており、外側には構造化データだけが返ってくる。</p>
+      </div>
+
+      <p>フロントエンドが自由に管理してよい状態（メモ・気になるリスト・UI表示など）は <code>GameSession</code> に持ち込まない。バックエンドが管理するのは以下の5つだけ：</p>
+
+      <table>
+        <thead>
+          <tr><th>操作</th><th>メソッド</th><th>説明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>尋問</td><td>ask()</td><td>LLMに質問し、検証済み回答を返す</td></tr>
+          <tr><td>容疑者切替</td><td>switch_suspect()</td><td>現在の尋問対象を変更する</td></tr>
+          <tr><td>場所の調査</td><td>examine_location()</td><td>場所を調べ、アイテムを発見する</td></tr>
+          <tr><td>アイテム詳細</td><td>examine_item()</td><td>発見済みアイテムの詳細を返す</td></tr>
+          <tr><td>起訴</td><td>indict()</td><td>犯人を指名し、正誤を判定する</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── 初期化 ── -->
+    <section id="init">
+      <h2># 初期化：何が「一度だけ」作られるか</h2>
+
+      <pre><span class="kw">session</span> = <span class="cls">GameSession</span>(<span class="str">"scenarios/the_final_act.json"</span>, language=<span class="str">"ja"</span>)</pre>
+
+      <p><code>__init__</code> の中でゲームに必要なすべての重いオブジェクトが一度だけ構築される。各容疑者の <strong>サブグラフ（KGの部分グラフ）はここで1回だけビルドされ、その後は変わらない。</strong></p>
+
+      <table>
+        <thead>
+          <tr><th>オブジェクト</th><th>型</th><th>変化するか</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>loader</td><td>ScenarioLoader</td><td>変化しない（シナリオJSONの読み取り専用）</td></tr>
+          <tr><td>ledger</td><td>CommitmentLedger</td><td>毎ターン蓄積（容疑者の発言履歴）</td></tr>
+          <tr><td>tracker</td><td>LocationTracker</td><td>examine のたびに更新</td></tr>
+          <tr><td>agents</td><td>dict[str, SuspectAgentKG]</td><td>変化しない（サブグラフは初期化時に確定）</td></tr>
+          <tr><td>current_suspect_id</td><td>str | None</td><td>switch_suspect() のたびに変わる</td></tr>
+          <tr><td>turn</td><td>int</td><td>ask() のたびにインクリメント</td></tr>
+        </tbody>
+      </table>
+
+      <p>つまり <strong>「何を知っているか（サブグラフ）」は固定</strong> で、<strong>「何を話したか（ledger）」だけが蓄積</strong> されていく。毎ターン <code>build_system_prompt()</code> が呼ばれるとき、固定サブグラフ＋最新のledgerテキストが組み合わさって容疑者のシステムプロンプトが生成される。</p>
+    </section>
+
+    <!-- ── ask フロー ── -->
+    <section id="ask-flow">
+      <h2># ask() の内部フロー（9ステップ）</h2>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="step-num">01</div>
+          <div class="step-body">
+            <strong>言語チェック</strong>
+            <p>lang == "ja" なら質問文を <code>translate_question_to_english()</code> で英語化</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">02</div>
+          <div class="step-body">
+            <strong>ledger_text 取得</strong>
+            <p>この容疑者のこれまでの発言要約を CommitmentLedger から取得</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">03</div>
+          <div class="step-body">
+            <strong>システムプロンプト構築</strong>
+            <p><code>build_system_prompt(subgraph, nodes, ledger_text)</code> — サブグラフの公開トリプル・隠蔽エッジ・ledger を結合</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">04</div>
+          <div class="step-body">
+            <strong>LLM 呼び出し（最大3回）</strong>
+            <p><code>llm_messages([system, user])</code> → JSON文字列を受け取る</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">05</div>
+          <div class="step-body">
+            <strong>バリデーション</strong>
+            <p><code>validate_response()</code> がJSONフォーマット・隠蔽エッジ漏洩・ledger矛盾を検査</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">06</div>
+          <div class="step-body">
+            <strong>失敗 → ヒント付きリトライ</strong>
+            <p>バリデーション失敗時、エラー内容を user メッセージに付加して再送（最大3回）</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">07</div>
+          <div class="step-body">
+            <strong>ledger 更新</strong>
+            <p>検証済みの発言・使用エッジIDを CommitmentLedger に記録</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">08</div>
+          <div class="step-body">
+            <strong>場所アンロック</strong>
+            <p><code>tracker.unlock_from_testimony(used_edge_ids)</code> — 証言に含まれた場所を調査可能にする</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">09</div>
+          <div class="step-body">
+            <strong>翻訳して返す</strong>
+            <p>lang == "ja" なら <code>translate_response()</code> で日本語化してから返す</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── データクラス ── -->
+    <section id="dataclasses">
+      <h2># データクラス一覧</h2>
+
+      <h3>SuspectInfo</h3>
+      <table>
+        <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr><td>id</td><td>str</td><td>KGノードID（例: "elena_vasquez"）</td></tr>
+          <tr><td>name</td><td>str</td><td>表示名（例: "Elena Vasquez"）</td></tr>
+        </tbody>
+      </table>
+
+      <h3>LocationInfo</h3>
+      <table>
+        <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr><td>id</td><td>str</td><td>KGノードID</td></tr>
+          <tr><td>name</td><td>str</td><td>表示名</td></tr>
+          <tr><td>examined</td><td>bool</td><td>すでに調査済みか</td></tr>
+          <tr><td>is_new</td><td>bool</td><td>このターンに初めてアンロックされたか（UI通知用）</td></tr>
+        </tbody>
+      </table>
+
+      <h3>ItemInfo</h3>
+      <table>
+        <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr><td>id</td><td>str</td><td>KGノードID</td></tr>
+          <tr><td>name</td><td>str</td><td>表示名</td></tr>
+          <tr><td>description</td><td>str</td><td>短い説明文</td></tr>
+        </tbody>
+      </table>
+
+      <h3>ExamineResult　<small>— examine_location() の戻り値</small></h3>
+      <table>
+        <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr><td>description</td><td>str</td><td>場所の描写テキスト</td></tr>
+          <tr><td>newly_found</td><td>list[ItemInfo]</td><td>今回初めて発見したアイテム</td></tr>
+          <tr><td>already_found</td><td>list[ItemInfo]</td><td>以前に発見済みのアイテム</td></tr>
+          <tr><td>unlocked_location</td><td>str | None</td><td>この場所の調査で解放された別の場所ID</td></tr>
+        </tbody>
+      </table>
+
+      <h3>ItemDetail　<small>— examine_item() の戻り値</small></h3>
+      <table>
+        <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr><td>name</td><td>str</td><td>表示名</td></tr>
+          <tr><td>description</td><td>str</td><td>詳細説明</td></tr>
+          <tr><td>significance</td><td>str</td><td>探偵メモ（このアイテムが事件に関連する可能性）</td></tr>
+          <tr><td>unlocked_location</td><td>str | None</td><td>このアイテムを調べることで解放される場所ID</td></tr>
+        </tbody>
+      </table>
+
+      <h3>IndictResult　<small>— indict() の戻り値</small></h3>
+      <table>
+        <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr><td>correct</td><td>bool</td><td>正解かどうか</td></tr>
+          <tr><td>accused_name</td><td>str</td><td>指名した容疑者の名前</td></tr>
+          <tr><td>reason_accepted</td><td>bool</td><td>理由がKG proof graph上で十分かどうか</td></tr>
+          <tr><td>won</td><td>bool</td><td>犯人と理由がともに正しいかどうか</td></tr>
+          <tr><td>message</td><td>str</td><td>勝利時は解説文、失敗時は指名または理由が不成立であることを伝えるメッセージ</td></tr>
+          <tr><td>evaluation</td><td>dict</td><td>抽出されたedge、成立した証明グループ、スコアなどの詳細</td></tr>
+        </tbody>
+      </table>
+
+      <h3>GameState　<small>— get_state() の戻り値</small></h3>
+      <table>
+        <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr><td>current_suspect_id</td><td>str | None</td><td>現在尋問中の容疑者ID</td></tr>
+          <tr><td>suspects</td><td>list[SuspectInfo]</td><td>全容疑者リスト</td></tr>
+          <tr><td>available_locations</td><td>list[LocationInfo]</td><td>現在調査可能な場所一覧</td></tr>
+          <tr><td>found_items</td><td>list[ItemInfo]</td><td>発見済みアイテム一覧</td></tr>
+          <tr><td>turn</td><td>int</td><td>累計ターン数</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── メソッド詳細 ── -->
+    <section id="get_briefing">
+      <h2># get_briefing()</h2>
+      <div class="method-card">
+        <div class="method-sig">get_briefing() → dict</div>
+        <p class="method-desc">ゲーム開始時に一度呼ぶ。タイトル・設定・被害者情報・事件発生時刻・事件発覚時刻・容疑者リストを返す。LLM呼び出しなし。</p>
+        <div class="io-row">
+          <div>
+            <div class="io-label">Returns</div>
+            <div class="io-val">{"title": str, "setting": str, "victim": str, "time_of_murder": str, "time_discovered": str, "weapon": str, "scene": str, "suspects": list[SuspectInfo]}</div>
+          </div>
+        </div>
+      </div>
+      <pre><span class="cm"># 使用例</span>
+briefing = session.get_briefing()
+print(briefing[<span class="str">"title"</span>])     <span class="cm"># "The Final Act"</span>
+print(briefing[<span class="str">"time_of_murder"</span>])     <span class="cm"># "approximately 9:05 PM"</span>
+print(briefing[<span class="str">"time_discovered"</span>])    <span class="cm"># "9:20 PM"</span>
+print(briefing[<span class="str">"weapon"</span>])    <span class="cm"># "Brass candlestick (found on the floor, bloodied)"</span>
+<span class="kw">for</span> s <span class="kw">in</span> briefing[<span class="str">"suspects"</span>]:
+    print(s.id, s.name)</pre>
+    </section>
+
+    <section id="switch_suspect">
+      <h2># switch_suspect()</h2>
+      <div class="method-card">
+        <div class="method-sig">switch_suspect(suspect_id: str) → SuspectInfo</div>
+        <p class="method-desc">尋問対象を切り替える。この呼び出し以降の <code>ask()</code> は指定した容疑者に送られる。LLM呼び出しなし。</p>
+        <div class="io-row">
+          <div>
+            <div class="io-label">Raises</div>
+            <div class="io-val">ValueError — 存在しないsuspect_idを渡した場合</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="ask">
+      <h2># ask()</h2>
+      <div class="method-card">
+        <div class="method-sig">ask(text: str) → str</div>
+        <p class="method-desc">現在の容疑者にテキストで質問し、完全な回答文字列を返す。内部でLLM呼び出し・バリデーション・翻訳が行われる。<code>switch_suspect()</code> を事前に呼んでいない場合は RuntimeError。</p>
+        <div class="io-row">
+          <div>
+            <div class="io-label">Input</div>
+            <div class="io-val">text — プレイヤーの質問（日本語モードなら日本語のまま渡してよい）</div>
+          </div>
+          <div>
+            <div class="io-label">Returns</div>
+            <div class="io-val">容疑者の回答文字列（日本語モードなら日本語）</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="ask_stream">
+      <h2># ask_stream() <span class="tag tag-todo">TODO</span></h2>
+      <div class="method-card">
+        <div class="method-sig">ask_stream(text: str) → Generator[str, None, None]</div>
+        <p class="method-desc">ストリーミング版の <code>ask()</code>。トークンを逐次 yield する。現在は未実装で、<code>ask()</code> の全文を1回 yield してから空文字列を yield するフォールバック動作。React の SSE 対応に備えた予約メソッド。</p>
+      </div>
+      <pre><span class="cm"># 将来の使い方（SSE想定）</span>
+<span class="kw">for</span> chunk <span class="kw">in</span> session.ask_stream(user_input):
+    <span class="kw">if</span> chunk:
+        response.write(chunk)  <span class="cm"># SSE: data: chunk\n\n</span></pre>
+    </section>
+
+    <section id="get_examine_options">
+      <h2># get_examine_options()</h2>
+      <div class="method-card">
+        <div class="method-sig">get_examine_options() → dict</div>
+        <p class="method-desc">現在調査できる場所と、発見済みアイテムの一覧を返す。LLM呼び出しなし。UIの調査メニューを描画するために呼ぶ。</p>
+        <div class="io-row">
+          <div>
+            <div class="io-label">Returns</div>
+            <div class="io-val">{"locations": list[LocationInfo], "items": list[ItemInfo]}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="examine_location">
+      <h2># examine_location()</h2>
+      <div class="method-card">
+        <div class="method-sig">examine_location(location_id: str) → ExamineResult</div>
+        <p class="method-desc">指定した場所を調査する。新しいアイテムが見つかれば <code>newly_found</code> に入る。同じ場所を再度調べた場合は <code>already_found</code> に移る。LLM呼び出しなし。</p>
+      </div>
+    </section>
+
+    <section id="examine_item">
+      <h2># examine_item()</h2>
+      <div class="method-card">
+        <div class="method-sig">examine_item(item_id: str) → ItemDetail</div>
+        <p class="method-desc">発見済みアイテムの詳細を返す。<code>unlocked_location</code> が非 None の場合、そのアイテムを調べたことで新しい場所が解放されたことを意味する。LLM呼び出しなし。</p>
+      </div>
+    </section>
+
+    <section id="indict">
+      <h2># indict()</h2>
+      <div class="method-card">
+        <div class="method-sig">indict(suspect_id: str, reason: str) → IndictResult</div>
+        <p class="method-desc">犯人を理由付きで指名する。理由文はLLMでKG edgeにマッピングされ、勝敗は <code>solution.proof_graph</code> の必須グループ・重み付きスコアでルールベース判定される。</p>
+      </div>
+      <pre><span class="kw">result</span> = session.indict(
+    <span class="str">"n_elena"</span>,
+    <span class="str">"The compact was in the vent shaft and it belonged to Elena."</span>
+)
+<span class="kw">if</span> result.won:
+    show_ending(result.message)
+<span class="kw">else</span>:
+    show_wrong(result.accused_name, result.message, result.evaluation)</pre>
+    </section>
+
+    <section id="get_state">
+      <h2># get_state()</h2>
+      <div class="method-card">
+        <div class="method-sig">get_state() → GameState</div>
+        <p class="method-desc">ゲームの現在の全状態を返す。<code>ask()</code> の直後に呼ぶことで、証言によって新しくアンロックされた場所（<code>is_new=True</code>）を検出できる。LLM呼び出しなし。</p>
+      </div>
+      <pre><span class="cm"># ask() 直後に新しい場所を確認</span>
+response = session.ask(user_input)
+state = session.get_state()
+<span class="kw">for</span> loc <span class="kw">in</span> state.available_locations:
+    <span class="kw">if</span> loc.is_new:
+        notify(f<span class="str">"新しい場所が解放されました: {loc.name}"</span>)</pre>
+    </section>
+
+    <!-- ── CLI vs React ── -->
+    <section id="cli-vs-react">
+      <h2># CLI vs React：フロントエンドごとの違い</h2>
+
+      <p>どちらのフロントエンドも <code>GameSession</code> の同じメソッドを呼ぶ。違いはデータの受け取り方と表示だけ。</p>
+
+      <div class="compare-grid">
+        <div class="compare-col">
+          <h4>CLI（run_game_kg.py）</h4>
+          <ul>
+            <li>get_briefing() → print で表示</li>
+            <li>switch_suspect() → 番号入力で選択</li>
+            <li>ask() → print で表示</li>
+            <li>examine_location() → print で表示</li>
+            <li>get_state() → 新場所を print</li>
+            <li>indict() → print して sys.exit(0)</li>
+          </ul>
+        </div>
+        <div class="compare-col">
+          <h4>React（FastAPI 経由）</h4>
+          <ul>
+            <li>get_briefing() → JSON レスポンス</li>
+            <li>switch_suspect() → POST /suspect/{id}</li>
+            <li>ask() → POST /ask → SSE ストリーム</li>
+            <li>examine_location() → POST /examine</li>
+            <li>get_state() → GET /state</li>
+            <li>indict() → POST /indict</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>フロントエンドが自由に管理してよいもの</h3>
+      <p>以下はバックエンドに影響せず、フロントエンドだけで完結できる：</p>
+      <table>
+        <thead><tr><th>機能</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>気になるリスト</td>
+            <td>発見アイテムや発言をローカルで bookmark するだけ。GameSession は関係ない。</td>
+          </tr>
+          <tr>
+            <td>探偵メモ</td>
+            <td>プレイヤーが自由に書くメモ。バックエンド状態に影響しない。</td>
+          </tr>
+          <tr>
+            <td>容疑者の移動アニメーション</td>
+            <td>switch_suspect() の戻り値（名前）を使ってUIを演出するだけ。</td>
+          </tr>
+          <tr>
+            <td>場所移動の演出</td>
+            <td>examine_location() 成功後にアニメーションを入れるのはフロント側の自由。</td>
+          </tr>
+          <tr>
+            <td>会話履歴の表示</td>
+            <td>ask() の呼び出し結果をフロントでリストに積む。GameSession は最新の ledger を内部管理している。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+</div>

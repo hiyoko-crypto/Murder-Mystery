@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Murder Mystery プロジェクト仕様書</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: #0f0f14;
+      color: #d4d4d8;
+      line-height: 1.7;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      border-bottom: 1px solid #e94560;
+      padding: 40px 60px;
+    }
+    header h1 { font-size: 2rem; color: #fff; letter-spacing: 0.05em; }
+    header p  { color: #94a3b8; margin-top: 6px; font-size: 0.9rem; }
+
+    main { max-width: 1100px; margin: 0 auto; padding: 48px 32px; }
+
+    section { margin-bottom: 56px; }
+
+    h2 {
+      font-size: 1.2rem;
+      color: #e94560;
+      border-left: 4px solid #e94560;
+      padding-left: 14px;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    h3 {
+      font-size: 1rem;
+      color: #7dd3fc;
+      margin: 24px 0 12px;
+    }
+
+    p { color: #a1a1aa; margin-bottom: 10px; }
+
+    /* ── カード ── */
+    .card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 14px;
+    }
+    .card:hover { border-color: #3f3f46; }
+
+    .card .label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #71717a;
+      margin-bottom: 4px;
+    }
+    .card .value { color: #e4e4e7; font-size: 0.95rem; }
+    .card code {
+      background: #27272a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: #86efac;
+    }
+
+    /* ── グリッド ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+    @media (max-width: 700px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      header { padding: 24px; }
+      main { padding: 24px 16px; }
+    }
+
+    /* ── ファイルリスト ── */
+    .file-list { list-style: none; }
+    .file-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #27272a;
+      font-size: 0.9rem;
+    }
+    .file-list li:last-child { border-bottom: none; }
+    .file-path {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      color: #86efac;
+      min-width: 270px;
+      font-size: 0.82rem;
+      padding-top: 2px;
+    }
+    .file-desc { color: #a1a1aa; }
+
+    /* ── バッジ ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .badge-new    { background: #14532d; color: #86efac; }
+    .badge-update { background: #1e3a5f; color: #7dd3fc; }
+    .badge-keep   { background: #3b1f00; color: #fbbf24; }
+
+    /* ── フロー図 ── */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      margin: 16px 0;
+    }
+    .flow-box {
+      background: #1c1c27;
+      border: 1px solid #3f3f46;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 0.82rem;
+      color: #d4d4d8;
+      text-align: center;
+      min-width: 120px;
+    }
+    .flow-box.highlight { border-color: #7dd3fc; color: #7dd3fc; }
+    .flow-arrow {
+      color: #52525b;
+      font-size: 1.2rem;
+      padding: 0 8px;
+    }
+
+    /* ── Todo ── */
+    .todo-list { list-style: none; }
+    .todo-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid #27272a;
+    }
+    .todo-list li:last-child { border-bottom: none; }
+    .todo-priority {
+      min-width: 52px;
+      text-align: center;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .p-high   { background: #7f1d1d; color: #fca5a5; }
+    .p-mid    { background: #713f12; color: #fde68a; }
+    .p-low    { background: #1e3a5f; color: #7dd3fc; }
+    .todo-body .title { color: #e4e4e7; font-size: 0.95rem; margin-bottom: 3px; }
+    .todo-body .desc  { color: #71717a; font-size: 0.82rem; }
+
+    /* ── 比較表 ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 8px;
+    }
+    th {
+      background: #27272a;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #27272a;
+      color: #d4d4d8;
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    td.good  { color: #86efac; }
+    td.bad   { color: #fca5a5; }
+    td.warn  { color: #fde68a; }
+
+    /* ── 問題点box ── */
+    .issue-box {
+      background: #1c1010;
+      border: 1px solid #7f1d1d;
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin-bottom: 10px;
+    }
+    .issue-box .issue-title { color: #fca5a5; font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+    .issue-box .issue-body  { color: #a1a1aa; font-size: 0.85rem; }
+
+    footer {
+      text-align: center;
+      padding: 32px;
+      color: #52525b;
+      font-size: 0.8rem;
+      border-top: 1px solid #27272a;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Murder Mystery — プロジェクト仕様書</h1>
+  <p>最終更新: 2026-06-23 &nbsp;|&nbsp; ブランチ: master &nbsp;|&nbsp; エントリーポイント: <code>python main_kg.py</code></p>
+</header>
+
+<main>
+
+<!-- ════════════════════════════════════════
+     1. システム概要
+     ════════════════════════════════════════ -->
+<section>
+  <h2>1. システム概要</h2>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="label">ゲームタイプ</div>
+      <div class="value">CLIベース殺人ミステリー探偵ゲーム</div>
+    </div>
+    <div class="card">
+      <div class="label">現行シナリオ</div>
+      <div class="value">The Final Act（メリディアン劇場、初日夜）</div>
+    </div>
+    <div class="card">
+      <div class="label">LLMバックエンド</div>
+      <div class="value"><code>Ollama</code> ローカル推論（OpenAI互換API）</div>
+    </div>
+    <div class="card">
+      <div class="label">インストール済みモデル</div>
+      <div class="value"><code>qwen2.5:7b</code>（使用中）&nbsp; <code>qwen3.6:35b-a3b</code>（待機中）&nbsp; <code>nomic-embed-text</code>（現在未使用）</div>
+    </div>
+  </div>
+
+  <h3>ゲーム進行フロー</h3>
+  <div class="flow">
+    <div class="flow-box">言語選択<br><small>EN / JA</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">事件ブリーフィング<br><small>シナリオJSON読み込み</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box highlight">容疑者選択<br><small>switch コマンド</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box highlight">尋問ループ<br><small>KG-grounded応答</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">現場調査<br><small>examine コマンド</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">犯人指名<br><small>indict</small></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     2. アーキテクチャ：旧RAG vs 現行KG
+     ════════════════════════════════════════ -->
+<section>
+  <h2>2. アーキテクチャ：旧RAG vs 現行KG</h2>
+
+  <table>
+    <thead>
+      <tr><th>項目</th><th>旧RAG方式（suspect_agent.py）</th><th>現行KG方式（suspect_agent_kg.py）</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>コンテキスト取得</td>
+        <td class="bad">質問をベクトル化→ChromaDB類似検索（k=4）</td>
+        <td class="good">KGサブグラフを全件プロンプトに渡す（検索なし）</td>
+      </tr>
+      <tr>
+        <td>埋め込みモデル</td>
+        <td class="warn">nomic-embed-text（使用）</td>
+        <td class="good">不要（現在未使用）</td>
+      </tr>
+      <tr>
+        <td>ターン間一貫性</td>
+        <td class="bad">なし（毎ターン異なるchunkが返るため矛盾が起きる）</td>
+        <td class="good">CommitmentLedgerが矛盾を検出・リジェクト</td>
+      </tr>
+      <tr>
+        <td>秘密情報の漏洩制御</td>
+        <td class="bad">検索次第で秘密chunkが出る可能性</td>
+        <td class="good">hidden_edge_idsで明示的に禁止・Validatorで検証</td>
+      </tr>
+      <tr>
+        <td>質問依存性</td>
+        <td class="bad">質問の言い方でchunkが変わり回答が大きく変化</td>
+        <td class="good">KGは固定。構造に基づいた安定した応答</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>現行KGシステムの応答生成フロー</h3>
+  <div class="flow" style="flex-wrap:wrap; gap:6px;">
+    <div class="flow-box">シナリオJSON<br><small>KG定義</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">ScenarioLoader<br><small>サブグラフ抽出</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box highlight">subgraph_to_prompt<br><small>システムプロンプト生成</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box highlight">LLM呼び出し<br><small>qwen2.5:7b</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Validator<br><small>JSON検証・hidden漏洩チェック</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">CommitmentLedger<br><small>矛盾チェック・記録</small></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     3. 今回行った変更
+     ════════════════════════════════════════ -->
+<section>
+  <h2>3. 今回行った変更</h2>
+
+  <ul class="file-list">
+    <li>
+      <span class="file-path">modules/i18n.py <span class="badge badge-new">NEW</span></span>
+      <span class="file-desc">言語切り替えモジュール。<code>set_lang("en"|"ja")</code> で起動時に言語を設定し、<code>t("key")</code> で全UI文字列を取得する。英語・日本語の全テキストを一元管理。</span>
+    </li>
+    <li>
+      <span class="file-path">main_kg.py <span class="badge badge-update">UPDATE</span></span>
+      <span class="file-desc">ゲーム起動時に言語選択プロンプトを追加（1:English / 2:日本語）。選択結果を <code>i18n.set_lang()</code> に渡してからゲームを開始する。</span>
+    </li>
+    <li>
+      <span class="file-path">suspect_agents/run_game_kg.py <span class="badge badge-update">UPDATE</span></span>
+      <span class="file-desc">全print文・inputプロンプトをハードコードから <code>t("key")</code> 呼び出しに変更。英語・日本語どちらでも動作する。</span>
+    </li>
+    <li>
+      <span class="file-path">modules/subgraph_to_prompt.py <span class="badge badge-update">UPDATE</span></span>
+      <span class="file-desc">LLMへのシステムプロンプトを言語対応化。日本語モード時は <code>name_ja</code> / <code>bio_ja</code> / <code>tags_ja</code> / <code>interrogation_style_ja</code> / <code>speech_style_ja</code> / <code>detail_ja</code> を優先使用。エッジトリプルのノード名・detailも日本語化。</span>
+    </li>
+    <li>
+      <span class="file-path">modules/location_tracker.py <span class="badge badge-update">UPDATE</span></span>
+      <span class="file-desc">アイテム・場所の名前・説明・重要性を日本語モード時に <code>_ja</code> フィールド優先で返す <code>_prop()</code> ヘルパーを追加。</span>
+    </li>
+    <li>
+      <span class="file-path">scenarios/the_final_act.json <span class="badge badge-update">UPDATE</span></span>
+      <span class="file-desc">全15ノードに <code>name_ja</code>、キャラクター4名に <code>bio_ja</code> / <code>tags_ja</code> / <code>interrogation_style_ja</code> / <code>speech_style_ja</code>、11エッジに <code>detail_ja</code>、全場所に <code>description_ja</code> / <code>significance_ja</code> を追加。KGの英語構造は保持したまま日本語フィールドを共存させた。</span>
+    </li>
+    <li>
+      <span class="file-path">modules/llm_client.py <span class="badge badge-update">UPDATE</span></span>
+      <span class="file-desc">使用モデルを <code>qwen2.5:7b</code> に設定（qwen3.6:35b-a3bは生成速度の問題から一旦差し戻し）。</span>
+    </li>
+  </ul>
+</section>
+
+<!-- ════════════════════════════════════════
+     4. 現在の仕様
+     ════════════════════════════════════════ -->
+<section>
+  <h2>4. 現在の仕様</h2>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="label">言語モード</div>
+      <div class="value">英語 / 日本語を起動時に選択可能</div>
+    </div>
+    <div class="card">
+      <div class="label">使用LLM</div>
+      <div class="value"><code>qwen2.5:7b</code>（Ollama ローカル）</div>
+    </div>
+    <div class="card">
+      <div class="label">埋め込みモデル</div>
+      <div class="value">不使用（KG方式では不要）</div>
+    </div>
+    <div class="card">
+      <div class="label">容疑者数</div>
+      <div class="value">3名（Elena / Julian / Leo）</div>
+    </div>
+    <div class="card">
+      <div class="label">KG構造</div>
+      <div class="value">15ノード / 27エッジ（英語ベース + 日本語フィールド共存）</div>
+    </div>
+    <div class="card">
+      <div class="label">ゲームコマンド</div>
+      <div class="value"><code>switch</code> / <code>examine</code> / <code>quit</code>（言語に関わらず英語コマンドで統一）</div>
+    </div>
+  </div>
+
+  <h3>KGの言語設計方針（確定）</h3>
+  <div class="card">
+    <div class="value">
+      KGの構造（エッジID・関係名・ノードID）は英語で保持。<br>
+      表示に使うテキスト（name / bio / detail / description）は <code>_ja</code> サフィックスで日本語版を共存。<br>
+      別ファイルで管理せず、1つのJSONが唯一の真実（Single Source of Truth）。
+    </div>
+  </div>
+
+  <h3>現在判明している問題点</h3>
+  <div class="issue-box">
+    <div class="issue-title">日本語応答の文体がまだ不自然になることがある</div>
+    <div class="issue-body">
+      speech_style_jaフィールドを追加したが、qwen2.5:7bは7Bモデルのためロールプレイの精度に限界がある。
+      特に感情表現・人物らしい語り口を安定して出すには、より大きなモデルが効果的。
+    </div>
+  </div>
+  <div class="issue-box">
+    <div class="issue-title">大型モデル（qwen3.6:35b-a3b）は生成が遅い</div>
+    <div class="issue-body">
+      MacBook Pro（Metal GPU）での推論は23GBのウェイトをロードするため遅延が大きい。
+      品質 vs 速度のトレードオフとして現在は7bを使用中。
+    </div>
+  </div>
+  <div class="issue-box">
+    <div class="issue-title">犯人正解時のメッセージがハードコード（英語）</div>
+    <div class="issue-body">
+      「She entered Marcus's locked dressing room…」の正解詳細テキストが i18n 化済みだが、
+      解説文は現在のシナリオに依存した文言のため、シナリオ汎用化時に見直しが必要。
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     5. これから行うべきこと
+     ════════════════════════════════════════ -->
+<section>
+  <h2>5. これから行うべきこと</h2>
+
+  <ul class="todo-list">
+
+    <li>
+      <span class="todo-priority p-high">HIGH</span>
+      <div class="todo-body">
+        <div class="title">日本語モードで実際にゲームをプレイして品質検証</div>
+        <div class="desc">speech_style_ja の効果確認、「ですわ」「交差しました」などの不自然さが解消されたか確認。複数ターンの尋問で一貫性が保たれているか検証する。</div>
+      </div>
+    </li>
+
+    <li>
+      <span class="todo-priority p-high">HIGH</span>
+      <div class="todo-body">
+        <div class="title">モデルサイズの最終判断</div>
+        <div class="desc">speech_style_ja 追加後の7bの出力品質を評価し、それでも不十分なら qwen3.6:35b-a3b への切り替えを再検討。MoEモデルの速度はMetalの最適化次第で改善する可能性もある。</div>
+      </div>
+    </li>
+
+    <li>
+      <span class="todo-priority p-mid">MID</span>
+      <div class="todo-body">
+        <div class="title">シナリオ汎用化 — 正解テキストをシナリオJSON側に移動</div>
+        <div class="desc">現在 run_game_kg.py の _indict() に Elena 固有の正解詳細がハードコードされている。solution フィールドに explanation_ja を追加し、JSONから取得する形にする。</div>
+      </div>
+    </li>
+
+    <li>
+      <span class="todo-priority p-mid">MID</span>
+      <div class="todo-body">
+        <div class="title">第2シナリオの作成</div>
+        <div class="desc">the_final_act.json の構造を雛形として、別の事件・場所・容疑者セットで新シナリオを作成する。main_kg.py でシナリオ選択できるようにする。</div>
+      </div>
+    </li>
+
+    <li>
+      <span class="todo-priority p-mid">MID</span>
+      <div class="todo-body">
+        <div class="title">生成速度の改善（ストリーミング対応）</div>
+        <div class="desc">現在は全テキスト生成完了後に一括表示。Ollama の streaming API を使い、1トークンずつ出力することで体感速度を大幅に改善できる。</div>
+      </div>
+    </li>
+
+    <li>
+      <span class="todo-priority p-low">LOW</span>
+      <div class="todo-body">
+        <div class="title">commit / バージョン管理の整理</div>
+        <div class="desc">今回の変更（i18n対応・日本語KGフィールド追加・モデル切り替え）がコミットされていない。意味のある単位でコミットメッセージをつけてgit管理する。</div>
+      </div>
+    </li>
+
+    <li>
+      <span class="todo-priority p-low">LOW</span>
+      <div class="todo-body">
+        <div class="title">旧RAGシステムファイルの整理</div>
+        <div class="desc">suspect_agent.py / run_game.py は旧方式のファイルで現在未使用。削除するか archive ディレクトリに移動して整理する。</div>
+      </div>
+    </li>
+
+    <li>
+      <span class="todo-priority p-low">LOW</span>
+      <div class="todo-body">
+        <div class="title">UIの強化（色付き出力 / 進捗表示）</div>
+        <div class="desc">現在は素のprint出力。rich ライブラリ（既にインストール済み）を使ってテキストに色・太字・パネルを加え、ゲーム体験を向上させる。</div>
+      </div>
+    </li>
+
+  </ul>
+</section>
+
+<!-- ════════════════════════════════════════
+     6. ファイル構成
+     ════════════════════════════════════════ -->
+<section>
+  <h2>6. 主要ファイル構成</h2>
+
+  <ul class="file-list">
+    <li><span class="file-path">main_kg.py</span><span class="file-desc">エントリーポイント。言語選択 → ゲーム起動。</span></li>
+    <li><span class="file-path">modules/i18n.py</span><span class="file-desc">言語切り替え・全UI文字列の定義。</span></li>
+    <li><span class="file-path">modules/llm_client.py</span><span class="file-desc">Ollamaへの接続・LLM呼び出し関数。MODELをここで変更。</span></li>
+    <li><span class="file-path">modules/scenario_loader.py</span><span class="file-desc">シナリオJSONの読み込み・サブグラフ抽出。</span></li>
+    <li><span class="file-path">modules/subgraph_to_prompt.py</span><span class="file-desc">KGサブグラフ → LLMシステムプロンプト変換。言語対応済み。</span></li>
+    <li><span class="file-path">modules/location_tracker.py</span><span class="file-desc">場所・アイテムの発見管理。言語対応済み。</span></li>
+    <li><span class="file-path">suspect_agents/suspect_agent_kg.py</span><span class="file-desc">容疑者エージェント本体。KG + Ledger + Validator を統合。</span></li>
+    <li><span class="file-path">suspect_agents/commitment_ledger.py</span><span class="file-desc">ターン間一貫性管理。矛盾検出・発言記録。</span></li>
+    <li><span class="file-path">suspect_agents/validator_kg.py</span><span class="file-desc">LLM出力のJSON検証・hidden edge漏洩チェック。</span></li>
+    <li><span class="file-path">suspect_agents/run_game_kg.py</span><span class="file-desc">ゲームループ・CLI UI。i18n対応済み。</span></li>
+    <li><span class="file-path">scenarios/the_final_act.json</span><span class="file-desc">シナリオ定義。KG（ノード15・エッジ27）+ 日本語フィールド共存。</span></li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  Murder Mystery Project &nbsp;|&nbsp; 2026-06-23
+</footer>
+
+</body>
+</html>

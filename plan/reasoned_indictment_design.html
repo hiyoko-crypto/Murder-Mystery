@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reasoned Indictment Design</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: #101114;
+      color: #d7d7dc;
+      line-height: 1.7;
+    }
+    header {
+      background: #171923;
+      border-bottom: 1px solid #f59e0b;
+      padding: 36px 56px;
+    }
+    header h1 { color: #fff; font-size: 2rem; letter-spacing: 0.04em; }
+    header p { color: #a1a1aa; margin-top: 8px; font-size: 0.92rem; }
+    main { max-width: 1120px; margin: 0 auto; padding: 44px 32px; }
+    section { margin-bottom: 54px; }
+    h2 {
+      color: #fbbf24;
+      font-size: 1.15rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-left: 4px solid #fbbf24;
+      padding-left: 14px;
+      margin-bottom: 22px;
+    }
+    h3 { color: #93c5fd; font-size: 1rem; margin: 24px 0 10px; }
+    p { color: #b4b4bd; margin-bottom: 10px; }
+    code {
+      font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+      background: #27272a;
+      color: #86efac;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.86em;
+    }
+    pre {
+      background: #18181b;
+      border: 1px solid #2f3037;
+      border-radius: 8px;
+      color: #e4e4e7;
+      padding: 16px 18px;
+      overflow-x: auto;
+      font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+      font-size: 0.83rem;
+      line-height: 1.6;
+      margin: 12px 0;
+    }
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin: 16px 0;
+    }
+    .flow-box {
+      min-width: 136px;
+      background: #1f2430;
+      border: 1px solid #3f4554;
+      border-radius: 6px;
+      padding: 10px 14px;
+      color: #d7d7dc;
+      text-align: center;
+      font-size: 0.82rem;
+    }
+    .flow-box strong { color: #fde68a; display: block; font-size: 0.86rem; }
+    .flow-arrow { color: #6b7280; padding: 0 2px; font-size: 1.1rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 10px;
+    }
+    th {
+      background: #27272a;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      font-size: 0.72rem;
+      padding: 10px 12px;
+      text-align: left;
+    }
+    td {
+      border-bottom: 1px solid #2f3037;
+      color: #d4d4d8;
+      padding: 11px 12px;
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    .note {
+      background: #182018;
+      border: 1px solid #2f5d36;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #bbf7d0;
+      font-size: 0.9rem;
+      margin-top: 12px;
+    }
+    .file-list { list-style: none; border-top: 1px solid #2f3037; }
+    .file-list li {
+      display: flex;
+      gap: 14px;
+      border-bottom: 1px solid #2f3037;
+      padding: 12px 0;
+      font-size: 0.9rem;
+    }
+    .file-path {
+      min-width: 300px;
+      color: #86efac;
+      font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+      font-size: 0.82rem;
+    }
+    .file-desc { color: #b4b4bd; }
+    footer {
+      border-top: 1px solid #2f3037;
+      color: #71717a;
+      text-align: center;
+      padding: 30px;
+      font-size: 0.8rem;
+    }
+    @media (max-width: 760px) {
+      header { padding: 26px 22px; }
+      main { padding: 28px 16px; }
+      .flow-box { width: 100%; }
+      .flow-arrow { display: none; }
+      .file-list li { display: block; }
+      .file-path { display: block; min-width: 0; margin-bottom: 5px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Reasoned Indictment Design</h1>
+  <p>作成日: 2026-06-23 | 対象: 理由付き犯人指名 | 方針: 自由文をKG edgeへ写像し、proof graphでルール判定</p>
+</header>
+
+<main>
+
+<section>
+  <h2>1. 方針</h2>
+  <p>
+    プレイヤーは犯人を選ぶだけでなく、自由文で理由を入力する。
+    LLMは採点者ではなく、理由文に含まれる知識グラフedgeを抽出する役割だけを持つ。
+    勝敗は <code>solution.proof_graph</code> の必須グループ、重み、最低スコアでルールベース判定する。
+  </p>
+
+  <div class="flow">
+    <div class="flow-box"><strong>Accuse</strong>容疑者選択</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Reason</strong>自由文</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Extract</strong>edge ID抽出</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Score</strong>proof graph</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Verdict</strong>勝敗</div>
+  </div>
+</section>
+
+<section>
+  <h2>2. Proof Graph</h2>
+  <p>
+    <code>solution</code> に自然文rubricではなく、KG edge groupで構成された <code>proof_graph</code> を追加した。
+    全グループ必須ではなく、必須グループ + 重み付きスコアで柔軟に判定する。
+  </p>
+
+  <pre>"proof_graph": {
+  "minimum_score": 4,
+  "groups": [
+    {
+      "id": "compact_link",
+      "edge_ids": ["e7", "e18"],
+      "min_required": 2,
+      "weight": 4,
+      "required": true
+    },
+    {
+      "id": "vent_route",
+      "edge_ids": ["e8", "e9"],
+      "min_required": 2,
+      "weight": 2,
+      "required": false
+    },
+    {
+      "id": "locked_room",
+      "edge_ids": ["e6"],
+      "min_required": 1,
+      "weight": 1,
+      "required": false
+    }
+  ]
+}</pre>
+
+  <div class="note">
+    現在の勝利条件は、犯人が正しいこと、<code>compact_link</code> が成立すること、合計スコアが4以上であること、重大な捏造がないこと。
+  </div>
+</section>
+
+<section>
+  <h2>3. Edge Extraction</h2>
+  <p>
+    <code>modules/reason_edge_extractor.py</code> が、プレイヤーの理由文を原子的な主張へ分解し、
+    それぞれをKG edgeへ対応付ける。ここでは勝敗判定はしない。
+    以前のような脚本固有の単語ヒューリスティックは持たず、KGのnode名、表示名、説明、significance、edge relation、edge detailを材料にLLMが対応付ける。
+  </p>
+
+  <pre>{
+  "claims": [
+    {
+      "text": "A compact with Elena's initials was found in the vent.",
+      "quote": "通気口に エレナのイニシャルが書いてあるコンパクト"
+    }
+  ],
+  "mentioned_edges": [
+    {
+      "edge_id": "e7",
+      "confidence": 0.93,
+      "matched_claim": "The compact was found in the vent.",
+      "quote": "通気口に...コンパクト"
+    },
+    {
+      "edge_id": "e18",
+      "confidence": 0.88,
+      "matched_claim": "The compact belongs to Elena.",
+      "quote": "エレナのイニシャル"
+    }
+  ],
+  "contradicted_edges": [],
+  "invented_major_claims": []
+}</pre>
+
+  <p>
+    <code>confidence</code> はLLMによる対応付けの確からしさで、現在は <code>0.6</code> 以上のedgeだけを採用する。
+    採用済みedgeは互換性のため <code>mentioned_edge_ids</code> にも変換され、後段のproof graph判定へ渡される。
+  </p>
+
+  <p>
+    <code>invented_major_claims</code> は、KGにない新しい証拠、証人、アリバイ、犯行方法など、事件の論理を壊す捏造を検出するために使う。
+  </p>
+</section>
+
+<section>
+  <h2>4. Rule Evaluation</h2>
+  <p>
+    <code>modules/indictment_evaluator.py</code> が抽出edgeをproof graphへ照合する。
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>判定</th><th>条件</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>accused_correct</code></td>
+        <td><code>accused_node_id == solution.killer_node</code></td>
+      </tr>
+      <tr>
+        <td><code>reason_accepted</code></td>
+        <td>必須グループがすべて成立し、スコアが <code>minimum_score</code> 以上で、重大な捏造がない。</td>
+      </tr>
+      <tr>
+        <td><code>won</code></td>
+        <td><code>accused_correct</code> と <code>reason_accepted</code> が両方true。</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>5. GameSession API</h2>
+  <p><code>GameSession.indict()</code> は理由付きに変更された。</p>
+
+  <pre>result = session.indict(
+    "n_elena",
+    "The compact was found in the vent shaft and it belonged to Elena."
+)</pre>
+
+  <pre>{
+  "correct": true,
+  "reason_accepted": true,
+  "won": true,
+  "evaluation": {
+    "score": 4,
+    "minimum_score": 4,
+    "mentioned_edge_ids": ["e7", "e18"],
+    "confidence_threshold": 0.6,
+    "mentioned_edges": [
+      {"edge_id": "e7", "confidence": 0.93},
+      {"edge_id": "e18", "confidence": 0.88}
+    ],
+    "passed_groups": ["compact_link"]
+  }
+}</pre>
+</section>
+
+<section>
+  <h2>6. 変更ファイル</h2>
+  <ul class="file-list">
+    <li><span class="file-path">scenarios/the_final_act.json</span><span class="file-desc"><code>solution.proof_graph</code> を追加。</span></li>
+    <li><span class="file-path">modules/reason_edge_extractor.py</span><span class="file-desc">理由自由文をKG edgeへconfidence付きで対応付ける。脚本固有の単語ヒューリスティックは持たない。</span></li>
+    <li><span class="file-path">modules/indictment_evaluator.py</span><span class="file-desc">confidence閾値を通過したedgeをproof graphへ照合し、理由の妥当性をルールベース判定。</span></li>
+    <li><span class="file-path">game_session.py</span><span class="file-desc"><code>indict(suspect_id, reason)</code> と <code>IndictResult</code> を拡張。</span></li>
+    <li><span class="file-path">suspect_agents/run_game_kg.py</span><span class="file-desc">CLIで理由入力を受け付けるよう変更。</span></li>
+    <li><span class="file-path">plan/game_session_doc.html</span><span class="file-desc">UI向けAPI契約を更新。</span></li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  Reasoned Indictment Design | Murder Mystery | 2026-06-23
+</footer>
+
+</body>
+</html>

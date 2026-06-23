@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semantic Validator Implementation</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: #101114;
+      color: #d7d7dc;
+      line-height: 1.7;
+    }
+    header {
+      background: #171923;
+      border-bottom: 1px solid #22c55e;
+      padding: 36px 56px;
+    }
+    header h1 {
+      color: #fff;
+      font-size: 2rem;
+      letter-spacing: 0.04em;
+    }
+    header p {
+      color: #a1a1aa;
+      margin-top: 8px;
+      font-size: 0.92rem;
+    }
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 44px 32px;
+    }
+    section { margin-bottom: 54px; }
+    h2 {
+      color: #86efac;
+      font-size: 1.15rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-left: 4px solid #86efac;
+      padding-left: 14px;
+      margin-bottom: 22px;
+    }
+    h3 {
+      color: #93c5fd;
+      font-size: 1rem;
+      margin: 24px 0 10px;
+    }
+    p { color: #b4b4bd; margin-bottom: 10px; }
+    code {
+      font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+      background: #27272a;
+      color: #86efac;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.86em;
+    }
+    pre {
+      background: #18181b;
+      border: 1px solid #2f3037;
+      border-radius: 8px;
+      color: #e4e4e7;
+      padding: 16px 18px;
+      overflow-x: auto;
+      font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+      font-size: 0.83rem;
+      line-height: 1.6;
+      margin: 12px 0;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .card {
+      background: #18181b;
+      border: 1px solid #2f3037;
+      border-radius: 8px;
+      padding: 18px 20px;
+    }
+    .label {
+      color: #8b8b95;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 5px;
+    }
+    .value { color: #e4e4e7; font-size: 0.94rem; }
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin: 16px 0;
+    }
+    .flow-box {
+      min-width: 132px;
+      background: #1f2430;
+      border: 1px solid #3f4554;
+      border-radius: 6px;
+      padding: 10px 14px;
+      color: #d7d7dc;
+      text-align: center;
+      font-size: 0.82rem;
+    }
+    .flow-box strong {
+      color: #bbf7d0;
+      display: block;
+      font-size: 0.86rem;
+    }
+    .flow-arrow { color: #6b7280; padding: 0 2px; font-size: 1.1rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 10px;
+    }
+    th {
+      background: #27272a;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      font-size: 0.72rem;
+      padding: 10px 12px;
+      text-align: left;
+    }
+    td {
+      border-bottom: 1px solid #2f3037;
+      color: #d4d4d8;
+      padding: 11px 12px;
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    .note {
+      background: #182018;
+      border: 1px solid #2f5d36;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #bbf7d0;
+      font-size: 0.9rem;
+      margin-top: 12px;
+    }
+    .warn {
+      background: #241c12;
+      border: 1px solid #854d0e;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #fde68a;
+      font-size: 0.9rem;
+      margin-top: 12px;
+    }
+    .file-list {
+      list-style: none;
+      border-top: 1px solid #2f3037;
+    }
+    .file-list li {
+      display: flex;
+      gap: 14px;
+      border-bottom: 1px solid #2f3037;
+      padding: 12px 0;
+      font-size: 0.9rem;
+    }
+    .file-path {
+      min-width: 300px;
+      color: #86efac;
+      font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+      font-size: 0.82rem;
+    }
+    .file-desc { color: #b4b4bd; }
+    footer {
+      border-top: 1px solid #2f3037;
+      color: #71717a;
+      text-align: center;
+      padding: 30px;
+      font-size: 0.8rem;
+    }
+    @media (max-width: 760px) {
+      header { padding: 26px 22px; }
+      main { padding: 28px 16px; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .flow-box { width: 100%; }
+      .flow-arrow { display: none; }
+      .file-list li { display: block; }
+      .file-path { display: block; min-width: 0; margin-bottom: 5px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Semantic Validator Implementation</h1>
+  <p>作成日: 2026-06-23 | 対象: KG版 Murder Mystery | 目的: ルールベース検証 + LLM意味検証</p>
+</header>
+
+<main>
+
+<section>
+  <h2>1. 目的</h2>
+  <div class="grid-3">
+    <div class="card">
+      <div class="label">Rule First</div>
+      <div class="value">機械的に判定できるJSON形式、edge ID、triple形式はルールベースで即判定する。</div>
+    </div>
+    <div class="card">
+      <div class="label">Semantic Check</div>
+      <div class="value">本文が秘匿情報を漏らす、公開事実や過去発言と矛盾する、事件を壊す重大な捏造をするケースをLLMで検査する。</div>
+    </div>
+    <div class="card">
+      <div class="label">Safe Fallback</div>
+      <div class="value">全リトライ失敗時はraw出力を表示せず、安全な固定応答を返す。</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>2. 新しい検証フロー</h2>
+  <div class="flow">
+    <div class="flow-box"><strong>Generate</strong>LLM回答</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Rule Validator</strong>形式とedge</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Semantic Validator</strong>意味検証</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Ledger</strong>保存</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box"><strong>Display</strong>翻訳/表示</div>
+  </div>
+
+  <p>
+    既存の <code>validate_response()</code> を第一防衛線として残し、その通過後に
+    <code>semantic_validate_response()</code> を実行する。どちらかで失敗した場合は再生成する。
+  </p>
+
+  <pre>is_valid, parsed, error = validate_response(...)
+if is_valid:
+    sem_ok, sem_result, sem_error = semantic_validate_response(...)
+    if sem_ok:
+        ledger.add_turn(...)
+        return response</pre>
+</section>
+
+<section>
+  <h2>3. Rule Validator の強化</h2>
+  <p>
+    <code>suspect_agents/validator_kg.py</code> を強化し、JSON parse だけでなく、
+    <code>used_edge_ids</code> と <code>asserted_triples</code> の型と範囲を検査するようにした。
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>検査</th><th>内容</th><th>失敗例</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>JSON object</td>
+        <td>LLM出力がJSONオブジェクトとしてparseできること。</td>
+        <td>自然文だけ、配列、壊れたJSON。</td>
+      </tr>
+      <tr>
+        <td>required fields</td>
+        <td><code>response</code>、<code>used_edge_ids</code>、<code>asserted_triples</code> を必須化。</td>
+        <td><code>used_edge_ids</code> が欠落。</td>
+      </tr>
+      <tr>
+        <td>used_edge_ids type</td>
+        <td>配列で、各要素が文字列であること。</td>
+        <td><code>"used_edge_ids": "e1"</code></td>
+      </tr>
+      <tr>
+        <td>hidden edge leak</td>
+        <td><code>used_edge_ids</code> に <code>hidden_edge_ids</code> が含まれないこと。</td>
+        <td>Elenaが <code>e14</code>、<code>e16</code>、<code>e17</code>、<code>e28</code> を使う。</td>
+      </tr>
+      <tr>
+        <td>visible edge subset</td>
+        <td><code>used_edge_ids</code> が、その容疑者の <code>visible_edge_ids</code> の部分集合であること。</td>
+        <td>存在しない <code>e999</code> や、別容疑者専用edge。</td>
+      </tr>
+      <tr>
+        <td>asserted_triples type</td>
+        <td>配列で、各要素が長さ3の文字列配列であること。</td>
+        <td><code>["Elena", "WAS_IN"]</code></td>
+      </tr>
+      <tr>
+        <td>ledger contradiction</td>
+        <td>同じsubject + relationで、過去と違うobjectを主張していないこと。</td>
+        <td><code>WAS_IN</code> の場所が過去発言と衝突。</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>4. Semantic Validator</h2>
+  <p>
+    新規ファイル <code>suspect_agents/semantic_validator.py</code> を追加した。
+    現時点では <code>modules.llm_client.llm()</code> を使うため、対話生成と同じ <code>qwen2.5:7b</code> で動く。
+  </p>
+
+  <h3>LLMに渡す情報</h3>
+  <table>
+    <thead>
+      <tr><th>入力</th><th>目的</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>suspect_name</code></td>
+        <td>誰の回答を検査しているかを固定する。</td>
+      </tr>
+      <tr>
+        <td><code>question</code></td>
+        <td>探偵の質問。日本語モードでは英語化後の質問。</td>
+      </tr>
+      <tr>
+        <td><code>response_text</code></td>
+        <td>表示候補の英語回答本文。</td>
+      </tr>
+      <tr>
+        <td><code>visible_edges</code></td>
+        <td>回答が使ってよい事実。</td>
+      </tr>
+      <tr>
+        <td><code>hidden_edges</code></td>
+        <td>回答が明かしてはいけない秘匿事実。内部検証専用。</td>
+      </tr>
+      <tr>
+        <td><code>is_guilty</code></td>
+        <td>犯人の場合、hidden truthと矛盾する嘘は許可する。ただし秘匿事実の漏洩は許可しない。</td>
+      </tr>
+      <tr>
+        <td><code>ledger_text</code></td>
+        <td>過去発言との意味的矛盾を検査する。</td>
+      </tr>
+      <tr>
+        <td><code>asserted_triples</code></td>
+        <td>LLM回答が自己申告した主張を補助情報として渡す。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>期待する出力</h3>
+  <pre>{
+  "verdict": "pass",
+  "hidden_leak": false,
+  "public_contradiction": false,
+  "ledger_contradiction": false,
+  "case_breaking_fabrication": false,
+  "reason": "",
+  "retry_hint": ""
+}</pre>
+
+  <p>
+    Python側では <code>verdict == "pass"</code> かつ検査フラグがすべて <code>false</code> の場合だけ採用する。
+    <code>fail</code> と <code>uncertain</code> は再生成対象。
+  </p>
+
+  <div class="note">
+    KGは人物の全行動を細かく保持していないため、自然な補足、感情、曖昧な記憶、会話上の言い換えは許可する。
+    <code>case_breaking_fabrication</code> は、新しい証拠・証人・アリバイ・犯行方法など、事件の論理を壊す重大な捏造だけを落とす。
+  </div>
+
+  <div class="warn">
+    semantic validatorにはhidden factsを渡すが、その出力は内部専用。UIには出さず、再生成用ヒントも具体的な秘密を含まない汎用文に丸める。
+  </div>
+</section>
+
+<section>
+  <h2>5. Retry と Fallback</h2>
+  <p>
+    rule validator または semantic validator が失敗した場合、最大 <code>MAX_RETRIES = 3</code> 回まで再生成する。
+    semantic validator のfail時は、秘匿情報を含まない安全なヒントだけを再生成プロンプトに付ける。
+  </p>
+
+  <pre>[Previous output was invalid:
+Regenerate the answer without revealing or implying any forbidden private information. Deflect if needed.]</pre>
+
+  <p>
+    すべて失敗した場合は、以前のようにraw出力を返さない。秘匿漏洩の可能性があるため、安全な固定応答にする。
+  </p>
+
+  <pre>I need a moment to collect myself. Ask me again, Detective.</pre>
+
+  <p>
+    日本語モードでは、この固定応答も <code>translate_response()</code> を通して表示する。
+    また、質問開始時に <code>last_used_edge_ids</code> を空に戻すため、失敗時に前回のedgeで場所解放が誤作動しない。
+  </p>
+</section>
+
+<section>
+  <h2>6. 変更ファイル</h2>
+  <ul class="file-list">
+    <li><span class="file-path">suspect_agents/validator_kg.py</span><span class="file-desc">rule validatorを強化。必須フィールド、型、visible edge subset、hidden leak、triple形式、ledger矛盾を検査。</span></li>
+    <li><span class="file-path">suspect_agents/semantic_validator.py</span><span class="file-desc">新規追加。LLMでhidden leak、意味的矛盾、unsupported claimを検査。</span></li>
+    <li><span class="file-path">suspect_agents/suspect_agent_kg.py</span><span class="file-desc">rule validator通過後にsemantic validatorを呼び、成功時だけledgerへ保存。safe fallbackも追加。</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2>7. 確認済み</h2>
+  <p>構文チェックと、rule validator の基本ケースを確認済み。</p>
+
+  <pre>python3 -m py_compile \
+  suspect_agents/validator_kg.py \
+  suspect_agents/semantic_validator.py \
+  suspect_agents/suspect_agent_kg.py \
+  game_session.py</pre>
+
+  <pre>Rule validator smoke test:
+- valid visible edge: pass
+- hidden edge: fail
+- unknown edge: fail
+- invalid used_edge_ids type: fail
+- invalid asserted_triples shape: fail</pre>
+
+  <div class="note">
+    semantic validatorは実行時にOllama LLMを呼ぶ。今回の確認では構文と接続を確認済みで、実ゲームでの品質調整は次の検証対象。
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Semantic Validator Implementation | Murder Mystery | 2026-06-23
+</footer>
+
+</body>
+</html>
