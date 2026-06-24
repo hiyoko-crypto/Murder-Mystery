@@ -36,6 +36,20 @@ Rules (strictly follow all):
 {text}"""
 
 
+_DISPLAY_TEXT_PROMPT = """\
+Translate the following murder mystery game text into natural Japanese.
+
+Rules (strictly follow all):
+- Do NOT add, remove, infer, or alter any factual content.
+- Preserve times, quantities, uncertainty, clues, locations, evidence, and names exactly in meaning.
+- Use the name mappings provided below for proper nouns.
+- Keep the text concise and suitable for UI display.
+- Return ONLY the translated Japanese text. No explanation, no JSON wrapper.
+
+{name_hint}Text to translate:
+{text}"""
+
+
 def _format_name_hint(display_names: dict = None, reverse: bool = False) -> str:
     if not display_names:
         return ""
@@ -57,3 +71,11 @@ def translate_response(text: str, display_names: dict = None) -> str:
     name_hint = _format_name_hint(display_names, reverse=False)
     prompt = _RESPONSE_PROMPT.format(name_hint=name_hint, text=text)
     return llm(prompt, temperature=0.3).strip()
+
+
+def translate_display_text(text: str, display_names: dict = None) -> str:
+    if not text:
+        return text
+    name_hint = _format_name_hint(display_names, reverse=False)
+    prompt = _DISPLAY_TEXT_PROMPT.format(name_hint=name_hint, text=text)
+    return llm(prompt, temperature=0.2).strip()

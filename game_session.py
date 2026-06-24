@@ -12,6 +12,7 @@ from modules.i18n import set_lang
 from modules.indictment_evaluator import evaluate_indictment
 from modules.scenario_loader import ScenarioLoader
 from modules.location_tracker import LocationTracker
+from modules.translator import translate_display_text
 from suspect_agents.commitment_ledger import CommitmentLedger
 from suspect_agents.suspect_agent_kg import SuspectAgentKG
 
@@ -93,6 +94,7 @@ class GameSession:
         self.current_suspect_id: str | None = None
         self.turn = 0
         self._new_location_ids: set[str] = set()
+        self._translation_cache: dict[str, str] = {}
 
     # ── Briefing ──────────────────────────────────────────────────────
 
@@ -100,13 +102,13 @@ class GameSession:
         """Return case overview for the opening screen."""
         md = self.loader.get_murder_details()
         return {
-            "title":    self.loader.get_title(),
-            "setting":  self.loader.get_setting(),
-            "victim":   md.get("summary", ""),
-            "time_of_murder": md.get("time_of_murder", ""),
-            "time_discovered": md.get("time_discovered", ""),
-            "weapon":   md.get("weapon", ""),
-            "scene":    md.get("setting", ""),
+            "title":    self._display_text(self.loader.get_title()),
+            "setting":  self._display_text(self.loader.get_setting()),
+            "victim":   self._display_text(md.get("public_summary", md.get("summary", ""))),
+            "time_of_murder": self._display_text(md.get("time_of_murder", "")),
+            "time_discovered": self._display_text(md.get("time_discovered", "")),
+            "weapon":   self._display_text(md.get("weapon", "")),
+            "scene":    self._display_text(md.get("setting", "")),
             "suspects": [self._suspect_info(nid) for nid in self.agents],
         }
 
@@ -149,7 +151,7 @@ class GameSession:
         locations = [
             LocationInfo(
                 id=loc_id,
-                name=self.loader.get_node_name(loc_id),
+                name=self._display_node_name(loc_id),
                 examined=self.tracker.is_examined(loc_id),
                 is_new=loc_id in self._new_location_ids,
             )
@@ -158,8 +160,10 @@ class GameSession:
         items = [
             ItemInfo(
                 id=item_id,
-                name=self.loader.nodes[item_id]["properties"].get("name", item_id),
-                description=self.loader.nodes[item_id]["properties"].get("description", ""),
+                name=self._display_node_name(item_id),
+                description=self._display_text(
+                    self.loader.nodes[item_id]["properties"].get("description", "")
+                ),
             )
             for item_id in self.tracker.get_found_items()
         ]
@@ -169,7 +173,7 @@ class GameSession:
         self._new_location_ids = set()
         result = self.tracker.examine_location(location_id)
         return ExamineResult(
-            description=result["description"],
+            description=self._display_text(result["description"]),
             newly_found=[self._item_info(i) for i in result["newly_found"]],
             already_found=[self._item_info(i) for i in result["already_found"]],
             unlocked_location=None,
@@ -181,9 +185,9 @@ class GameSession:
             {result["unlocked_location"]} if result["unlocked_location"] else set()
         )
         return ItemDetail(
-            name=result["name"],
-            description=result["description"],
-            significance=result["significance"],
+            name=self._display_node_name(item_id),
+            description=self._display_text(result["description"]),
+            significance=self._display_text(result["significance"]),
             unlocked_location=result["unlocked_location"],
         )
 
@@ -208,10 +212,11 @@ class GameSession:
             message = "The suspect is correct, but your reasoning does not establish the case."
         else:
             message = "The indictment fails."
+        message = self._display_text(message)
 
         return IndictResult(
             correct=correct,
-            accused_name=agent.suspect_name,
+            accused_name=self._display_node_name(suspect_id),
             reason_accepted=reason_accepted,
             won=won,
             message=message,
@@ -243,13 +248,30 @@ class GameSession:
     def _suspect_info(self, node_id: str) -> SuspectInfo:
         return SuspectInfo(
             id=node_id,
-            name=self.loader.get_node_name(node_id),
+            name=self._display_node_name(node_id),
         )
 
     def _item_info(self, item_id: str) -> ItemInfo:
         props = self.loader.nodes[item_id]["properties"]
         return ItemInfo(
             id=item_id,
-            name=props.get("name", item_id),
-            description=props.get("description", ""),
+            name=self._display_node_name(item_id),
+            description=self._display_text(props.get("description", "")),
         )
+
+    def _display_node_name(self, node_id: str) -> str:
+        name = self.loader.get_node_name(node_id)
+        if self.language != "ja":
+            return name
+        return self.loader.get_display_names_ja().get(name, name)
+
+    def _display_text(self, text: str) -> str:
+        if self.language != "ja" or not text:
+            return text
+
+        if text not in self._translation_cache:
+            self._translation_cache[text] = translate_display_text(
+                text,
+                self.loader.get_display_names_ja(),
+            )
+        return self._translation_cache[text]

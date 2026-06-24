@@ -370,6 +370,7 @@
       </table>
 
       <p>つまり <strong>「何を知っているか（サブグラフ）」は固定</strong> で、<strong>「何を話したか（ledger）」だけが蓄積</strong> されていく。毎ターン <code>build_system_prompt()</code> が呼ばれるとき、固定サブグラフ＋最新のledgerテキストが組み合わさって容疑者のシステムプロンプトが生成される。</p>
+      <p>日本語モードでは、KGやシナリオJSONに英語で保存された説明文を表示直前に <code>translate_display_text()</code> で日本語化する。翻訳結果は <code>GameSession</code> 内でキャッシュされるため、同じ説明文を表示するたびにLLMを呼ぶわけではない。人物名・場所名・アイテム名は <code>display_names_ja</code> を優先して使う。</p>
     </section>
 
     <!-- ── ask フロー ── -->
@@ -530,7 +531,7 @@
       <h2># get_briefing()</h2>
       <div class="method-card">
         <div class="method-sig">get_briefing() → dict</div>
-        <p class="method-desc">ゲーム開始時に一度呼ぶ。タイトル・設定・被害者情報・事件発生時刻・事件発覚時刻・容疑者リストを返す。LLM呼び出しなし。</p>
+        <p class="method-desc">ゲーム開始時に一度呼ぶ。タイトル・設定・被害者情報・事件発生時刻・事件発覚時刻・容疑者リストを返す。被害者情報は <code>murder_details.public_summary</code> を優先し、犯人の侵入経路など調査で明らかにすべき真相は出さない。日本語モードでは表示文を翻訳して返す。</p>
         <div class="io-row">
           <div>
             <div class="io-label">Returns</div>
@@ -540,10 +541,10 @@
       </div>
       <pre><span class="cm"># 使用例</span>
 briefing = session.get_briefing()
-print(briefing[<span class="str">"title"</span>])     <span class="cm"># "The Final Act"</span>
-print(briefing[<span class="str">"time_of_murder"</span>])     <span class="cm"># "approximately 9:05 PM"</span>
-print(briefing[<span class="str">"time_discovered"</span>])    <span class="cm"># "9:20 PM"</span>
-print(briefing[<span class="str">"weapon"</span>])    <span class="cm"># "Brass candlestick (found on the floor, bloodied)"</span>
+print(briefing[<span class="str">"title"</span>])     <span class="cm"># ja mode: 翻訳済みタイトル</span>
+print(briefing[<span class="str">"time_of_murder"</span>])     <span class="cm"># ja mode: "午後9時5分ごろ"</span>
+print(briefing[<span class="str">"time_discovered"</span>])    <span class="cm"># ja mode: "午後9時20分"</span>
+print(briefing[<span class="str">"weapon"</span>])    <span class="cm"># ja mode: 翻訳済み凶器説明</span>
 <span class="kw">for</span> s <span class="kw">in</span> briefing[<span class="str">"suspects"</span>]:
     print(s.id, s.name)</pre>
     </section>
@@ -596,7 +597,7 @@ print(briefing[<span class="str">"weapon"</span>])    <span class="cm"># "Brass 
       <h2># get_examine_options()</h2>
       <div class="method-card">
         <div class="method-sig">get_examine_options() → dict</div>
-        <p class="method-desc">現在調査できる場所と、発見済みアイテムの一覧を返す。LLM呼び出しなし。UIの調査メニューを描画するために呼ぶ。</p>
+        <p class="method-desc">現在調査できる場所と、発見済みアイテムの一覧を返す。UIの調査メニューを描画するために呼ぶ。日本語モードではアイテム説明を翻訳して返す。</p>
         <div class="io-row">
           <div>
             <div class="io-label">Returns</div>
@@ -610,7 +611,7 @@ print(briefing[<span class="str">"weapon"</span>])    <span class="cm"># "Brass 
       <h2># examine_location()</h2>
       <div class="method-card">
         <div class="method-sig">examine_location(location_id: str) → ExamineResult</div>
-        <p class="method-desc">指定した場所を調査する。新しいアイテムが見つかれば <code>newly_found</code> に入る。同じ場所を再度調べた場合は <code>already_found</code> に移る。LLM呼び出しなし。</p>
+        <p class="method-desc">指定した場所を調査する。新しいアイテムが見つかれば <code>newly_found</code> に入る。同じ場所を再度調べた場合は <code>already_found</code> に移る。日本語モードでは場所説明とアイテム説明を翻訳して返す。</p>
       </div>
     </section>
 
@@ -618,7 +619,7 @@ print(briefing[<span class="str">"weapon"</span>])    <span class="cm"># "Brass 
       <h2># examine_item()</h2>
       <div class="method-card">
         <div class="method-sig">examine_item(item_id: str) → ItemDetail</div>
-        <p class="method-desc">発見済みアイテムの詳細を返す。<code>unlocked_location</code> が非 None の場合、そのアイテムを調べたことで新しい場所が解放されたことを意味する。LLM呼び出しなし。</p>
+        <p class="method-desc">発見済みアイテムの詳細を返す。<code>unlocked_location</code> が非 None の場合、そのアイテムを調べたことで新しい場所が解放されたことを意味する。日本語モードでは説明とsignificanceを翻訳して返す。</p>
       </div>
     </section>
 
@@ -642,7 +643,7 @@ print(briefing[<span class="str">"weapon"</span>])    <span class="cm"># "Brass 
       <h2># get_state()</h2>
       <div class="method-card">
         <div class="method-sig">get_state() → GameState</div>
-        <p class="method-desc">ゲームの現在の全状態を返す。<code>ask()</code> の直後に呼ぶことで、証言によって新しくアンロックされた場所（<code>is_new=True</code>）を検出できる。LLM呼び出しなし。</p>
+        <p class="method-desc">ゲームの現在の全状態を返す。<code>ask()</code> の直後に呼ぶことで、証言によって新しくアンロックされた場所（<code>is_new=True</code>）を検出できる。日本語モードでは表示名・説明が日本語化される。</p>
       </div>
       <pre><span class="cm"># ask() 直後に新しい場所を確認</span>
 response = session.ask(user_input)

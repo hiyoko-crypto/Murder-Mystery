@@ -5,7 +5,8 @@
   "murder_details": {
     "time_of_murder": "approximately 9:05 PM",
     "time_discovered": "9:20 PM",
-    "summary": "Marcus Vance was struck and killed with a brass candlestick in his private dressing room during intermission at approximately 9:05 PM. The room was locked from the inside. The murderer entered and exited through the ventilation shaft.",
+    "public_summary": "Marcus Vance was found dead in his private dressing room during intermission at approximately 9:05 PM. He had been struck with a brass candlestick. The room was locked from the inside.",
+    "summary": "Marcus Vance was found dead in his private dressing room during intermission at approximately 9:05 PM. He had been struck with a brass candlestick. The room was locked from the inside.",
     "setting": "Marcus's private dressing room, backstage at the Meridian Theatre.",
     "weapon": "Brass candlestick (found on the floor, bloodied)",
     "action": "Elena Rostova crawled through the ventilation shaft into Marcus's locked dressing room during the intermission blackout and struck him with the brass candlestick on his desk.",
@@ -725,7 +726,7 @@
       "e12"
     ],
     "proof_graph": {
-      "minimum_score": 4,
+      "minimum_score": 5,
       "groups": [
         {
           "id": "compact_link",
