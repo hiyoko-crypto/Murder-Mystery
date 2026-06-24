@@ -1,0 +1,152 @@
+{
+  "nodes": [
+    {
+      "id": "sir_reginald",
+      "label": "Sir Reginald Vance",
+      "type": "Victim",
+      "description": "Wealthy, eccentric clockmaker who was murdered in his private study."
+    },
+    {
+      "id": "clock_tower_study",
+      "label": "The Clock Tower Study",
+      "type": "Location",
+      "description": "Soundproofed third-floor room with a deafening mechanical clock that chimes every hour for 60 seconds."
+    },
+    {
+      "id": "billiards_room",
+      "label": "The Billiards Room",
+      "type": "Location",
+      "description": "Ground floor recreation room where Arthur claimed to be playing alone."
+    },
+    {
+      "id": "brass_weight",
+      "label": "Brass Clock Weight",
+      "type": "Murder Weapon",
+      "description": "A heavy mechanical component used to strike the victim down instantly."
+    },
+    {
+      "id": "spare_key",
+      "label": "Spare Study Key",
+      "type": "Clue",
+      "description": "The key kept in Miss Croft's desk drawer that grants access to the study."
+    },
+    {
+      "id": "arthur_vance",
+      "label": "Arthur Vance",
+      "type": "Suspect",
+      "description": "Sir Reginald's estranged nephew and desperate gambler. The actual murderer.",
+      "metadata": {
+        "public_alibi": "Practicing trick shots alone in the billiards room from 3:15 PM to 4:15 PM.",
+        "hidden_secret": "Owes £10,000 to dangerous bookmakers; sneaked out to steal the key and commit the murder.",
+        "interrogation_weakness": "Cannot provide technical details about his supposed billiard game, and cannot explain why the room was seen empty at 3:45 PM."
+      }
+    },
+    {
+      "id": "lady_eleanor",
+      "label": "Lady Eleanor Vance",
+      "type": "Suspect",
+      "description": "The younger, glamorous wife of the victim.",
+      "metadata": {
+        "public_alibi": "Cutting roses in the garden at 3:45 PM; claims she heard her husband shouting inside his room.",
+        "hidden_secret": "Having an affair with Dr. Miller. Visited the study at 3:50 PM to steal her love letters back, proving Reginald was alive then.",
+        "interrogation_weakness": "Lied about hearing shouts. Since the room is 100% soundproof, she could not have heard anything from the garden, exposing her presence near the room."
+      }
+    },
+    {
+      "id": "dr_miller",
+      "label": "Dr. Quentin Miller",
+      "type": "Suspect",
+      "description": "Sir Reginald's personal physician and secret lover of Lady Eleanor.",
+      "metadata": {
+        "public_alibi": "Waiting patiently in the drawing room from 3:30 PM until 4:15 PM.",
+        "hidden_secret": "Spotted Lady Eleanor going upstairs to the study at 3:50 PM and is trying to protect her from suspicion.",
+        "interrogation_weakness": "If forced to describe the drawing room layout, he must admit he was looking at the stairs, proving he saw who moved through the house."
+      }
+    },
+    {
+      "id": "miss_croft",
+      "label": "Miss Beatrice Croft",
+      "type": "Suspect",
+      "description": "The strict, fiercely loyal secretary who manages the estate.",
+      "metadata": {
+        "public_alibi": "Served tea at 3:00 PM, then went to the kitchen at 3:45 PM to check on dinner.",
+        "hidden_secret": "Accidentally left her desk drawer unlocked between 2:00 PM and 4:00 PM, leaving the spare key exposed.",
+        "interrogation_weakness": "Her extreme pride makes her deny mistakes, but when confronted with Dr. Miller's observation of the open drawer, she will break and admit her oversight."
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "arthur_vance",
+      "target": "sir_reginald",
+      "relationship": "Nephew of (and murdered due to gambling debts)"
+    },
+    {
+      "source": "lady_eleanor",
+      "target": "sir_reginald",
+      "relationship": "Wife of (and stealing love letters from)"
+    },
+    {
+      "source": "lady_eleanor",
+      "target": "dr_miller",
+      "relationship": "Secretly having an romantic affair with"
+    },
+    {
+      "source": "miss_croft",
+      "target": "sir_reginald",
+      "relationship": "Employee of"
+    },
+    {
+      "source": "brass_weight",
+      "target": "sir_reginald",
+      "relationship": "Caused instant death to"
+    },
+    {
+      "source": "clock_tower_study",
+      "target": "sir_reginald",
+      "relationship": "Location of death"
+    },
+    {
+      "source": "miss_croft",
+      "target": "sir_reginald",
+      "relationship": "Served tea to",
+      "timestamp": "15:00"
+    },
+    {
+      "source": "arthur_vance",
+      "target": "spare_key",
+      "relationship": "Stole from unlocked desk",
+      "timestamp": "15:40"
+    },
+    {
+      "source": "miss_croft",
+      "target": "billiards_room",
+      "relationship": "Observed that room was completely empty",
+      "timestamp": "15:45"
+    },
+    {
+      "source": "lady_eleanor",
+      "target": "clock_tower_study",
+      "relationship": "Entered room to steal letters, saw victim alive",
+      "timestamp": "15:50"
+    },
+    {
+      "source": "dr_miller",
+      "target": "lady_eleanor",
+      "relationship": "Witnessed walking toward the study stairs",
+      "timestamp": "15:50"
+    },
+    {
+      "source": "arthur_vance",
+      "target": "sir_reginald",
+      "relationship": "Struck victim with brass weight during loud clock chime",
+      "timestamp": "16:00"
+    },
+    {
+      "source": "dr_miller",
+      "target": "sir_reginald",
+      "relationship": "Discovered the corpse along with Miss Croft",
+      "timestamp": "16:15"
+    }
+  ]
+}
