@@ -25,6 +25,7 @@ class Plot:
         self.suspects = suspects  # list
         self.shared_interactions = []  # list of SharedInteraction objects - 10
         self.timeline = []  # list of Timestamp objects - 10
+        self.god_kg = None  # KnowledgeGraph — set after kg generation
 
     def get_info(self) -> str:
         """
@@ -134,7 +135,8 @@ class Plot:
             'murder_details': self.murder_details,
             'suspects': self.suspects,
             'shared_interactions': self.shared_interactions,
-            'timeline': self.timeline
+            'timeline': self.timeline,
+            'god_kg': self.god_kg,
         }
 
     def __setstate__(self, state: dict) -> None:
@@ -147,3 +149,4 @@ class Plot:
         self.suspects = state['suspects']
         self.shared_interactions = state['shared_interactions']
         self.timeline = state['timeline']
+        self.god_kg = state.get('god_kg')  # None for saves made before KG support

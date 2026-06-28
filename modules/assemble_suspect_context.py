@@ -40,4 +40,12 @@ def assemble_suspect_context(plot, suspect_number):
     context_str += "\nHere are the other suspects:\n"
     context_str += other_suspects
 
+    # Append KG subgraph if available
+    if plot.god_kg is not None:
+        subgraph = plot.god_kg.get_suspect_subgraph(this_suspect.name)
+        kg_text = subgraph.to_text()
+        if kg_text:
+            context_str += "\nKNOWLEDGE GRAPH (what you know about the case):\n"
+            context_str += kg_text + "\n"
+
     return context_str

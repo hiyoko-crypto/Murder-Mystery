@@ -1,0 +1,121 @@
+.map-page {
+  min-height: 100vh;
+  padding: 2rem;
+  background: #0d0d0d;
+  display: flex;
+  flex-direction: column;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.map-title {
+  text-align: center;
+  font-size: 1.2rem;
+  letter-spacing: 0.2em;
+  color: #c8a96e;
+  margin-bottom: 2rem;
+}
+
+.location-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+}
+
+.location-btn {
+  background: #1a1a1a;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid #333;
+  color: #e8e0d0;
+  padding: 0;
+  text-align: left;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 160px;
+  transition: all 0.2s;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 0 2000px rgba(5, 3, 2, 0.62);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.location-btn:hover {
+  border-color: #c8a96e;
+  box-shadow: inset 0 0 0 2000px rgba(5, 3, 2, 0.45);
+  transform: translateY(-2px);
+}
+
+.location-btn-inner {
+  padding: 1rem 1.4rem 1.1rem;
+  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.location-name {
+  font-size: 1.15rem;
+  font-weight: bold;
+  color: #f0e8d8;
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+
+.location-desc {
+  font-size: 0.82rem;
+  color: #c0b8a8;
+  line-height: 1.5;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+}
+
+.evidence-bar {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.evidence-btn {
+  background: none;
+  border: 1px solid #c8a96e;
+  color: #c8a96e;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  transition: all 0.15s;
+}
+
+.evidence-btn:hover {
+  background: #c8a96e;
+  color: #0d0d0d;
+}
+
+.accuse-map-btn {
+  margin-top: 1.2rem;
+  width: 100%;
+  background: #1a0a0a;
+  border: 1px solid #8a3030;
+  color: #c84040;
+  padding: 14px;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.accuse-map-btn:hover {
+  background: #8a3030;
+  color: #fff;
+  border-color: #c84040;
+}

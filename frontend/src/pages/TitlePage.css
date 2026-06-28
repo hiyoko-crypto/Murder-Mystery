@@ -1,0 +1,73 @@
+.title-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #0d0d0d 0%, #1a0a0a 100%);
+  position: relative;
+}
+
+.title-lang-toggle {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  display: flex;
+  gap: 0.3rem;
+}
+
+.lang-btn {
+  background: none;
+  border: 1px solid #444;
+  color: #666;
+  padding: 5px 12px;
+  border-radius: 3px;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.lang-btn:hover { border-color: #888; color: #aaa; }
+
+.lang-btn.active {
+  border-color: #c8a96e;
+  color: #c8a96e;
+  background: rgba(200, 169, 110, 0.08);
+}
+
+.title-content {
+  text-align: center;
+}
+
+.title-logo {
+  font-size: 5rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: #c8a96e;
+  text-shadow: 0 0 30px rgba(200, 169, 110, 0.4);
+  margin-bottom: 0.3em;
+}
+
+.title-subtitle {
+  color: #888;
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  margin-bottom: 3rem;
+}
+
+.title-btn {
+  background: none;
+  border: 2px solid #c8a96e;
+  color: #c8a96e;
+  font-size: 1.1rem;
+  padding: 14px 48px;
+  letter-spacing: 0.15em;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+.title-btn:hover {
+  background: #c8a96e;
+  color: #0d0d0d;
+}

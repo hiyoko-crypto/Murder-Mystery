@@ -38,6 +38,7 @@ from .parse_shared_events import parse_shared_interactions
 from .suspect_init import write_suspect_account
 from .write_timeline import write_timeline
 from .parse_story import parse_story
+from .build_kg import build_kg
 from prompt_templates.story_init import author_template
 from prompt_templates.shared_events import shared_events_template
 
@@ -170,6 +171,11 @@ def initialize_story(save_path: str):
         raise ValueError("Invalid JSON: missing victim")
 
     plot, suspects = parse_story(data)
+
+    # Build god-KG deterministically from plot + raw JSON (no extra LLM call)
+    print("Building knowledge graph...")
+    plot.god_kg = build_kg(plot, data)
+    print("Knowledge graph built.")
 
     # Saving schema to disk
     save_schema(plot, save_path)
