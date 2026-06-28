@@ -3,7 +3,7 @@
 import time
 from openai import OpenAI
 
-MODEL = "qwen2.5:7b"
+MODEL = "qwen2.5:14b"
 
 client = OpenAI(
     api_key="ollama",
