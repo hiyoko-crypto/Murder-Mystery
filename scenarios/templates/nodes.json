@@ -1,0 +1,85 @@
+{
+    "nodes":[
+        {
+            "id": "TBD",
+            "labels": [
+                "Character",
+                "Victim"
+            ],
+            "properties": {
+                "name": "TBD",
+                "role": "victim",
+                "bio": "TBD"
+            }
+        },
+        {
+            "id": "TBD",
+            "labels": [
+                "Character",
+                "Suspect"
+            ],
+            "properties": {
+                "name": "TBD",
+                "role": "suspect",
+                "guilty": "true or false",
+                "bio": "TBD",
+                "tags": [
+                "TBD",
+                "TBD",
+                "TBD",
+                "TBD",
+                "TBD"
+                ],
+                "victim_connection": "TBD",
+                "motive": "TBD",
+                "alibi_claim": "TBD",
+                "interrogation_style": "TBD"
+            }
+        },
+        {
+            "id": "TBD",
+            "labels": [
+            "Item",
+            "MurderWeapon"
+            ],
+            "properties": {
+            "name": "TBD",
+            "description": "TBD",
+            "significance": "TBD"
+            }
+        },
+        {
+            "id": "TBD",
+            "labels": [
+            "Item",
+            "Evidence"
+            ],
+            "properties": {
+            "name": "TBD",
+            "description": "TBD",
+            "significance": "TBD"
+            }
+        },
+        {
+        "id": "TBD",
+        "labels": [
+          "Location",
+          "CrimeScene"
+        ],
+        "properties": {
+          "name": "TBD",
+          "description": "TBD"
+        }
+      },
+        {
+        "id": "TBD",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "TBD",
+          "description": "TBD"
+        }
+      }
+    ]
+}

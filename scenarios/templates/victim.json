@@ -1,0 +1,12 @@
+{
+    "id": "TBD",
+    "labels": [
+        "Character",
+        "Victim"
+    ],
+    "properties": {
+        "name": "TBD",
+        "role": "victim",
+        "bio": "TBD"
+    }
+}

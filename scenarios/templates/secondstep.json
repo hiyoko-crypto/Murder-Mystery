@@ -1,0 +1,156 @@
+{
+    "suspects":[
+    {
+      "node_id": "TBD",
+      "subgraph": {
+        "visible_edges": [
+          "TBD",
+          "TBD",
+          "TBD",
+          "TBD",
+          "TBD"
+        ],
+        "hidden_edges": [
+          "TBD",
+          "TBD",
+          "TBD",
+          "TBD"
+        ]
+      }
+    }
+  ],
+    "examine_rules": {
+        "locations": {
+        "LOCATIONS1": {
+            "initially_available": true,
+            "unlock_from_testimony": false,
+            "items_present": [
+            "ITEMS1",
+            "ITEMS2",
+            "ITEMS3",
+            "ITEMS4"
+            ],
+            "description": "TBD"
+        },
+        "LOCATIONS2": {
+            "initially_available": false,
+            "unlock_from_testimony": false,
+            "unlock_from_item": "ITEMS3",
+            "items_present": [
+            "ITEMS5"
+            ],
+            "description": "TBD"
+        },
+        "LOCATIONS3": {
+            "initially_available": false,
+            "unlock_from_testimony": true,
+            "items_present": [],
+            "description": "TBD"
+        },
+        "LOCATIONS4": {
+            "initially_available": false,
+            "unlock_from_testimony": true,
+            "items_present": [],
+            "description": "TBD"
+        },
+        "LOCATIONS5": {
+            "initially_available": false,
+            "unlock_from_testimony": true,
+            "items_present": [],
+            "description": "TBD"
+        }
+    },
+    "items": {
+      "ITEMS1": {
+        "unlocks_location": null
+      },
+      "ITEMS2": {
+        "unlocks_location": null
+      },
+      "ITEMS3": {
+        "unlocks_location": "LOCKED_ROOM"
+      },
+      "ITEMS4": {
+        "unlocks_location": null
+      },
+      "ITEMS5": {
+        "unlocks_location": null
+      }
+    }
+    },
+    "solution": {
+    "killer_node": "KILLER",
+    "key_evidence_edges": [
+      "TBD",
+      "TBD",
+      "TBD",
+      "TBD"
+    ],
+    "red_herring_edges": [
+      "TBD",
+      "TBD",
+      "TBD"
+    ],
+    "proof_graph": {
+      "minimum_score": 5,
+      "groups": [
+        {
+          "id": "TBD",
+          "edge_ids": [
+            "TBD",
+            "TBD"
+          ],
+          "min_required": 2,
+          "weight": 4,
+          "required": true,
+          "description": "TBD"
+        },
+        {
+          "id": "TBD",
+          "edge_ids": [
+            "TBD",
+            "TBD"
+          ],
+          "min_required": 2,
+          "weight": 2,
+          "required": false,
+          "description": "TBD"
+        },
+        {
+          "id": "TBD",
+          "edge_ids": [
+            "TBD"
+          ],
+          "min_required": 1,
+          "weight": 1,
+          "required": false,
+          "description": "TBD"
+        },
+        {
+          "id": "TBD",
+          "edge_ids": [
+            "TBD"
+          ],
+          "min_required": 1,
+          "weight": 1,
+          "required": false,
+          "description": "TBD"
+        },
+        {
+          "id": "TBD",
+          "edge_ids": [
+            "TBD",
+            "TBD"
+          ],
+          "min_required": 1,
+          "weight": 1,
+          "required": false,
+          "description": "TBD"
+        }
+      ]
+    },
+    "explanation": "Elena entered Marcus's locked dressing room via the ventilation shaft during intermission and struck him with the brass candlestick. The logical chain: locked door with no forced entry → shaft was the only entry point → vent grate was unscrewed → compact with E.R. initials found in shaft → Elena owns the compact. Julian is cleared by his confirmed alibi (lobby with investors Barton and Finch at 9:00-9:30 PM, exactly when the murder occurred). Leo had no backstage access. The torn letter implicating Julian is a red herring — his alibi is airtight for the murder time."
+  },
+    "display_names_ja":{
+    }
+}

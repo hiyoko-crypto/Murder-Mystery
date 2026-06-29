@@ -1,0 +1,24 @@
+{
+    "id": "TBD",
+    "labels": [
+        "TBD",
+        "TBD"
+    ],
+    "properties": {
+        "name": "TBD",
+        "role": "TBD",
+        "guilty": "TBD",
+        "bio": "TBD",
+        "tags": [
+        "TBD",
+        "TBD",
+        "TBD",
+        "TBD",
+        "TBD"
+        ],
+        "victim_connection": "TBD",
+        "motive": "TBD",
+        "alibi_claim": "TBD",
+        "interrogation_style": "TBD"
+    }
+}
