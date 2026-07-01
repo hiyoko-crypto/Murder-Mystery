@@ -1,18 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getLocations, getItems, getSuspects } from '../data/mockData'
 import { useGameState } from '../hooks/useGameState'
 import { useLanguage } from '../contexts/LanguageContext'
+import { useScenario } from '../contexts/ScenarioContext'
+import { examineLocation } from '../api/examine'
+import type { ExaminedItem } from '../api/examine'
 import './LocationPage.css'
-
-const locationBg: Record<string, string> = {
-  garden:
-    'https://images.unsplash.com/photo-1723053140058-7aa2e74ac794?q=80&w=1470&auto=format&fit=crop',
-  ballroom:
-    'https://images.unsplash.com/photo-1780383908348-66fe35ee95cf?w=1200&q=80',
-  study:
-    'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=928&auto=format&fit=crop',
-}
 
 type Mode = 'menu' | 'examine' | 'talk' | 'move'
 
@@ -26,8 +19,9 @@ interface Discovery {
 export default function LocationPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { foundItems, addEvidence } = useGameState()
+  const { foundItems, addEvidence, unlockLocation, unlockedLocations } = useGameState()
   const { lang, t } = useLanguage()
+  const { locations: getLocations, items: getItems, suspects: getSuspects, locationBg, examineRules } = useScenario()
 
   const locations   = getLocations(lang)
   const items       = getItems(lang)
@@ -36,11 +30,17 @@ export default function LocationPage() {
   const [mode, setMode] = useState<Mode>('menu')
   const [discoveries, setDiscoveries] = useState<Discovery[]>([])
   const [allFound, setAllFound] = useState(false)
+  const [examineLoading, setExamineLoading] = useState(false)
+  // Items queued from backend, revealed one per click
+  const [pendingItems, setPendingItems] = useState<ExaminedItem[]>([])
+  const [backendFetched, setBackendFetched] = useState(false)
 
   useEffect(() => {
     setMode('menu')
     setDiscoveries([])
     setAllFound(false)
+    setPendingItems([])
+    setBackendFetched(false)
   }, [id])
 
   const location = locations.find((l) => l.id === id)
@@ -48,26 +48,74 @@ export default function LocationPage() {
 
   const locationItems    = items.filter((item) => location.items.includes(item.id))
   const locationSuspects = allSuspects.filter((s) => location.suspects.includes(s.id))
-  const otherLocations   = locations.filter((l) => l.id !== id)
+  const otherLocations   = locations.filter((l) => l.id !== id && (examineRules ? unlockedLocations.includes(l.id) : true))
   const foundCount       = locationItems.filter((item) => foundItems.includes(item.id)).length
 
-  const handleExamineAction = () => {
-    const nextItem = locationItems.find((item) => {
-      if (foundItems.includes(item.id)) return false
-      if (!item.requiresItems) return true
-      return item.requiresItems.every((req) => foundItems.includes(req))
-    })
-    if (!nextItem) { setAllFound(true); return }
-    addEvidence(nextItem.id)
-    setDiscoveries((prev) => [...prev, {
-      itemId: nextItem.id,
-      text:   nextItem.discoveryText,
-      emoji:  nextItem.emoji,
-      name:   nextItem.name,
+  const revealItem = (backendItem: ExaminedItem) => {
+    addEvidence(backendItem.id)
+    // Unlock location if this item triggers one (from examine_rules or backend response)
+    const unlocks = examineRules?.itemUnlocksLocation[backendItem.id]
+    if (unlocks) unlockLocation(unlocks)
+    const scenarioItem = items.find(i => i.id === backendItem.id)
+    setDiscoveries(prev => [...prev, {
+      itemId: backendItem.id,
+      text: backendItem.description,
+      emoji: scenarioItem?.emoji ?? '📦',
+      name: backendItem.name,
     }])
   }
 
-  const bgUrl = locationBg[location.id]
+  const handleExamineAction = async () => {
+    // If backend items are queued, reveal the next one
+    if (pendingItems.length > 0) {
+      const [next, ...rest] = pendingItems
+      setPendingItems(rest)
+      revealItem(next)
+      if (rest.length === 0) setAllFound(true)
+      return
+    }
+    // Already fetched but nothing left
+    if (backendFetched) { setAllFound(true); return }
+
+    // First click: fetch from backend
+    setExamineLoading(true)
+    try {
+      const result = await examineLocation(id!, lang)
+      setBackendFetched(true)
+      if (result.unlocked_location) unlockLocation(result.unlocked_location)
+      const queue = result.newly_found
+      if (queue.length === 0) {
+        setAllFound(true)
+      } else {
+        const [first, ...rest] = queue
+        setPendingItems(rest)
+        revealItem(first)
+        if (rest.length === 0) setAllFound(true)
+      }
+    } catch {
+      // Fallback to local scenario data
+      setBackendFetched(true)
+      const nextItem = locationItems.find(item => {
+        if (foundItems.includes(item.id)) return false
+        if (!item.requiresItems) return true
+        return item.requiresItems.every(req => foundItems.includes(req))
+      })
+      if (!nextItem) { setAllFound(true); return }
+      addEvidence(nextItem.id)
+      const unlocks = examineRules?.itemUnlocksLocation[nextItem.id]
+      if (unlocks) unlockLocation(unlocks)
+      setDiscoveries(prev => [...prev, {
+        itemId: nextItem.id,
+        text: nextItem.discoveryText,
+        emoji: nextItem.emoji,
+        name: nextItem.name,
+      }])
+    } finally {
+      setExamineLoading(false)
+    }
+  }
+
+  const bgUrl = locationBg(location.id)
 
   return (
     <div className="location-page">
@@ -167,8 +215,8 @@ export default function LocationPage() {
             )}
           </div>
           {!allFound && (
-            <button className="loc-examine-btn" onClick={handleExamineAction}>
-              {t('loc.examine.btn')}
+            <button className="loc-examine-btn" onClick={handleExamineAction} disabled={examineLoading}>
+              {examineLoading ? (lang === 'ja' ? '調査中...' : 'Examining...') : t('loc.examine.btn')}
             </button>
           )}
         </div>
@@ -211,7 +259,7 @@ export default function LocationPage() {
                 <button
                   key={loc.id}
                   className="loc-move-btn"
-                  style={locationBg[loc.id] ? { backgroundImage: `url(${locationBg[loc.id]})` } : undefined}
+                  style={{ backgroundImage: `url(${locationBg(loc.id)})` }}
                   onClick={() => navigate(`/location/${loc.id}`)}
                 >
                   <div className="loc-move-btn-inner">

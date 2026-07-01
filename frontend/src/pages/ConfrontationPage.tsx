@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getSuspects, getItems, getConfrontScript } from '../data/mockData'
+import { getConfrontScript } from '../data/mockData'
 import { useGameState } from '../hooks/useGameState'
 import { useLanguage } from '../contexts/LanguageContext'
+import { useScenario } from '../contexts/ScenarioContext'
+import { callIndict } from '../api/examine'
 import { emotionLabel } from '../utils/emotion'
 import type { Emotion } from '../types'
 import './ConfrontationPage.css'
@@ -19,18 +21,48 @@ interface Line {
   isEvidence?: boolean
 }
 
+const GENERIC_SCRIPT = {
+  opening: "Why are you pointing fingers at me?!",
+  openingEmotion: 'nervous' as Emotion,
+  denials: [
+    { text: "I have nothing to do with this!", emotion: 'angry' as Emotion },
+    { text: "You have no proof!", emotion: 'nervous' as Emotion },
+    { text: "Stop harassing me.", emotion: 'angry' as Emotion },
+  ],
+  keyEvidence: {} as Record<string, { text: string; emotion: Emotion }>,
+  confession: "Fine... you've figured it out. I couldn't hide it forever.",
+  wrongAccusation: "I am innocent! You've made a terrible mistake.",
+  cutoff: "I refuse to say anything more without a lawyer.",
+}
+
+const GENERIC_SCRIPT_JA = {
+  opening: "なぜ私を疑うんですか？！",
+  openingEmotion: 'nervous' as Emotion,
+  denials: [
+    { text: "私は関係ありません！", emotion: 'angry' as Emotion },
+    { text: "証拠があるんですか？", emotion: 'nervous' as Emotion },
+    { text: "もうこれ以上話すことはありません。", emotion: 'angry' as Emotion },
+  ],
+  keyEvidence: {} as Record<string, { text: string; emotion: Emotion }>,
+  confession: "…わかりました。あなたは正しい。もう隠せません。",
+  wrongAccusation: "私は無実です！あなたは大きな間違いを犯している。",
+  cutoff: "弁護士なしには何も話しません。",
+}
+
 export default function ConfrontationPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { evidence } = useGameState()
   const { lang, t } = useLanguage()
+  const { suspects: getSuspectsLive, items: getItemsLive } = useScenario()
 
-  const suspects = getSuspects(lang)
-  const items    = getItems(lang)
+  const suspects = getSuspectsLive(lang)
+  const items    = getItemsLive(lang)
   const confrontScript = getConfrontScript(lang)
 
   const suspect = suspects.find((s) => s.id === id)
-  const script  = id ? confrontScript[id] : null
+  const scriptFromMock = id ? confrontScript[id] : null
+  const script = scriptFromMock ?? (lang === 'ja' ? GENERIC_SCRIPT_JA : GENERIC_SCRIPT)
 
   const [phase, setPhase] = useState<Phase>('confronting')
   const [lines, setLines] = useState<Line[]>([])
@@ -46,10 +78,26 @@ export default function ConfrontationPage() {
   const [currentEmotion, setCurrentEmotion] = useState<Emotion>('neutral')
   const [initialized, setInitialized] = useState(false)
   const [presentedIds, setPresentedIds] = useState<Set<string>>(new Set())
+  const [indictResult, setIndictResult] = useState<{ won: boolean; message: string } | null>(null)
 
   const typingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const foundEvidenceItems = items.filter((item) => evidence.includes(item.id))
+
+  const runIndict = useCallback(async (presentedSet: Set<string>) => {
+    if (!id) return
+    const reason = [...presentedSet]
+      .map(pid => items.find(i => i.id === pid)?.name ?? pid)
+      .join(', ')
+    try {
+      const res = await callIndict(id, reason || 'no specific evidence', lang)
+      setIndictResult({ won: res.won, message: res.message })
+      setPhase(res.won ? 'confessed' : 'wrong')
+    } catch {
+      // Fallback: use suspect.guilty
+      setPhase(suspect?.guilty ? 'confessed' : 'wrong')
+    }
+  }, [id, items, lang, suspect])
 
   const startTyping = useCallback((line: Line) => {
     setCurrentLine(line)
@@ -90,7 +138,7 @@ export default function ConfrontationPage() {
     }), 400)
   }, [suspect, script, initialized, deliverLine])
 
-  if (!suspect || !script) return <div>{t('not.found')}</div>
+  if (!suspect) return <div>{t('not.found')}</div>
 
   const handleSend = () => {
     const hasEvidence = selectedEvidence !== null
@@ -129,9 +177,10 @@ export default function ConfrontationPage() {
     if (isWrong) setWrongCount(newWrongCount)
 
     setTimeout(() => {
-      if (suspect.guilty && newKeyHits >= 2) {
+      if (newKeyHits >= 2) {
         deliverLine({ speaker: 'suspect', text: script.confession, emotion: 'nervous' })
-        setTimeout(() => setPhase('confessed'), script.confession.length * 45 + 600)
+        const nextPresentedIds = new Set(presentedIds).add(itemId)
+        setTimeout(() => runIndict(nextPresentedIds), script.confession.length * 45 + 600)
         return
       }
       if (newWrongCount >= WRONG_LIMIT) {
@@ -139,9 +188,10 @@ export default function ConfrontationPage() {
         setTimeout(() => setPhase('cutoff'), script.cutoff.length * 45 + 600)
         return
       }
-      if (!suspect.guilty && lines.length >= 10) {
+      if (lines.length >= 10) {
         deliverLine({ speaker: 'suspect', text: script.wrongAccusation, emotion: 'sad' })
-        setTimeout(() => setPhase('wrong'), script.wrongAccusation.length * 45 + 600)
+        const nextPresentedIds = new Set(presentedIds).add(itemId)
+        setTimeout(() => runIndict(nextPresentedIds), script.wrongAccusation.length * 45 + 600)
         return
       }
       const keyReply = script.keyEvidence[itemId]
@@ -164,9 +214,9 @@ export default function ConfrontationPage() {
           <p className="ending-name">{suspect.name}</p>
           <p className="ending-emotion">😨</p>
           <p className="ending-text" style={{ whiteSpace: 'pre-line' }}>
-            {suspect.name} {t('ending.confessed')}
+            {indictResult?.message ?? `${suspect.name} ${t('ending.confessed')}`}
           </p>
-          <p className="ending-sub">{t('ending.solved')}</p>
+          {!indictResult && <p className="ending-sub">{t('ending.solved')}</p>}
           <button className="ending-btn" onClick={() => navigate('/')}>{t('ending.toTitle')}</button>
         </div>
       </div>
@@ -180,7 +230,7 @@ export default function ConfrontationPage() {
           <p className="ending-label">{t('ending.wrong')}</p>
           <p className="ending-name">{suspect.name}</p>
           <p className="ending-text" style={{ whiteSpace: 'pre-line' }}>
-            {suspect.name} {t('ending.innocent')}
+            {indictResult?.message ?? `${suspect.name} ${t('ending.innocent')}`}
           </p>
           <div className="ending-actions">
             <button className="ending-btn secondary" onClick={() => navigate(-1)}>{t('ending.reaccuse')}</button>

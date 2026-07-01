@@ -1,57 +1,67 @@
 """
-FastAPI server for the murder mystery frontend.
-Usage:
-  uvicorn api:app --reload
+FastAPI server connecting the React frontend to the KG-based GameSession.
 """
 
 import os
-import re
 import json
+import glob
+import asyncio
 from contextlib import asynccontextmanager
-from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from modules.llm_client import llm_messages
-from modules.assemble_suspect_context import assemble_suspect_context
-from story_elements.pickle_plot import load_plot
+from game_session import GameSession
 
 
-# ── Story state ───────────────────────────────────────────────────────────────
+# ── Session state ─────────────────────────────────────────────────────────────
 
-plot = None
+_sessions: dict[str, GameSession] = {}   # lang → GameSession
+scenario_json: dict | None = None
+
+SCENARIO_GLOB = "scenarios/*.json"
 
 
-def _load_latest_plot():
-    saves_dir = "saves"
-    if not os.path.exists(saves_dir):
-        print("[api] 'saves/' not found — run main.py to generate a story first")
+def _find_scenario() -> str | None:
+    files = sorted(glob.glob(SCENARIO_GLOB))
+    return next((f for f in files if "template" not in os.path.basename(f).lower()), None)
+
+
+def _load_raw_scenario() -> dict | None:
+    path = _find_scenario()
+    if not path:
         return None
-    saves = sorted(
-        [d for d in os.listdir(saves_dir) if os.path.isdir(os.path.join(saves_dir, d))],
-        reverse=True,
-    )
-    if not saves:
-        print("[api] No saves found — run main.py to generate a story first")
-        return None
-    path = os.path.join(saves_dir, saves[0])
-    loaded = load_plot(path)
-    print(f"[api] Loaded plot from: {path}")
-    return loaded
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _get_session(lang: str = "ja") -> GameSession:
+    if lang not in _sessions:
+        raise HTTPException(503, "Session not loaded")
+    return _sessions[lang]
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global plot
-    plot = _load_latest_plot()
+    global scenario_json
+    scenario_json = _load_raw_scenario()
+    path = _find_scenario()
+    if path:
+        for lang in ("en", "ja"):
+            try:
+                _sessions[lang] = GameSession(path, language=lang)
+                print(f"[api] GameSession({lang}) loaded: {path}")
+            except Exception as e:
+                print(f"[api] GameSession({lang}) failed: {e}")
+    else:
+        print("[api] No scenario found in scenarios/")
     yield
 
 
 # ── App ───────────────────────────────────────────────────────────────────────
 
-app = FastAPI(title="Holmes API", lifespan=lifespan)
+app = FastAPI(title="Holmes KG API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -61,107 +71,138 @@ app.add_middleware(
 )
 
 
-# ── Request / Response models ─────────────────────────────────────────────────
-
-class ChatMessage(BaseModel):
-    role: str                        # "player" | "suspect"
-    text: str
-    presentedItemId: Optional[str] = None
-
+# ── Models ────────────────────────────────────────────────────────────────────
 
 class ChatRequest(BaseModel):
-    suspect_name: str                # 部分一致OK: "elena" → "Elena Rostova"
-    messages: List[ChatMessage]
+    suspect_id: str
+    message: str
+    lang: str = "ja"
 
 
 class ChatResponse(BaseModel):
     text: str
-    emotion: str                     # neutral | nervous | angry | sad | surprised | happy
+    emotion: str = "neutral"
+    unlocked_location: str | None = None
 
 
-# ── System prompt ─────────────────────────────────────────────────────────────
-
-SYSTEM_TEMPLATE = """\
-You are a suspect being interrogated by a detective about a murder case.
-Stay fully in character. Respond in Japanese. Be evasive, defensive, or emotional as fits your personality.
-
---- YOUR CHARACTER CONTEXT ---
-{context}
---- END CONTEXT ---
-
-IMPORTANT: Reply with ONLY this JSON — no extra text, no markdown:
-{{"text": "your spoken reply in Japanese", "emotion": "neutral|nervous|angry|sad|surprised|happy"}}
-"""
-
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
-def _find_suspect_index(name: str) -> int:
-    for i, s in enumerate(plot.suspects):
-        if name.lower() in s.name.lower():
-            return i
-    return -1
-
-
-def _parse_llm_output(raw: str) -> dict:
-    match = re.search(r'\{.*?\}', raw, re.DOTALL)
-    if match:
-        try:
-            return json.loads(match.group())
-        except json.JSONDecodeError:
-            pass
-    return {"text": raw.strip(), "emotion": "neutral"}
-
-
-VALID_EMOTIONS = {"neutral", "nervous", "angry", "sad", "surprised", "happy"}
+class IndictRequest(BaseModel):
+    suspect_id: str
+    reason: str
+    lang: str = "ja"
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "plot_loaded": plot is not None}
+    return {
+        "status": "ok",
+        "sessions": list(_sessions.keys()),
+        "scenario_loaded": scenario_json is not None,
+    }
 
 
-@app.get("/suspects")
-def get_suspects():
-    if plot is None:
-        raise HTTPException(503, "No story loaded")
+@app.get("/scenario")
+def get_scenario():
+    if scenario_json is None:
+        raise HTTPException(404, "No scenario JSON found in scenarios/")
+    return scenario_json
+
+
+@app.get("/scenarios")
+def list_scenarios():
+    files = sorted(glob.glob(SCENARIO_GLOB))
     return [
-        {"index": i, "name": s.name, "bio": s.bio}
-        for i, s in enumerate(plot.suspects)
+        {"id": os.path.basename(f).replace(".json", ""), "path": f}
+        for f in files
+        if "template" not in os.path.basename(f).lower()
     ]
 
 
+@app.get("/briefing")
+def briefing(lang: str = "ja"):
+    gs = _get_session(lang)
+    return gs.get_briefing()
+
+
+@app.get("/state")
+def get_state(lang: str = "ja"):
+    gs = _get_session(lang)
+    state = gs.get_state()
+    return {
+        "current_suspect_id": state.current_suspect_id,
+        "suspects": [{"id": s.id, "name": s.name} for s in state.suspects],
+        "available_locations": [
+            {"id": l.id, "name": l.name, "examined": l.examined, "is_new": l.is_new}
+            for l in state.available_locations
+        ],
+        "found_items": [
+            {"id": i.id, "name": i.name, "description": i.description}
+            for i in state.found_items
+        ],
+        "turn": state.turn,
+    }
+
+
 @app.post("/chat", response_model=ChatResponse)
-def chat(req: ChatRequest):
-    if plot is None:
-        raise HTTPException(503, "No story loaded — run main.py first to generate a save")
+async def chat(req: ChatRequest):
+    gs = _get_session(req.lang)
+    try:
+        gs.switch_suspect(req.suspect_id)
+    except ValueError as e:
+        raise HTTPException(404, str(e))
 
-    idx = _find_suspect_index(req.suspect_name)
-    if idx == -1:
-        raise HTTPException(404, f"Suspect '{req.suspect_name}' not found")
+    response_text = await asyncio.to_thread(gs.ask, req.message)
 
-    context = assemble_suspect_context(plot, idx)
-    system_prompt = SYSTEM_TEMPLATE.format(context=context)
+    new_locs = list(gs._new_location_ids)
+    return ChatResponse(
+        text=response_text,
+        emotion="neutral",
+        unlocked_location=new_locs[0] if new_locs else None,
+    )
 
-    # OpenAI-format messages
-    openai_msgs: list = [{"role": "system", "content": system_prompt}]
-    for msg in req.messages:
-        if msg.role == "player":
-            if msg.presentedItemId:
-                content = f"[Detective presents evidence: {msg.text}]"
-            else:
-                content = msg.text
-            openai_msgs.append({"role": "user", "content": content})
-        elif msg.role == "suspect":
-            openai_msgs.append({"role": "assistant", "content": msg.text})
 
-    raw = llm_messages(openai_msgs)
-    data = _parse_llm_output(raw)
+@app.post("/examine/location/{location_id}")
+async def examine_location(location_id: str, lang: str = "ja"):
+    gs = _get_session(lang)
+    result = await asyncio.to_thread(gs.examine_location, location_id)
+    return {
+        "description": result.description,
+        "newly_found": [
+            {"id": i.id, "name": i.name, "description": i.description}
+            for i in result.newly_found
+        ],
+        "already_found": [
+            {"id": i.id, "name": i.name, "description": i.description}
+            for i in result.already_found
+        ],
+        "unlocked_location": result.unlocked_location,
+    }
 
-    emotion = data.get("emotion", "neutral")
-    if emotion not in VALID_EMOTIONS:
-        emotion = "neutral"
 
-    return ChatResponse(text=data.get("text", raw), emotion=emotion)
+@app.get("/examine/item/{item_id}")
+async def examine_item(item_id: str, lang: str = "ja"):
+    gs = _get_session(lang)
+    result = await asyncio.to_thread(gs.examine_item, item_id)
+    return {
+        "name": result.name,
+        "description": result.description,
+        "significance": result.significance,
+        "unlocked_location": result.unlocked_location,
+    }
+
+
+@app.post("/indict")
+async def indict(req: IndictRequest):
+    gs = _get_session(req.lang)
+    try:
+        result = await asyncio.to_thread(gs.indict, req.suspect_id, req.reason)
+    except ValueError as e:
+        raise HTTPException(404, str(e))
+    return {
+        "correct": result.correct,
+        "accused_name": result.accused_name,
+        "reason_accepted": result.reason_accepted,
+        "won": result.won,
+        "message": result.message,
+    }

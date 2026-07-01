@@ -1,29 +1,26 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getSuspects, getMockReplies, getMockEvidenceReplies, getItems } from '../data/mockData'
+import { getMockReplies, getMockEvidenceReplies } from '../data/mockData'
 import { useGameState } from '../hooks/useGameState'
 import { useLanguage } from '../contexts/LanguageContext'
+import { useScenario } from '../contexts/ScenarioContext'
 import { emotionLabel } from '../utils/emotion'
 import { sendChat } from '../api/chat'
 import type { Message, Emotion } from '../types'
 import './InterrogationPage.css'
 
-const suspectBg: Record<string, string> = {
-  lucien:  'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=928&auto=format&fit=crop',
-  sophia:  'https://images.unsplash.com/photo-1780383908348-66fe35ee95cf?w=1200&q=80',
-  max:     'https://images.unsplash.com/photo-1780383908348-66fe35ee95cf?w=1200&q=80',
-}
-
 export default function InterrogationPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { evidence } = useGameState()
+  const { evidence, unlockLocation, markSpokenTo } = useGameState()
   const { lang, t } = useLanguage()
+  const { suspects: getSuspects, items: getItems, locations: getLocations, locationBg, examineRules } = useScenario()
 
   const suspects     = getSuspects(lang)
   const mockReplies  = getMockReplies(lang)
   const mockEvidenceReplies = getMockEvidenceReplies(lang)
   const items        = getItems(lang)
+  const allLocations = getLocations(lang)
 
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -91,17 +88,53 @@ export default function InterrogationPage() {
       const evidenceReply = mockEvidenceReplies[itemId]?.[suspect.id]
       if (evidenceReply) return { role: 'suspect', ...evidenceReply }
     }
+    if (replies.length === 0) {
+      return { role: 'suspect', text: '...', emotion: 'neutral' }
+    }
     const reply = replies[replyIndexRef.current % replies.length]
     replyIndexRef.current += 1
     return { role: 'suspect', text: reply.text, emotion: reply.emotion }
   }
 
   const fetchReply = async (allMessages: Message[], itemId?: string) => {
+    const latestPlayer = [...allMessages].reverse().find(m => m.role === 'player')
+    const messageText = latestPlayer?.text ?? ''
     try {
-      const res = await sendChat(suspect.name, allMessages, lang)
+      const res = await sendChat(suspect.id, messageText, lang)
       deliverReply({ role: 'suspect', text: res.text, emotion: res.emotion as Emotion })
+      // Unlock location signalled by the backend after testimony
+      const addUnlockMessage = (locId: string) => {
+        const locName = allLocations.find(l => l.id === locId)?.name ?? locId
+        const text = lang === 'ja'
+          ? `🗺️ 新しい場所が解放されました：${locName}`
+          : `🗺️ New area unlocked: ${locName}`
+        setMessages(prev => [...prev, { role: 'system', text }])
+      }
+      if (res.unlocked_location) {
+        unlockLocation(res.unlocked_location)
+        addUnlockMessage(res.unlocked_location)
+      } else {
+        // Fallback: unlock alibi location on first question
+        markSpokenTo(suspect.id)
+        const alibiLoc = examineRules?.suspectAlibiLocation[suspect.id]
+        if (alibiLoc && allMessages.filter(m => m.role === 'player').length === 1) {
+          unlockLocation(alibiLoc)
+          addUnlockMessage(alibiLoc)
+        }
+      }
     } catch (err) {
       console.warn('API unavailable, using mock:', err)
+      // Still unlock alibi location in mock mode
+      markSpokenTo(suspect.id)
+      const alibiLoc = examineRules?.suspectAlibiLocation[suspect.id]
+      if (alibiLoc && allMessages.filter(m => m.role === 'player').length === 1) {
+        unlockLocation(alibiLoc)
+        const locName = allLocations.find(l => l.id === alibiLoc)?.name ?? alibiLoc
+        const text = lang === 'ja'
+          ? `🗺️ 新しい場所が解放されました：${locName}`
+          : `🗺️ New area unlocked: ${locName}`
+        setMessages(prev => [...prev, { role: 'system', text }])
+      }
       deliverReply(getMockReply(itemId))
     }
   }
@@ -146,7 +179,8 @@ export default function InterrogationPage() {
 
   const isEmpty = !currentSuspectMsg && !loading
 
-  const bgUrl = id ? suspectBg[id] : undefined
+  const suspectLocation = allLocations.find(l => l.suspects.includes(id ?? ''))
+  const bgUrl = suspectLocation ? locationBg(suspectLocation.id) : locationBg(id ?? '')
 
   return (
     <div className="interrogation-page">
@@ -239,15 +273,21 @@ export default function InterrogationPage() {
                 <p className="log-empty">{lang === 'ja' ? 'まだ会話がない' : 'No messages yet'}</p>
               )}
               {messages.map((msg, i) => (
-                <div key={i} className={`log-entry ${msg.role}`}>
-                  <span className="log-role">
-                    {msg.role === 'player' ? t('interro.detective') : suspect.name}
-                    {msg.emotion ? `　${emotionLabel(msg.emotion)}` : ''}
-                  </span>
-                  <p className="log-text">
-                    {msg.presentedItemId ? `${t('interro.present.fmt')}${msg.text}` : msg.text}
-                  </p>
-                </div>
+                msg.role === 'system' ? (
+                  <div key={i} className="log-entry system">
+                    <p className="log-system-text">{msg.text}</p>
+                  </div>
+                ) : (
+                  <div key={i} className={`log-entry ${msg.role}`}>
+                    <span className="log-role">
+                      {msg.role === 'player' ? t('interro.detective') : suspect.name}
+                      {msg.emotion ? `　${emotionLabel(msg.emotion)}` : ''}
+                    </span>
+                    <p className="log-text">
+                      {msg.presentedItemId ? `${t('interro.present.fmt')}${msg.text}` : msg.text}
+                    </p>
+                  </div>
+                )
               ))}
               <div ref={logEndRef} />
             </div>

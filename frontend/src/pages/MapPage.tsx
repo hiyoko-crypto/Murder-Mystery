@@ -1,20 +1,19 @@
 import { useNavigate } from 'react-router-dom'
-import { getLocations } from '../data/mockData'
 import { useGameState } from '../hooks/useGameState'
 import { useLanguage } from '../contexts/LanguageContext'
+import { useScenario } from '../contexts/ScenarioContext'
 import './MapPage.css'
-
-const locationBg: Record<string, string> = {
-  garden:  'https://images.unsplash.com/photo-1723053140058-7aa2e74ac794?q=80&w=1470&auto=format&fit=crop',
-  ballroom:'https://images.unsplash.com/photo-1780383908348-66fe35ee95cf?w=1200&q=80',
-  study:   'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=928&auto=format&fit=crop',
-}
 
 export default function MapPage() {
   const navigate = useNavigate()
-  const { evidence } = useGameState()
+  const { evidence, unlockedLocations } = useGameState()
   const { lang, t } = useLanguage()
-  const locations = getLocations(lang)
+  const { locations: getLocations, locationBg, examineRules } = useScenario()
+  const allLocations = getLocations(lang)
+  // If examineRules exist, show only unlocked locations; else show all (mock data fallback)
+  const locations = examineRules
+    ? allLocations.filter(l => unlockedLocations.includes(l.id))
+    : allLocations
 
   return (
     <div className="map-page">
@@ -24,7 +23,7 @@ export default function MapPage() {
           <button
             key={loc.id}
             className="location-btn"
-            style={{ backgroundImage: locationBg[loc.id] ? `url(${locationBg[loc.id]})` : undefined }}
+            style={{ backgroundImage: `url(${locationBg(loc.id)})` }}
             onClick={() => navigate(`/location/${loc.id}`)}
           >
             <div className="location-btn-inner">

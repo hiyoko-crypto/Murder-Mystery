@@ -24,7 +24,7 @@ game_session.py           ゲームロジックの唯一の窓口（GameSession 
     └── modules/translator.py          日本語⇔英語 翻訳レイヤー
 
 main_kg.py                CLIエントリーポイント
-api.py                    React フロントエンド向け FastAPI サーバー（旧システム使用中）
+api.py                    React フロントエンド向け FastAPI サーバー（GameSession に接続）
 frontend/                 React + Vite フロントエンド
 ```
 
@@ -103,29 +103,21 @@ Enter 1 or 2:
 
 ---
 
-### B. フロントエンド（旧システム）
-
-> **注意**: 現在のフロントエンドは旧API（`api.py`）に接続しており、旧システム（RAG + saves/）を使用する。KGベースシステムのフロントエンドAPIは未実装。
-
-#### 事前準備
-
-旧システムのsaveデータが必要。まだ生成していない場合：
-
-```bash
-python main.py   # ストーリー生成（数分かかる）
-```
-
-`saves/` ディレクトリにデータが生成されれば準備完了。
+### B. フロントエンド（KGシステム）
 
 #### サーバー起動
 
 ターミナルを2つ開き、それぞれで実行する：
 
+**前提**: Ollama が起動していること（`ollama serve`）
+
 **ターミナル 1 — バックエンド（FastAPI）**
 
 ```bash
+# venv を有効化した上で
 uvicorn api:app --reload
 # → http://localhost:8000 で起動
+# 起動時に GameSession(en) / GameSession(ja) を初期化（Ollama 接続を確認）
 ```
 
 **ターミナル 2 — フロントエンド（React + Vite）**
@@ -137,6 +129,19 @@ npm run dev
 ```
 
 ブラウザで [http://localhost:5173](http://localhost:5173) を開くとゲームが始まる。
+
+#### フロントエンドの機能
+
+| 機能 | 概要 |
+|---|---|
+| オープニング | 被害者・事件概要を表示（`/briefing` エンドポイントから取得） |
+| マップ | アンロック済みの場所のみ表示 |
+| 場所調査 | `POST /examine/location/{id}` でアイテムを発見 |
+| アイテム詳細 | `GET /examine/item/{id}` で説明・重要性を表示 |
+| 尋問 | `POST /chat` で容疑者と会話。返答に応じて新しい場所が解放される |
+| 場所アンロック通知 | 会話ログ内にシステムメッセージとして表示 |
+| 告発 | `POST /indict` で犯人を起訴。正解/不正解でエンディング分岐 |
+| 日本語対応 | シナリオ・LLM出力ともに日本語表示（`lang=ja`） |
 
 ---
 
@@ -185,7 +190,7 @@ npm run dev
 Murder-Mystery/
 ├── main_kg.py               CLIエントリーポイント（KGシステム）
 ├── main.py                  CLIエントリーポイント（旧システム）
-├── api.py                   FastAPI サーバー（旧システム用）
+├── api.py                   FastAPI サーバー（GameSession に接続、KGシステム用）
 ├── game_session.py          GameSession クラス（KGシステムの中心）
 ├── game_session_doc.html    GameSession API リファレンス
 ├── scenarios/
@@ -204,8 +209,15 @@ Murder-Mystery/
 │   └── run_game_kg.py       CLI ゲームループ（GameSession のラッパー）
 ├── frontend/                React + Vite フロントエンド
 │   └── src/
-│       ├── api/chat.ts      FastAPI への通信
-│       └── pages/           各画面コンポーネント
+│       ├── api/
+│       │   ├── chat.ts          POST /chat（容疑者との会話）
+│       │   ├── examine.ts       POST /examine/*, GET /briefing, POST /indict
+│       │   └── scenario.ts      GET /scenario + KGフォーマットのパース
+│       ├── contexts/
+│       │   └── ScenarioContext.tsx  シナリオデータの共有・日本語変換
+│       ├── hooks/
+│       │   └── useGameState.ts  アンロック済み場所・発見アイテムの状態管理
+│       └── pages/               各画面コンポーネント
 └── README_holmes.md         旧システム（Holmes）のドキュメント
 ```
 
@@ -221,6 +233,8 @@ Murder-Mystery/
 | 日本語対応（翻訳レイヤー） | 完成 |
 | CLIゲームループ | 完成 |
 | GameSession（フロント向けAPI） | 完成 |
-| フロントエンド用FastAPI（KGシステム） | **未実装** |
+| フロントエンド用FastAPI（KGシステム） | 完成 |
+| React フロントエンド（KG連携） | 完成 |
+| 場所アンロック進行（会話で解放） | 完成 |
 | ask_stream() ストリーミング | **未実装** |
 | 第2シナリオ | 未着手 |

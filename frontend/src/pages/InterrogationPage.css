@@ -484,3 +484,22 @@
 }
 
 .evidence-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+
+.log-entry.system {
+  display: flex;
+  justify-content: center;
+  margin: 0.4rem 0;
+}
+
+.log-system-text {
+  background: rgba(30, 60, 40, 0.7);
+  border: 1px solid #4caf50;
+  color: #a5d6a7;
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+}

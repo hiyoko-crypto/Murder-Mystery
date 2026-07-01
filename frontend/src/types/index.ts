@@ -28,7 +28,7 @@ export interface Location {
 }
 
 export interface Message {
-  role: 'player' | 'suspect'
+  role: 'player' | 'suspect' | 'system'
   text: string
   emotion?: Emotion
   presentedItemId?: string  // 証拠提示の場合にセット

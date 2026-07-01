@@ -1,29 +1,22 @@
-import type { Message, Emotion } from '../types'
+import type { Emotion } from '../types'
 
-const API_BASE = 'http://localhost:8000'
+const BASE = (import.meta as any).env?.VITE_API_URL ?? ''
 
 export interface ChatResponse {
   text: string
   emotion: Emotion
+  unlocked_location: string | null
 }
 
 export async function sendChat(
-  suspectName: string,
-  messages: Message[],
+  suspectId: string,
+  message: string,
   lang: 'ja' | 'en' = 'ja',
 ): Promise<ChatResponse> {
-  const res = await fetch(`${API_BASE}/chat`, {
+  const res = await fetch(`${BASE}/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      suspect_name: suspectName,
-      lang,
-      messages: messages.map((m) => ({
-        role: m.role,
-        text: m.text,
-        presentedItemId: m.presentedItemId ?? null,
-      })),
-    }),
+    body: JSON.stringify({ suspect_id: suspectId, message, lang }),
   })
 
   if (!res.ok) {

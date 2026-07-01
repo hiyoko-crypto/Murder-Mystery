@@ -1,8 +1,9 @@
 import { useState } from 'react'
 
-// シンプルなグローバル状態（後でContextやZustandに移行可）
 let globalEvidence: string[] = []
 let globalFoundItems: string[] = []
+let globalUnlockedLocations: string[] = []
+let globalSpokenTo: string[] = []  // suspect IDs the player has talked to
 const listeners: (() => void)[] = []
 
 function notify() {
@@ -27,16 +28,36 @@ export function useGameState() {
     notify()
   }
 
+  const unlockLocation = (locId: string) => {
+    if (locId && !globalUnlockedLocations.includes(locId)) {
+      globalUnlockedLocations = [...globalUnlockedLocations, locId]
+      notify()
+    }
+  }
+
+  const markSpokenTo = (suspectId: string) => {
+    if (!globalSpokenTo.includes(suspectId)) {
+      globalSpokenTo = [...globalSpokenTo, suspectId]
+      notify()
+    }
+  }
+
   const resetGame = () => {
     globalEvidence = []
     globalFoundItems = []
+    globalUnlockedLocations = []
+    globalSpokenTo = []
     notify()
   }
 
   return {
     evidence: globalEvidence,
     foundItems: globalFoundItems,
+    unlockedLocations: globalUnlockedLocations,
+    spokenTo: globalSpokenTo,
     addEvidence,
+    unlockLocation,
+    markSpokenTo,
     resetGame,
   }
 }
