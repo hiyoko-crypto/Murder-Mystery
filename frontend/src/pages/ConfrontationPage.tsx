@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getConfrontScript } from '../data/mockData'
 import { useGameState } from '../hooks/useGameState'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
@@ -58,11 +57,8 @@ export default function ConfrontationPage() {
 
   const suspects = getSuspectsLive(lang)
   const items    = getItemsLive(lang)
-  const confrontScript = getConfrontScript(lang)
-
   const suspect = suspects.find((s) => s.id === id)
-  const scriptFromMock = id ? confrontScript[id] : null
-  const script = scriptFromMock ?? (lang === 'ja' ? GENERIC_SCRIPT_JA : GENERIC_SCRIPT)
+  const script = lang === 'ja' ? GENERIC_SCRIPT_JA : GENERIC_SCRIPT
 
   const [phase, setPhase] = useState<Phase>('confronting')
   const [lines, setLines] = useState<Line[]>([])

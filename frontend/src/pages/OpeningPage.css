@@ -28,8 +28,8 @@
   background: none;
   border: 2px solid #c8a96e;
   color: #c8a96e;
-  font-size: 1rem;
-  padding: 12px 40px;
+  font-size: 1.15rem;
+  padding: 14px 52px;
   letter-spacing: 0.15em;
   border-radius: 2px;
   transition: all 0.2s;
@@ -38,4 +38,118 @@
 .opening-btn:hover {
   background: #c8a96e;
   color: #0d0d0d;
+}
+
+.briefing-card {
+  width: 100%;
+  max-width: 620px;
+  background: #12100c;
+  border: 1px solid #3a2f1e;
+  border-top: 3px solid #c8a96e;
+  border-radius: 4px;
+  padding: 2rem 2.4rem 2.2rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.briefing-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: #6b5f4e;
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+}
+
+.briefing-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.8rem;
+  color: #c8a96e;
+  letter-spacing: 0.04em;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+
+.briefing-divider {
+  border: none;
+  border-top: 1px solid #2e2618;
+  margin-bottom: 1.2rem;
+}
+
+.briefing-setting {
+  font-size: 0.9rem;
+  color: #7a6e5e;
+  line-height: 1.6;
+  margin: 0 0 1.4rem;
+}
+
+/* 被害者ブロック - 最も目立たせる */
+.briefing-victim-block {
+  border-left: 3px solid #8b1a1a;
+  padding: 0.8rem 1rem;
+  background: rgba(139, 26, 26, 0.08);
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 1.4rem;
+}
+
+.briefing-victim-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #8b1a1a;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.briefing-victim-text {
+  font-size: 1rem;
+  color: #d4c9b0;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* 主要ファクト - バッジ3列 */
+.briefing-facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  margin-bottom: 1.2rem;
+}
+
+.briefing-fact {
+  background: #1a160e;
+  border: 1px solid #2e2618;
+  border-radius: 4px;
+  padding: 0.7rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.briefing-fact-icon {
+  font-size: 1rem;
+}
+
+.briefing-fact-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #6b5f4e;
+  text-transform: uppercase;
+}
+
+.briefing-fact-value {
+  font-size: 0.85rem;
+  color: #c8a96e;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+.briefing-scene {
+  font-size: 0.85rem;
+  color: #6b5f4e;
+  line-height: 1.5;
+  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px solid #1e1a12;
 }

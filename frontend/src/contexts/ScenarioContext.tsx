@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { fetchScenario, type ApiScenario, type ExamineRules } from '../api/scenario'
 import { useGameState } from '../hooks/useGameState'
 import type { Suspect, Location, Item } from '../types'
-import type { Lang } from '../data/_legacy/i18n'
+import type { Lang } from '../i18n'
 
 const BG_POOL = [
   'https://images.unsplash.com/photo-1723053140058-7aa2e74ac794?q=80&w=1470&auto=format&fit=crop',
@@ -31,15 +31,27 @@ const Ctx = createContext<ScenarioCtx | null>(null)
 export function ScenarioProvider({ children }: { children: ReactNode }) {
   const [scenario, setScenario] = useState<ApiScenario | null>(null)
   const [loading, setLoading] = useState(true)
-  const { unlockLocation } = useGameState()
+  const { unlockLocation, addEvidence } = useGameState()
 
   useEffect(() => {
-    fetchScenario()
-      .then(data => {
+    // Fetch scenario and backend state in parallel
+    Promise.all([
+      fetchScenario(),
+      fetch('/state?lang=ja').then(r => r.ok ? r.json() : null).catch(() => null),
+    ])
+      .then(([data, state]) => {
         setScenario(data)
         // Unlock initially available locations
         for (const locId of data.examineRules?.initialLocations ?? []) {
           unlockLocation(locId)
+        }
+        // Sync any locations already unlocked in the backend session
+        for (const loc of (state?.available_locations ?? [])) {
+          unlockLocation(loc.id)
+        }
+        // Restore already-found items from backend session
+        for (const item of (state?.found_items ?? [])) {
+          addEvidence(item.id)
         }
       })
       .catch((err) => console.error('[ScenarioContext] fetch/parse failed:', err))

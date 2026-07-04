@@ -3,11 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useGameState } from '../hooks/useGameState'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
-import { examineLocation } from '../api/examine'
-import type { ExaminedItem } from '../api/examine'
+import { examineLocation, examineItem } from '../api/examine'
 import './LocationPage.css'
 
-type Mode = 'menu' | 'examine' | 'talk' | 'move'
+type Mode = 'menu' | 'examine' | 'found-list' | 'item-detail' | 'talk' | 'move'
 
 interface Discovery {
   itemId: string
@@ -19,7 +18,7 @@ interface Discovery {
 export default function LocationPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { foundItems, addEvidence, unlockedLocations } = useGameState()
+  const { foundItems, addEvidence, unlockedLocations, unlockLocation } = useGameState()
   const { lang, t } = useLanguage()
   const { locations: getLocations, items: getItems, suspects: getSuspects, locationBg, examineRules } = useScenario()
 
@@ -31,16 +30,21 @@ export default function LocationPage() {
   const [discoveries, setDiscoveries] = useState<Discovery[]>([])
   const [allFound, setAllFound] = useState(false)
   const [examineLoading, setExamineLoading] = useState(false)
-  // Items queued from backend, revealed one per click
-  const [pendingItems, setPendingItems] = useState<ExaminedItem[]>([])
-  const [backendFetched, setBackendFetched] = useState(false)
+
+  // Item detail state
+  const [selectedItem, setSelectedItem] = useState<Discovery | null>(null)
+  const [itemSignificance, setItemSignificance] = useState<string>('')
+  const [itemDetailLoading, setItemDetailLoading] = useState(false)
+  const [unlockNoticeName, setUnlockNoticeName] = useState<string | null>(null)
+  const [unlockNoticeLocId, setUnlockNoticeLocId] = useState<string | null>(null)
+  // Track which items have been viewed (to show unlock notice only on first view)
+  const [viewedItems, setViewedItems] = useState<string[]>([])
 
   useEffect(() => {
     setMode('menu')
     setDiscoveries([])
     setAllFound(false)
-    setPendingItems([])
-    setBackendFetched(false)
+    setViewedItems([])
   }, [id])
 
   const location = locations.find((l) => l.id === id)
@@ -51,62 +55,80 @@ export default function LocationPage() {
   const otherLocations   = locations.filter((l) => l.id !== id && (examineRules ? unlockedLocations.includes(l.id) : true))
   const foundCount       = locationItems.filter((item) => foundItems.includes(item.id)).length
 
-  const revealItem = (backendItem: ExaminedItem) => {
-    addEvidence(backendItem.id)
-    const scenarioItem = items.find(i => i.id === backendItem.id)
-    setDiscoveries(prev => [...prev, {
-      itemId: backendItem.id,
-      text: backendItem.description,
-      emoji: scenarioItem?.emoji ?? '📦',
-      name: backendItem.name,
-    }])
-  }
-
   const handleExamineAction = async () => {
-    // If backend items are queued, reveal the next one
-    if (pendingItems.length > 0) {
-      const [next, ...rest] = pendingItems
-      setPendingItems(rest)
-      revealItem(next)
-      if (rest.length === 0) setAllFound(true)
+    if (allFound) {
+      setMode('found-list')
       return
     }
-    // Already fetched but nothing left
-    if (backendFetched) { setAllFound(true); return }
-
-    // First click: fetch from backend
+    setMode('examine')
     setExamineLoading(true)
     try {
       const result = await examineLocation(id!, lang)
-      setBackendFetched(true)
-      const queue = result.newly_found
-      if (queue.length === 0) {
-        setAllFound(true)
-      } else {
-        const [first, ...rest] = queue
-        setPendingItems(rest)
-        revealItem(first)
-        if (rest.length === 0) setAllFound(true)
-      }
+      const allItems = [...result.newly_found, ...result.already_found]
+      const newDiscoveries: Discovery[] = allItems.map(backendItem => {
+        addEvidence(backendItem.id)
+        const scenarioItem = items.find(i => i.id === backendItem.id)
+        return {
+          itemId: backendItem.id,
+          text: backendItem.description,
+          emoji: scenarioItem?.emoji ?? '📦',
+          name: backendItem.name,
+        }
+      })
+      setDiscoveries(newDiscoveries)
+      setAllFound(true)
+      setMode('found-list')
     } catch {
       // Fallback to local scenario data
-      setBackendFetched(true)
-      const nextItem = locationItems.find(item => {
-        if (foundItems.includes(item.id)) return false
-        if (!item.requiresItems) return true
-        return item.requiresItems.every(req => foundItems.includes(req))
-      })
-      if (!nextItem) { setAllFound(true); return }
-      addEvidence(nextItem.id)
-      setDiscoveries(prev => [...prev, {
-        itemId: nextItem.id,
-        text: nextItem.discoveryText,
-        emoji: nextItem.emoji,
-        name: nextItem.name,
-      }])
+      const unfound = locationItems.filter(item => !foundItems.includes(item.id))
+      unfound.forEach(item => addEvidence(item.id))
+      const fallback = unfound.map(item => ({
+        itemId: item.id,
+        text: item.discoveryText,
+        emoji: item.emoji,
+        name: item.name,
+      }))
+      setDiscoveries(fallback)
+      setAllFound(true)
+      setMode('found-list')
     } finally {
       setExamineLoading(false)
     }
+  }
+
+  const handleItemClick = async (item: Discovery) => {
+    setSelectedItem(item)
+    setItemSignificance('')
+    setUnlockNoticeName(null)
+    setUnlockNoticeLocId(null)
+    setMode('item-detail')
+
+    const isFirstView = !viewedItems.includes(item.itemId)
+    if (isFirstView) {
+      setViewedItems(prev => [...prev, item.itemId])
+    }
+
+    setItemDetailLoading(true)
+    try {
+      const res = await examineItem(item.itemId, lang)
+      setItemSignificance(res.significance ?? '')
+      if (isFirstView && res.unlocked_location) {
+        unlockLocation(res.unlocked_location)
+        const locName = locations.find(l => l.id === res.unlocked_location)?.name ?? res.unlocked_location
+        setUnlockNoticeName(locName)
+        setUnlockNoticeLocId(res.unlocked_location)
+      }
+    } catch {
+      // significance stays empty on failure
+    } finally {
+      setItemDetailLoading(false)
+    }
+  }
+
+  const handleHeaderBtn = () => {
+    if (mode === 'item-detail') setMode('found-list')
+    else if (mode === 'menu') navigate(-1)
+    else setMode('menu')
   }
 
   const bgUrl = locationBg(location.id)
@@ -127,8 +149,10 @@ export default function LocationPage() {
 
       {/* ヘッダー */}
       <div className="loc-header">
-        <button className="back-btn" onClick={() => navigate(-1)}>
-          {lang === 'ja' ? '← 戻る' : '← Back'}
+        <button className="back-btn" onClick={handleHeaderBtn}>
+          {mode === 'item-detail'
+            ? (lang === 'ja' ? '← 一覧へ' : '← List')
+            : (lang === 'ja' ? '← 戻る' : '← Back')}
         </button>
       </div>
 
@@ -142,7 +166,11 @@ export default function LocationPage() {
       {mode === 'menu' && (
         <div className="loc-panel loc-menu-panel">
           <div className="loc-action-row">
-            <button className="loc-action-btn" onClick={() => { setDiscoveries([]); setAllFound(false); setMode('examine') }}>
+            <button
+              className="loc-action-btn"
+              onClick={handleExamineAction}
+              disabled={examineLoading}
+            >
               <span className="loc-action-icon">🔍</span>
               <span className="loc-action-label">{t('loc.examine')}</span>
               <span className="loc-action-hint">
@@ -169,7 +197,7 @@ export default function LocationPage() {
         </div>
       )}
 
-      {/* ── 調べるパネル ── */}
+      {/* ── 調べる（ローディング中のみ表示） ── */}
       {mode === 'examine' && (
         <div className="loc-panel loc-content-panel">
           <div className="loc-panel-header">
@@ -177,42 +205,85 @@ export default function LocationPage() {
             <button className="loc-panel-close" onClick={() => setMode('menu')}>✕</button>
           </div>
           <div className="loc-discovery-log">
-            {discoveries.length === 0 && !allFound && (
-              <p className="loc-examine-prompt">{t('loc.examine.start')}</p>
+            <p className="loc-examine-prompt">
+              {lang === 'ja' ? '調査中...' : 'Examining...'}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── 発見済みアイテム一覧 ── */}
+      {mode === 'found-list' && (
+        <div className="loc-panel loc-content-panel">
+          <div className="loc-panel-header">
+            <span className="loc-panel-title">
+              {lang === 'ja' ? '発見した手がかり' : 'CLUES FOUND'}
+            </span>
+            <button className="loc-panel-close" onClick={() => setMode('menu')}>✕</button>
+          </div>
+          <div className="loc-discovery-log">
+            {discoveries.length === 0 && (
+              <p className="loc-examine-done">{t('loc.examine.done0')}</p>
             )}
             {discoveries.map((d, i) => (
-              <div key={i} className="loc-discovery-entry">
+              <button
+                key={i}
+                className="loc-found-item-btn"
+                onClick={() => handleItemClick(d)}
+              >
                 <span className="loc-discovery-emoji">{d.emoji}</span>
                 <div className="loc-discovery-text-wrap">
-                  <p className="loc-discovery-text">{d.text}</p>
-                  <button className="loc-detail-btn" onClick={() => navigate(`/item/${d.itemId}`)}>
-                    {d.name} {t('loc.item.detail')}
+                  <span className="loc-found-item-name">{d.name}</span>
+                  <span className="loc-found-item-hint">
+                    {lang === 'ja' ? '詳細を見る →' : 'View details →'}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── アイテム詳細（全画面オーバーレイ） ── */}
+      {mode === 'item-detail' && selectedItem && (
+        <div className="loc-item-detail-overlay">
+          <div className="loc-item-detail-card">
+
+            <div className="loc-item-card-header">
+              <span className="loc-item-card-eyebrow">
+                {lang === 'ja' ? '手がかり' : 'CLUE'}
+              </span>
+              <button className="loc-panel-close" onClick={() => setMode('found-list')}>✕</button>
+            </div>
+
+            <div className="loc-item-card-body">
+              <div className="loc-item-detail-emoji">{selectedItem.emoji}</div>
+              <h3 className="loc-item-detail-name">{selectedItem.name}</h3>
+              <div className="loc-item-detail-divider" />
+              <p className="loc-item-detail-text">{selectedItem.text}</p>
+              {itemDetailLoading && (
+                <p className="loc-item-loading">{lang === 'ja' ? '読み込み中...' : 'Loading...'}</p>
+              )}
+              {!itemDetailLoading && itemSignificance && (
+                <p className="loc-item-detail-text loc-item-significance">{itemSignificance}</p>
+              )}
+              <div className="loc-item-detail-badge">
+                {lang === 'ja' ? '証拠カードに追加済み' : 'Added to evidence'}
+              </div>
+              {unlockNoticeName && (
+                <div className="loc-item-unlock-notice">
+                  <p>🗺️ {lang === 'ja' ? `新しいエリアが解放されました：${unlockNoticeName}` : `New area unlocked: ${unlockNoticeName}`}</p>
+                  <button
+                    className="loc-item-unlock-btn"
+                    onClick={() => navigate(`/location/${unlockNoticeLocId}`)}
+                  >
+                    {lang === 'ja' ? `${unlockNoticeName} へ移動` : `Go to ${unlockNoticeName}`}
                   </button>
                 </div>
-              </div>
-            ))}
-            {allFound && (
-              <p className="loc-examine-done">
-                {foundCount === 0 ? t('loc.examine.done0') : t('loc.examine.doneN')}
-              </p>
-            )}
-            {foundCount > 0 && (
-              <div className="loc-found-chips">
-                {locationItems
-                  .filter((item) => foundItems.includes(item.id))
-                  .map((item) => (
-                    <button key={item.id} className="loc-found-chip" onClick={() => navigate(`/item/${item.id}`)}>
-                      {item.emoji} {item.name}
-                    </button>
-                  ))}
-              </div>
-            )}
+              )}
+            </div>
+
           </div>
-          {!allFound && (
-            <button className="loc-examine-btn" onClick={handleExamineAction} disabled={examineLoading}>
-              {examineLoading ? (lang === 'ja' ? '調査中...' : 'Examining...') : t('loc.examine.btn')}
-            </button>
-          )}
         </div>
       )}
 

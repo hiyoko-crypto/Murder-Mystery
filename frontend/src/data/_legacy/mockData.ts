@@ -3,7 +3,7 @@ import {
   locationData, itemData, suspectData, openingTextData,
   mockRepliesData, mockEvidenceRepliesData, confrontScriptData,
   type Lang,
-} from './i18n'
+} from '../../i18n'
 import type { Emotion } from '../types'
 
 /* 言語ごとにデータを返すヘルパー */
