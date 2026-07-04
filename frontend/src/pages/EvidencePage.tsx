@@ -1,13 +1,17 @@
 import { useNavigate } from 'react-router-dom'
-import { items } from '../data/mockData'
 import { useGameState } from '../hooks/useGameState'
+import { useScenario } from '../contexts/ScenarioContext'
+import { useLanguage } from '../contexts/LanguageContext'
 import './EvidencePage.css'
 
 export default function EvidencePage() {
   const navigate = useNavigate()
   const { evidence } = useGameState()
+  const { items: getItems } = useScenario()
+  const { lang } = useLanguage()
 
-  const foundItems = items.filter((item) => evidence.includes(item.id))
+  const allItems = getItems(lang)
+  const foundItems = allItems.filter((item) => evidence.includes(item.id))
 
   return (
     <div className="evidence-page">

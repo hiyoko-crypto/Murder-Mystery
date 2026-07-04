@@ -19,7 +19,7 @@ interface Discovery {
 export default function LocationPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { foundItems, addEvidence, unlockLocation, unlockedLocations } = useGameState()
+  const { foundItems, addEvidence, unlockedLocations } = useGameState()
   const { lang, t } = useLanguage()
   const { locations: getLocations, items: getItems, suspects: getSuspects, locationBg, examineRules } = useScenario()
 
@@ -53,9 +53,6 @@ export default function LocationPage() {
 
   const revealItem = (backendItem: ExaminedItem) => {
     addEvidence(backendItem.id)
-    // Unlock location if this item triggers one (from examine_rules or backend response)
-    const unlocks = examineRules?.itemUnlocksLocation[backendItem.id]
-    if (unlocks) unlockLocation(unlocks)
     const scenarioItem = items.find(i => i.id === backendItem.id)
     setDiscoveries(prev => [...prev, {
       itemId: backendItem.id,
@@ -82,7 +79,6 @@ export default function LocationPage() {
     try {
       const result = await examineLocation(id!, lang)
       setBackendFetched(true)
-      if (result.unlocked_location) unlockLocation(result.unlocked_location)
       const queue = result.newly_found
       if (queue.length === 0) {
         setAllFound(true)
@@ -102,8 +98,6 @@ export default function LocationPage() {
       })
       if (!nextItem) { setAllFound(true); return }
       addEvidence(nextItem.id)
-      const unlocks = examineRules?.itemUnlocksLocation[nextItem.id]
-      if (unlocks) unlockLocation(unlocks)
       setDiscoveries(prev => [...prev, {
         itemId: nextItem.id,
         text: nextItem.discoveryText,
