@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getMockReplies, getMockEvidenceReplies } from '../data/mockData'
 import { useGameState } from '../hooks/useGameState'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
@@ -17,8 +16,6 @@ export default function InterrogationPage() {
   const { suspects: getSuspects, items: getItems, locations: getLocations, locationBg, examineRules } = useScenario()
 
   const suspects     = getSuspects(lang)
-  const mockReplies  = getMockReplies(lang)
-  const mockEvidenceReplies = getMockEvidenceReplies(lang)
   const items        = getItems(lang)
   const allLocations = getLocations(lang)
 
@@ -35,7 +32,6 @@ export default function InterrogationPage() {
   const [isTyping, setIsTyping] = useState(false)
   const [lastPlayerText, setLastPlayerText] = useState('')
 
-  const replyIndexRef = useRef(0)
   const logEndRef = useRef<HTMLDivElement>(null)
   const typingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -74,7 +70,6 @@ export default function InterrogationPage() {
 
   if (!suspect) return <div>{t('not.found')}</div>
 
-  const replies = mockReplies[suspect.id] ?? []
   const foundEvidenceItems = items.filter((item) => evidence.includes(item.id))
 
   const deliverReply = (msg: Message) => {
@@ -83,18 +78,11 @@ export default function InterrogationPage() {
     setLoading(false)
   }
 
-  const getMockReply = (itemId?: string): Message => {
-    if (itemId) {
-      const evidenceReply = mockEvidenceReplies[itemId]?.[suspect.id]
-      if (evidenceReply) return { role: 'suspect', ...evidenceReply }
-    }
-    if (replies.length === 0) {
-      return { role: 'suspect', text: '...', emotion: 'neutral' }
-    }
-    const reply = replies[replyIndexRef.current % replies.length]
-    replyIndexRef.current += 1
-    return { role: 'suspect', text: reply.text, emotion: reply.emotion }
-  }
+  const getErrorReply = (): Message => ({
+    role: 'suspect',
+    text: lang === 'ja' ? '…（通信エラー。バックエンドを確認してください）' : '…(Connection error. Please check the backend.)',
+    emotion: 'neutral',
+  })
 
   const fetchReply = async (allMessages: Message[], itemId?: string) => {
     const latestPlayer = [...allMessages].reverse().find(m => m.role === 'player')
@@ -135,7 +123,7 @@ export default function InterrogationPage() {
           : `🗺️ New area unlocked: ${locName}`
         setMessages(prev => [...prev, { role: 'system', text }])
       }
-      deliverReply(getMockReply(itemId))
+      deliverReply(getErrorReply())
     }
   }
 

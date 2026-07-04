@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getOpeningText } from '../data/mockData'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
 import { fetchBriefing } from '../api/examine'
@@ -9,11 +8,13 @@ import './OpeningPage.css'
 export default function OpeningPage() {
   const navigate = useNavigate()
   const { lang, t } = useLanguage()
-  const { locations: getLocations } = useScenario()
+  const { examineRules } = useScenario()
 
   const [briefingText, setBriefingText] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    setLoading(true)
     fetchBriefing(lang)
       .then(b => {
         const text = lang === 'ja'
@@ -22,16 +23,30 @@ export default function OpeningPage() {
         setBriefingText(text)
       })
       .catch(() => setBriefingText(null))
+      .finally(() => setLoading(false))
   }, [lang])
 
-  const firstLocationId = getLocations(lang)[0]?.id ?? 'garden'
-  const openingText = briefingText ?? getOpeningText(lang)
+  const firstLocationId = examineRules?.initialLocations[0] ?? ''
+
+  const fallbackText = lang === 'ja'
+    ? '事件の詳細を読み込めませんでした。\nバックエンドが起動しているか確認してください。'
+    : 'Could not load case details.\nPlease make sure the backend is running.'
 
   return (
     <div className="opening-page">
       <div className="opening-content">
-        <pre className="opening-text">{openingText.trim()}</pre>
-        <button className="opening-btn" onClick={() => navigate(`/location/${firstLocationId}`)}>
+        {loading ? (
+          <p className="opening-text" style={{ opacity: 0.5 }}>
+            {lang === 'ja' ? '読み込み中...' : 'Loading...'}
+          </p>
+        ) : (
+          <pre className="opening-text">{(briefingText ?? fallbackText).trim()}</pre>
+        )}
+        <button
+          className="opening-btn"
+          onClick={() => navigate(`/location/${firstLocationId}`)}
+          disabled={loading || !firstLocationId}
+        >
           {t('opening.next')}
         </button>
       </div>

@@ -2,8 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { fetchScenario, type ApiScenario, type ExamineRules } from '../api/scenario'
 import { useGameState } from '../hooks/useGameState'
 import type { Suspect, Location, Item } from '../types'
-import { getLocations as mockLocations, getItems as mockItems, getSuspects as mockSuspects } from '../data/mockData'
-import type { Lang } from '../i18n'
+import type { Lang } from '../data/_legacy/i18n'
 
 const BG_POOL = [
   'https://images.unsplash.com/photo-1723053140058-7aa2e74ac794?q=80&w=1470&auto=format&fit=crop',
@@ -59,7 +58,7 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
   }
 
   const suspects = (lang: Lang): Suspect[] => {
-    if (!scenario) return mockSuspects(lang)
+    if (!scenario) return []
     return scenario.suspects.map(s => ({
       id: s.id,
       name: ja(s.name, lang),
@@ -70,7 +69,7 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
   }
 
   const locations = (lang: Lang): Location[] => {
-    if (!scenario) return mockLocations(lang)
+    if (!scenario) return []
     return scenario.locations.map(l => ({
       id: l.id,
       name: ja(l.name, lang),
@@ -81,7 +80,7 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
   }
 
   const items = (lang: Lang): Item[] => {
-    if (!scenario) return mockItems(lang)
+    if (!scenario) return []
     return scenario.items.map(item => ({
       id: item.id,
       name: ja(item.name, lang),
