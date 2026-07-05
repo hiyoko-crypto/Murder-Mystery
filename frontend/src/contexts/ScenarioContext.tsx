@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { fetchScenario, type ApiScenario, type ExamineRules } from '../api/scenario'
-import { useGameState } from '../hooks/useGameState'
 import type { Suspect, Location, Item } from '../types'
 import type { Lang } from '../i18n'
 
@@ -31,32 +30,13 @@ const Ctx = createContext<ScenarioCtx | null>(null)
 export function ScenarioProvider({ children }: { children: ReactNode }) {
   const [scenario, setScenario] = useState<ApiScenario | null>(null)
   const [loading, setLoading] = useState(true)
-  const { unlockLocation, addEvidence } = useGameState()
 
   useEffect(() => {
-    // Fetch scenario and backend state in parallel
-    Promise.all([
-      fetchScenario(),
-      fetch('/state?lang=ja').then(r => r.ok ? r.json() : null).catch(() => null),
-    ])
-      .then(([data, state]) => {
-        setScenario(data)
-        // Unlock initially available locations
-        for (const locId of data.examineRules?.initialLocations ?? []) {
-          unlockLocation(locId)
-        }
-        // Sync any locations already unlocked in the backend session
-        for (const loc of (state?.available_locations ?? [])) {
-          unlockLocation(loc.id)
-        }
-        // Restore already-found items from backend session
-        for (const item of (state?.found_items ?? [])) {
-          addEvidence(item.id)
-        }
-      })
-      .catch((err) => console.error('[ScenarioContext] fetch/parse failed:', err))
+    fetchScenario()
+      .then(data => setScenario(data))
+      .catch(err => console.error('[ScenarioContext] fetch failed:', err))
       .finally(() => setLoading(false))
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   const bgMap: Record<string, string> = scenario
     ? Object.fromEntries(scenario.locations.map((l, i) => [l.id, BG_POOL[i % BG_POOL.length]]))
@@ -100,7 +80,6 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
       discoveryText: item.description,
       detail: item.description,
       locationId: item.locationId,
-      found: false,
     }))
   }
 

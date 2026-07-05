@@ -40,6 +40,31 @@
   color: #0d0d0d;
 }
 
+.opening-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.opening-retry-btn {
+  background: none;
+  border: 1px solid #5a4a3a;
+  color: #8a7a6a;
+  padding: 8px 20px;
+  border-radius: 4px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.opening-retry-btn:hover {
+  border-color: #c8a96e;
+  color: #c8a96e;
+}
+
 .briefing-card {
   width: 100%;
   max-width: 620px;

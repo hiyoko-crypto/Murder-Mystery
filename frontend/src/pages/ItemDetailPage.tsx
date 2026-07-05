@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
-import { useGameState } from '../hooks/useGameState'
+import { useGame } from '../contexts/GameContext'
 import { examineItem } from '../api/examine'
 import './ItemDetailPage.css'
 
@@ -11,7 +11,7 @@ export default function ItemDetailPage() {
   const navigate = useNavigate()
   const { lang } = useLanguage()
   const { items: getItems, locations: getLocations } = useScenario()
-  const { unlockLocation } = useGameState()
+  const { refetchState } = useGame()
   const items = getItems(lang)
   const locations = getLocations(lang)
 
@@ -27,8 +27,8 @@ export default function ItemDetailPage() {
       .then(res => {
         setDetail({ name: res.name, description: res.description, significance: res.significance })
         if (res.unlocked_location) {
-          unlockLocation(res.unlocked_location)
           setNewLocId(res.unlocked_location)
+          refetchState()
         }
       })
       .catch(() => {

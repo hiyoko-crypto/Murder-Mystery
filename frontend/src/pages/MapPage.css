@@ -8,12 +8,34 @@
   margin: 0 auto;
 }
 
+.map-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.map-menu-btn {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+
+.map-menu-btn:hover { color: #c8a96e; }
+
 .map-title {
+  flex: 1;
   text-align: center;
   font-size: 1.2rem;
   letter-spacing: 0.2em;
   color: #c8a96e;
-  margin-bottom: 2rem;
+  margin: 0;
 }
 
 .location-list {

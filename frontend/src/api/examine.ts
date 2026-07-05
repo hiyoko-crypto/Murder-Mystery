@@ -25,6 +25,7 @@ export interface BriefingResult {
   setting: string
   victim: string
   time_of_murder: string
+  time_discovered: string
   weapon: string
   scene: string
   suspects: { id: string; name: string }[]
@@ -51,7 +52,7 @@ export async function examineItem(itemId: string, lang = 'ja'): Promise<ExamineI
 }
 
 export async function fetchBriefing(lang = 'ja'): Promise<BriefingResult> {
-  const res = await fetch(`${BASE}/briefing?lang=${lang}`, { signal: AbortSignal.timeout(5000) })
+  const res = await fetch(`${BASE}/briefing?lang=${lang}`, { signal: AbortSignal.timeout(15000) })
   if (!res.ok) throw new Error(`briefing ${res.status}`)
   return res.json()
 }

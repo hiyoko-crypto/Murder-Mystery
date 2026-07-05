@@ -486,6 +486,26 @@
 .evidence-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 
+/* 場所解放通知（台詞ボックス内） */
+.interro-unlock-notice {
+  align-self: center;
+  background: rgba(20, 50, 30, 0.9);
+  border: 1px solid #4caf50;
+  color: #a5d6a7;
+  padding: 0.45rem 1.1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-align: center;
+  animation: unlockPop 0.35s ease;
+}
+
+@keyframes unlockPop {
+  from { opacity: 0; transform: translateY(6px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .log-entry.system {
   display: flex;
   justify-content: center;

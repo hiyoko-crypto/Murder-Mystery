@@ -12,14 +12,18 @@ export default function OpeningPage() {
 
   const [briefing, setBriefing] = useState<BriefingResult | null>(null)
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState(false)
 
-  useEffect(() => {
+  const loadBriefing = () => {
     setLoading(true)
+    setFetchError(false)
     fetchBriefing(lang)
-      .then(b => setBriefing(b))
-      .catch(() => setBriefing(null))
+      .then(b => { setBriefing(b); setFetchError(false) })
+      .catch(() => { setBriefing(null); setFetchError(true) })
       .finally(() => setLoading(false))
-  }, [lang])
+  }
+
+  useEffect(() => { loadBriefing() }, [lang]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const firstLocationId = examineRules?.initialLocations[0] ?? ''
 
@@ -65,17 +69,22 @@ export default function OpeningPage() {
 
             <p className="briefing-scene">📍 {briefing.scene}</p>
           </div>
-        ) : (
-          <p className="opening-text">
-            {ja
-              ? '事件の詳細を読み込めませんでした。\nバックエンドが起動しているか確認してください。'
-              : 'Could not load case details.\nPlease make sure the backend is running.'}
-          </p>
-        )}
+        ) : fetchError ? (
+          <div className="opening-error">
+            <p className="opening-text">
+              {ja
+                ? '事件の詳細を読み込めませんでした。'
+                : 'Could not load case details.'}
+            </p>
+            <button className="opening-retry-btn" onClick={loadBriefing}>
+              {ja ? '再試行' : 'Retry'}
+            </button>
+          </div>
+        ) : null}
         <button
           className="opening-btn"
           onClick={() => navigate(`/location/${firstLocationId}`)}
-          disabled={loading || !firstLocationId}
+          disabled={!firstLocationId}
         >
           {t('opening.next')}
         </button>

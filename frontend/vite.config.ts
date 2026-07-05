@@ -13,6 +13,7 @@ export default defineConfig({
       '/briefing':  'http://localhost:8000',
       '/examine':   'http://localhost:8000',
       '/indict':    'http://localhost:8000',
+      '/reset':     'http://localhost:8000',
     },
   },
 })

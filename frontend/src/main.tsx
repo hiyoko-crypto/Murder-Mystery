@@ -4,12 +4,15 @@ import './index.css'
 import App from './App.tsx'
 import { LanguageProvider } from './contexts/LanguageContext'
 import { ScenarioProvider } from './contexts/ScenarioContext'
+import { GameProvider } from './contexts/GameContext'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <LanguageProvider>
       <ScenarioProvider>
-        <App />
+        <GameProvider>
+          <App />
+        </GameProvider>
       </ScenarioProvider>
     </LanguageProvider>
   </StrictMode>,

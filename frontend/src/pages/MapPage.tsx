@@ -1,23 +1,36 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useGameState } from '../hooks/useGameState'
+import { useGame } from '../contexts/GameContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
+import ConfirmResetDialog from '../components/ConfirmResetDialog'
 import './MapPage.css'
 
 export default function MapPage() {
   const navigate = useNavigate()
-  const { evidence, unlockedLocations } = useGameState()
+  const { foundItems, unlockedLocations, resetGame } = useGame()
   const { lang, t } = useLanguage()
-  const { locations: getLocations, locationBg, examineRules } = useScenario()
-  const allLocations = getLocations(lang)
-  // If examineRules exist, show only unlocked locations; else show all (mock data fallback)
-  const locations = examineRules
-    ? allLocations.filter(l => unlockedLocations.includes(l.id))
-    : allLocations
+  const { locations: getLocations, locationBg } = useScenario()
+  const locations = getLocations(lang).filter(l => unlockedLocations.includes(l.id))
+  const unit = t('map.evidenceUnit')
+
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [resetting, setResetting] = useState(false)
+
+  const handleConfirmReturn = async () => {
+    setResetting(true)
+    await resetGame()
+    navigate('/')
+  }
 
   return (
     <div className="map-page">
-      <h2 className="map-title">{t('map.title')}</h2>
+      <div className="map-header">
+        <button className="map-menu-btn" onClick={() => setShowConfirm(true)}>
+          {lang === 'ja' ? 'メインメニューに戻る' : 'Return to Main Menu'}
+        </button>
+        <h2 className="map-title">{t('map.title')}</h2>
+      </div>
       <div className="location-list">
         {locations.map((loc) => (
           <button
@@ -34,11 +47,18 @@ export default function MapPage() {
         ))}
       </div>
       <div className="evidence-bar">
-        <span>{t('map.evidence')}: {evidence.length}{t('map.evidenceUnit') ? ` ${t('map.evidenceUnit')}` : ''}</span>
+        <span>{t('map.evidence')}: {foundItems.length}{unit ? ` ${unit}` : ''}</span>
         <button className="evidence-btn" onClick={() => navigate('/evidence')}>
           {t('map.viewEvidence')}
         </button>
       </div>
+
+      <ConfirmResetDialog
+        open={showConfirm}
+        resetting={resetting}
+        onCancel={() => setShowConfirm(false)}
+        onConfirm={handleConfirmReturn}
+      />
     </div>
   )
 }

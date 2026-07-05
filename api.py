@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from game_session import GameSession
+from modules.i18n import set_lang
 
 
 # ── Session state ─────────────────────────────────────────────────────────────
@@ -152,7 +153,10 @@ async def chat(req: ChatRequest):
     except ValueError as e:
         raise HTTPException(404, str(e))
 
-    response_text = await asyncio.to_thread(gs.ask, req.message)
+    def _ask():
+        set_lang(req.lang)
+        return gs.ask(req.message)
+    response_text = await asyncio.to_thread(_ask)
 
     new_locs = list(gs._new_location_ids)
     return ChatResponse(
@@ -165,7 +169,10 @@ async def chat(req: ChatRequest):
 @app.post("/examine/location/{location_id}")
 async def examine_location(location_id: str, lang: str = "ja"):
     gs = _get_session(lang)
-    result = await asyncio.to_thread(gs.examine_location, location_id)
+    def _examine():
+        set_lang(lang)
+        return gs.examine_location(location_id)
+    result = await asyncio.to_thread(_examine)
     return {
         "description": result.description,
         "newly_found": [
@@ -183,7 +190,10 @@ async def examine_location(location_id: str, lang: str = "ja"):
 @app.get("/examine/item/{item_id}")
 async def examine_item(item_id: str, lang: str = "ja"):
     gs = _get_session(lang)
-    result = await asyncio.to_thread(gs.examine_item, item_id)
+    def _examine_item():
+        set_lang(lang)
+        return gs.examine_item(item_id)
+    result = await asyncio.to_thread(_examine_item)
     return {
         "name": result.name,
         "description": result.description,
@@ -192,11 +202,29 @@ async def examine_item(item_id: str, lang: str = "ja"):
     }
 
 
+@app.post("/reset")
+async def reset_sessions():
+    """Reinitialise all GameSession objects — equivalent to a backend restart."""
+    path = _find_scenario()
+    if not path:
+        raise HTTPException(503, "No scenario found")
+    for lang in ("en", "ja"):
+        try:
+            _sessions[lang] = GameSession(path, language=lang)
+            print(f"[api] reset GameSession({lang})")
+        except Exception as e:
+            print(f"[api] reset GameSession({lang}) failed: {e}")
+    return {"status": "reset"}
+
+
 @app.post("/indict")
 async def indict(req: IndictRequest):
     gs = _get_session(req.lang)
+    def _indict():
+        set_lang(req.lang)
+        return gs.indict(req.suspect_id, req.reason)
     try:
-        result = await asyncio.to_thread(gs.indict, req.suspect_id, req.reason)
+        result = await asyncio.to_thread(_indict)
     except ValueError as e:
         raise HTTPException(404, str(e))
     return {

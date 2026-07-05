@@ -796,8 +796,11 @@
     "Theatre Lobby": "劇場ロビー",
     "Theatre Bar": "劇場バー",
     "Stage": "舞台",
+    "Front Row Stalls": "最前列席",
     "Brass Candlestick": "真鍮の燭台",
     "Torn Letter": "破れた手紙",
-    "Silver Compact Mirror": "銀のコンパクトミラー"
+    "Silver Compact Mirror": "銀のコンパクトミラー",
+    "Ventilation Grate": "換気口の格子",
+    "Locked Door": "施錠されたドア"
   }
 }
