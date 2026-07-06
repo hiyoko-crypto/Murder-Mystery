@@ -1,12 +1,13 @@
 import { useNavigate } from 'react-router-dom'
-import { getSuspects } from '../data/mockData'
 import { useLanguage } from '../contexts/LanguageContext'
+import { useScenario } from '../contexts/ScenarioContext'
 import { emotionLabel } from '../utils/emotion'
 import './AccusationPage.css'
 
 export default function AccusationPage() {
   const navigate = useNavigate()
   const { lang, t } = useLanguage()
+  const { suspects: getSuspects } = useScenario()
   const suspects = getSuspects(lang)
 
   return (

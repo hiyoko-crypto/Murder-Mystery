@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useGameState } from '../hooks/useGameState'
+import { useGame } from '../contexts/GameContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
-import { examineLocation } from '../api/examine'
-import type { ExaminedItem } from '../api/examine'
+import { examineLocation, examineItem, fetchBriefing, type BriefingResult } from '../api/examine'
+import ConfirmResetDialog from '../components/ConfirmResetDialog'
 import './LocationPage.css'
+import './OpeningPage.css'
 
-type Mode = 'menu' | 'examine' | 'talk' | 'move'
+type Mode = 'menu' | 'examine' | 'found-list' | 'item-detail' | 'talk' | 'move'
 
 interface Discovery {
   itemId: string
@@ -19,9 +20,9 @@ interface Discovery {
 export default function LocationPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { foundItems, addEvidence, unlockLocation, unlockedLocations } = useGameState()
+  const { foundItems, unlockedLocations, refetchState, resetGame } = useGame()
   const { lang, t } = useLanguage()
-  const { locations: getLocations, items: getItems, suspects: getSuspects, locationBg, examineRules } = useScenario()
+  const { locations: getLocations, items: getItems, suspects: getSuspects, locationBg } = useScenario()
 
   const locations   = getLocations(lang)
   const items       = getItems(lang)
@@ -30,93 +31,101 @@ export default function LocationPage() {
   const [mode, setMode] = useState<Mode>('menu')
   const [discoveries, setDiscoveries] = useState<Discovery[]>([])
   const [allFound, setAllFound] = useState(false)
-  const [examineLoading, setExamineLoading] = useState(false)
-  // Items queued from backend, revealed one per click
-  const [pendingItems, setPendingItems] = useState<ExaminedItem[]>([])
-  const [backendFetched, setBackendFetched] = useState(false)
+
+  // Item detail state
+  const [selectedItem, setSelectedItem] = useState<Discovery | null>(null)
+  const [itemSignificance, setItemSignificance] = useState<string>('')
+  const [itemDetailLoading, setItemDetailLoading] = useState(false)
+  const [unlockNoticeName, setUnlockNoticeName] = useState<string | null>(null)
+
+  // Case File overlay
+  const [showCaseFile, setShowCaseFile] = useState(false)
+  const [briefing, setBriefing] = useState<BriefingResult | null>(null)
+  const [briefingLoading, setBriefingLoading] = useState(false)
+
+  // Main menu confirm
+  const [showMenuConfirm, setShowMenuConfirm] = useState(false)
+  const [resetting, setResetting] = useState(false)
 
   useEffect(() => {
     setMode('menu')
     setDiscoveries([])
     setAllFound(false)
-    setPendingItems([])
-    setBackendFetched(false)
   }, [id])
 
   const location = locations.find((l) => l.id === id)
   if (!location) return <div>{t('not.found')}</div>
 
   const locationItems    = items.filter((item) => location.items.includes(item.id))
-  const locationSuspects = allSuspects.filter((s) => location.suspects.includes(s.id))
-  const otherLocations   = locations.filter((l) => l.id !== id && (examineRules ? unlockedLocations.includes(l.id) : true))
+  const moveLocations    = locations.filter((l) => unlockedLocations.includes(l.id))
   const foundCount       = locationItems.filter((item) => foundItems.includes(item.id)).length
 
-  const revealItem = (backendItem: ExaminedItem) => {
-    addEvidence(backendItem.id)
-    // Unlock location if this item triggers one (from examine_rules or backend response)
-    const unlocks = examineRules?.itemUnlocksLocation[backendItem.id]
-    if (unlocks) unlockLocation(unlocks)
-    const scenarioItem = items.find(i => i.id === backendItem.id)
-    setDiscoveries(prev => [...prev, {
-      itemId: backendItem.id,
-      text: backendItem.description,
-      emoji: scenarioItem?.emoji ?? '📦',
-      name: backendItem.name,
-    }])
-  }
-
   const handleExamineAction = async () => {
-    // If backend items are queued, reveal the next one
-    if (pendingItems.length > 0) {
-      const [next, ...rest] = pendingItems
-      setPendingItems(rest)
-      revealItem(next)
-      if (rest.length === 0) setAllFound(true)
+    if (allFound) {
+      setMode('found-list')
       return
     }
-    // Already fetched but nothing left
-    if (backendFetched) { setAllFound(true); return }
-
-    // First click: fetch from backend
-    setExamineLoading(true)
+    setMode('examine')
     try {
       const result = await examineLocation(id!, lang)
-      setBackendFetched(true)
-      if (result.unlocked_location) unlockLocation(result.unlocked_location)
-      const queue = [...result.newly_found, ...result.already_found].filter(
-        (item, index, allItems) =>
-          !foundItems.includes(item.id) &&
-          allItems.findIndex((candidate) => candidate.id === item.id) === index,
-      )
-      if (queue.length === 0) {
-        setAllFound(true)
-      } else {
-        const [first, ...rest] = queue
-        setPendingItems(rest)
-        revealItem(first)
-        if (rest.length === 0) setAllFound(true)
+      const allItems = [...result.newly_found, ...result.already_found]
+      const newDiscoveries: Discovery[] = allItems.map(backendItem => {
+        const scenarioItem = items.find(i => i.id === backendItem.id)
+        return {
+          itemId: backendItem.id,
+          text: backendItem.description,
+          emoji: scenarioItem?.emoji ?? '📦',
+          name: backendItem.name,
+        }
+      })
+      setDiscoveries(newDiscoveries)
+      setAllFound(true)
+      setMode('found-list')
+      await refetchState()
+    } catch {
+      setMode('menu')
+    }
+  }
+
+  const handleItemClick = async (item: Discovery) => {
+    setSelectedItem(item)
+    setItemSignificance('')
+    setUnlockNoticeName(null)
+    setMode('item-detail')
+
+    setItemDetailLoading(true)
+    try {
+      const res = await examineItem(item.itemId, lang)
+      setItemSignificance(res.significance ?? '')
+      if (res.unlocked_location) {
+        const locName = locations.find(l => l.id === res.unlocked_location)?.name ?? res.unlocked_location
+        setUnlockNoticeName(locName)
+        await refetchState()
       }
     } catch {
-      // Fallback to local scenario data
-      setBackendFetched(true)
-      const nextItem = locationItems.find(item => {
-        if (foundItems.includes(item.id)) return false
-        if (!item.requiresItems) return true
-        return item.requiresItems.every(req => foundItems.includes(req))
-      })
-      if (!nextItem) { setAllFound(true); return }
-      addEvidence(nextItem.id)
-      const unlocks = examineRules?.itemUnlocksLocation[nextItem.id]
-      if (unlocks) unlockLocation(unlocks)
-      setDiscoveries(prev => [...prev, {
-        itemId: nextItem.id,
-        text: nextItem.discoveryText,
-        emoji: nextItem.emoji,
-        name: nextItem.name,
-      }])
+      // significance stays empty on failure
     } finally {
-      setExamineLoading(false)
+      setItemDetailLoading(false)
     }
+  }
+
+  const handleOpenCaseFile = async () => {
+    setShowCaseFile(true)
+    if (!briefing && !briefingLoading) {
+      setBriefingLoading(true)
+      try {
+        const b = await fetchBriefing(lang)
+        setBriefing(b)
+      } catch { /* ignore */ } finally {
+        setBriefingLoading(false)
+      }
+    }
+  }
+
+  const handleConfirmReturn = async () => {
+    setResetting(true)
+    await resetGame()
+    navigate('/')
   }
 
   const bgUrl = locationBg(location.id)
@@ -137,22 +146,28 @@ export default function LocationPage() {
 
       {/* ヘッダー */}
       <div className="loc-header">
-        <button className="back-btn" onClick={() => navigate(-1)}>
-          {lang === 'ja' ? '← 戻る' : '← Back'}
+        <button className="back-btn" onClick={handleOpenCaseFile}>
+          {lang === 'ja' ? '📋 事件概要' : '📋 Case File'}
+        </button>
+        <button className="loc-menu-btn" onClick={() => setShowMenuConfirm(true)}>
+          {lang === 'ja' ? 'メインメニューに戻る' : 'Return to Main Menu'}
         </button>
       </div>
 
       {/* 場所名 */}
       <div className="loc-title-area">
         <h2 className="loc-title">{location.name}</h2>
-        {mode === 'menu' && <p className="loc-desc">{location.description}</p>}
+        {mode === 'menu' && lang === 'en' && <p className="loc-desc">{location.description}</p>}
       </div>
 
       {/* ── メニュー（3ボタン） ── */}
       {mode === 'menu' && (
         <div className="loc-panel loc-menu-panel">
           <div className="loc-action-row">
-            <button className="loc-action-btn" onClick={() => { setDiscoveries([]); setAllFound(false); setMode('examine') }}>
+            <button
+              className="loc-action-btn"
+              onClick={handleExamineAction}
+            >
               <span className="loc-action-icon">🔍</span>
               <span className="loc-action-label">{t('loc.examine')}</span>
               <span className="loc-action-hint">
@@ -162,12 +177,12 @@ export default function LocationPage() {
             <button
               className="loc-action-btn"
               onClick={() => setMode('talk')}
-              disabled={locationSuspects.length === 0}
+              disabled={allSuspects.length === 0}
             >
               <span className="loc-action-icon">💬</span>
               <span className="loc-action-label">{t('loc.talk')}</span>
               <span className="loc-action-hint">
-                {locationSuspects.length === 0 ? t('loc.nobody') : `${locationSuspects.length} ${t('loc.people')}`}
+                {allSuspects.length === 0 ? t('loc.nobody') : `${allSuspects.length} ${t('loc.people')}`}
               </span>
             </button>
             <button className="loc-action-btn" onClick={() => setMode('move')}>
@@ -179,7 +194,7 @@ export default function LocationPage() {
         </div>
       )}
 
-      {/* ── 調べるパネル ── */}
+      {/* ── 調べる（ローディング中のみ表示） ── */}
       {mode === 'examine' && (
         <div className="loc-panel loc-content-panel">
           <div className="loc-panel-header">
@@ -187,42 +202,79 @@ export default function LocationPage() {
             <button className="loc-panel-close" onClick={() => setMode('menu')}>✕</button>
           </div>
           <div className="loc-discovery-log">
-            {discoveries.length === 0 && !allFound && (
-              <p className="loc-examine-prompt">{t('loc.examine.start')}</p>
+            <p className="loc-examine-prompt">
+              {lang === 'ja' ? '調査中...' : 'Examining...'}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── 発見済みアイテム一覧 ── */}
+      {mode === 'found-list' && (
+        <div className="loc-panel loc-content-panel">
+          <div className="loc-panel-header">
+            <span className="loc-panel-title">
+              {lang === 'ja' ? '発見した手がかり' : 'CLUES FOUND'}
+            </span>
+            <button className="loc-panel-close" onClick={() => setMode('menu')}>✕</button>
+          </div>
+          <div className="loc-discovery-log">
+            {discoveries.length === 0 && (
+              <p className="loc-examine-done">{t('loc.examine.done0')}</p>
             )}
             {discoveries.map((d, i) => (
-              <div key={i} className="loc-discovery-entry">
+              <button
+                key={i}
+                className="loc-found-item-btn"
+                onClick={() => handleItemClick(d)}
+              >
                 <span className="loc-discovery-emoji">{d.emoji}</span>
                 <div className="loc-discovery-text-wrap">
-                  <p className="loc-discovery-text">{d.text}</p>
-                  <button className="loc-detail-btn" onClick={() => navigate(`/item/${d.itemId}`)}>
-                    {d.name} {t('loc.item.detail')}
-                  </button>
+                  <span className="loc-found-item-name">{d.name}</span>
+                  <span className="loc-found-item-hint">
+                    {lang === 'ja' ? '詳細を見る →' : 'View details →'}
+                  </span>
                 </div>
-              </div>
+              </button>
             ))}
-            {allFound && (
-              <p className="loc-examine-done">
-                {foundCount === 0 ? t('loc.examine.done0') : t('loc.examine.doneN')}
-              </p>
-            )}
-            {foundCount > 0 && (
-              <div className="loc-found-chips">
-                {locationItems
-                  .filter((item) => foundItems.includes(item.id))
-                  .map((item) => (
-                    <button key={item.id} className="loc-found-chip" onClick={() => navigate(`/item/${item.id}`)}>
-                      {item.emoji} {item.name}
-                    </button>
-                  ))}
-              </div>
-            )}
           </div>
-          {!allFound && (
-            <button className="loc-examine-btn" onClick={handleExamineAction} disabled={examineLoading}>
-              {examineLoading ? (lang === 'ja' ? '調査中...' : 'Examining...') : t('loc.examine.btn')}
-            </button>
-          )}
+        </div>
+      )}
+
+      {/* ── アイテム詳細（全画面オーバーレイ） ── */}
+      {mode === 'item-detail' && selectedItem && (
+        <div className="loc-item-detail-overlay">
+          <div className="loc-item-detail-card">
+
+            <div className="loc-item-card-header">
+              <span className="loc-item-card-eyebrow">
+                {lang === 'ja' ? '手がかり' : 'CLUE'}
+              </span>
+              <button className="loc-panel-close" onClick={() => setMode('found-list')}>✕</button>
+            </div>
+
+            <div className="loc-item-card-body">
+              <div className="loc-item-detail-emoji">{selectedItem.emoji}</div>
+              <h3 className="loc-item-detail-name">{selectedItem.name}</h3>
+              <div className="loc-item-detail-divider" />
+              <p className="loc-item-detail-text">{selectedItem.text}</p>
+              {itemDetailLoading && (
+                <p className="loc-item-loading">{lang === 'ja' ? '読み込み中...' : 'Loading...'}</p>
+              )}
+              {!itemDetailLoading && itemSignificance && (
+                <p className="loc-item-detail-text loc-item-significance">{itemSignificance}</p>
+              )}
+              <div className="loc-item-detail-badge">
+                {lang === 'ja' ? '証拠カードに追加済み' : 'Added to evidence'}
+              </div>
+              {unlockNoticeName && (
+                <div className="loc-item-unlock-notice">
+                  <p>🗺️ {lang === 'ja' ? `新しいエリアが解放されました：${unlockNoticeName}` : `New area unlocked: ${unlockNoticeName}`}</p>
+                </div>
+              )}
+            </div>
+
+          </div>
         </div>
       )}
 
@@ -234,7 +286,7 @@ export default function LocationPage() {
             <button className="loc-panel-close" onClick={() => setMode('menu')}>✕</button>
           </div>
           <div className="loc-talk-list">
-            {locationSuspects.map((suspect) => (
+            {allSuspects.map((suspect) => (
               <button
                 key={suspect.id}
                 className="loc-suspect-btn"
@@ -259,23 +311,90 @@ export default function LocationPage() {
               <button className="loc-panel-close" onClick={() => setMode('menu')}>✕</button>
             </div>
             <div className="loc-move-list">
-              {otherLocations.map((loc) => (
-                <button
-                  key={loc.id}
-                  className="loc-move-btn"
-                  style={{ backgroundImage: `url(${locationBg(loc.id)})` }}
-                  onClick={() => navigate(`/location/${loc.id}`)}
-                >
-                  <div className="loc-move-btn-inner">
-                    <span className="loc-move-name">{loc.name}</span>
-                    <span className="loc-move-desc">{loc.description}</span>
-                  </div>
-                </button>
-              ))}
+              {moveLocations.map((loc) => {
+                const isCurrent = loc.id === id
+                return (
+                  <button
+                    key={loc.id}
+                    className={`loc-move-btn${isCurrent ? ' current' : ''}`}
+                    style={{ backgroundImage: `url(${locationBg(loc.id)})` }}
+                    onClick={() => navigate(`/location/${loc.id}`)}
+                    disabled={isCurrent}
+                  >
+                    <div className="loc-move-btn-inner">
+                      <span className="loc-move-name">
+                        {loc.name}
+                        {isCurrent && <span className="loc-move-here">{lang === 'ja' ? '　◀ ここ' : '　◀ Here'}</span>}
+                      </span>
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </div>
         </div>
       )}
+
+      {/* ── 事件概要オーバーレイ ── */}
+      {showCaseFile && (
+        <div className="loc-move-overlay" onClick={() => setShowCaseFile(false)}>
+          <div className="loc-casefile-panel" onClick={e => e.stopPropagation()}>
+            <div className="loc-panel-header">
+              <span className="loc-panel-title">
+                {lang === 'ja' ? '— 事件概要 —' : '— CASE FILE —'}
+              </span>
+              <button className="loc-panel-close" onClick={() => setShowCaseFile(false)}>✕</button>
+            </div>
+            <div className="loc-casefile-body">
+              {briefingLoading && (
+                <p className="loc-item-loading">{lang === 'ja' ? '読み込み中...' : 'Loading...'}</p>
+              )}
+              {!briefingLoading && !briefing && (
+                <p className="loc-examine-done">
+                  {lang === 'ja' ? '事件概要を読み込めませんでした。' : 'Could not load case file.'}
+                </p>
+              )}
+              {briefing && (
+                <div className="briefing-card">
+                  <p className="briefing-eyebrow">{lang === 'ja' ? '事件報告書' : 'CASE FILE'}</p>
+                  <h2 className="briefing-title">{briefing.title}</h2>
+                  <div className="briefing-divider" />
+                  <p className="briefing-setting">{briefing.setting}</p>
+                  <div className="briefing-victim-block">
+                    <span className="briefing-victim-label">{lang === 'ja' ? '被害者' : 'VICTIM'}</span>
+                    <p className="briefing-victim-text">{briefing.victim}</p>
+                  </div>
+                  <div className="briefing-facts">
+                    <div className="briefing-fact">
+                      <span className="briefing-fact-icon">⏰</span>
+                      <span className="briefing-fact-label">{lang === 'ja' ? '死亡推定' : 'Time of Death'}</span>
+                      <span className="briefing-fact-value">{briefing.time_of_murder}</span>
+                    </div>
+                    <div className="briefing-fact">
+                      <span className="briefing-fact-icon">🔍</span>
+                      <span className="briefing-fact-label">{lang === 'ja' ? '発見時刻' : 'Discovered'}</span>
+                      <span className="briefing-fact-value">{briefing.time_discovered}</span>
+                    </div>
+                    <div className="briefing-fact">
+                      <span className="briefing-fact-icon">🗡️</span>
+                      <span className="briefing-fact-label">{lang === 'ja' ? '凶器' : 'Weapon'}</span>
+                      <span className="briefing-fact-value">{briefing.weapon}</span>
+                    </div>
+                  </div>
+                  <p className="briefing-scene">📍 {briefing.scene}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ConfirmResetDialog
+        open={showMenuConfirm}
+        resetting={resetting}
+        onCancel={() => setShowMenuConfirm(false)}
+        onConfirm={handleConfirmReturn}
+      />
 
     </div>
   )

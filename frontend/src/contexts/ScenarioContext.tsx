@@ -1,8 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { fetchScenario, type ApiScenario, type ExamineRules } from '../api/scenario'
-import { useGameState } from '../hooks/useGameState'
 import type { Suspect, Location, Item } from '../types'
-import { getLocations as mockLocations, getItems as mockItems, getSuspects as mockSuspects } from '../data/mockData'
 import type { Lang } from '../i18n'
 
 const BG_POOL = [
@@ -32,20 +30,13 @@ const Ctx = createContext<ScenarioCtx | null>(null)
 export function ScenarioProvider({ children }: { children: ReactNode }) {
   const [scenario, setScenario] = useState<ApiScenario | null>(null)
   const [loading, setLoading] = useState(true)
-  const { unlockLocation } = useGameState()
 
   useEffect(() => {
     fetchScenario()
-      .then(data => {
-        setScenario(data)
-        // Unlock initially available locations
-        for (const locId of data.examineRules?.initialLocations ?? []) {
-          unlockLocation(locId)
-        }
-      })
-      .catch((err) => console.error('[ScenarioContext] fetch/parse failed:', err))
+      .then(data => setScenario(data))
+      .catch(err => console.error('[ScenarioContext] fetch failed:', err))
       .finally(() => setLoading(false))
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   const bgMap: Record<string, string> = scenario
     ? Object.fromEntries(scenario.locations.map((l, i) => [l.id, BG_POOL[i % BG_POOL.length]]))
@@ -59,7 +50,7 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
   }
 
   const suspects = (lang: Lang): Suspect[] => {
-    if (!scenario) return mockSuspects(lang)
+    if (!scenario) return []
     return scenario.suspects.map(s => ({
       id: s.id,
       name: ja(s.name, lang),
@@ -70,7 +61,7 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
   }
 
   const locations = (lang: Lang): Location[] => {
-    if (!scenario) return mockLocations(lang)
+    if (!scenario) return []
     return scenario.locations.map(l => ({
       id: l.id,
       name: ja(l.name, lang),
@@ -81,7 +72,7 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
   }
 
   const items = (lang: Lang): Item[] => {
-    if (!scenario) return mockItems(lang)
+    if (!scenario) return []
     return scenario.items.map(item => ({
       id: item.id,
       name: ja(item.name, lang),
@@ -89,7 +80,6 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
       discoveryText: item.description,
       detail: item.description,
       locationId: item.locationId,
-      found: false,
     }))
   }
 

@@ -52,55 +52,36 @@
   letter-spacing: 0.08em;
 }
 
-/* 台詞ログ（直前の流れ） */
-.confrontation-log {
-  flex-shrink: 0;
-  padding: 0 1.2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  max-height: 100px;
-  overflow: hidden;
-}
-
-.conf-line {
-  font-size: 0.8rem;
-  line-height: 1.5;
-  opacity: 0.5;
-}
-
-.conf-line.suspect { color: #e8c0c0; }
-.conf-line.player  { color: #6abf6a; text-align: right; }
-.conf-line.evidence { color: #c8a96e; text-align: right; }
-
-.conf-evidence-text { font-weight: bold; }
-
-/* タイプライター台詞ボックス */
-.confrontation-dialogue {
+/* スクロールログ（全履歴） */
+.conf-chat-log {
   flex: 1;
   margin: 0.6rem 1.2rem;
   background: #150000;
   border: 1px solid #5a1010;
   border-radius: 6px;
-  padding: 1.4rem 1.6rem;
+  padding: 1.2rem 1.4rem;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  position: relative;
-  overflow: hidden;
+  gap: 0.8rem;
+  overflow-y: auto;
   min-height: 0;
+  position: relative;
   cursor: default;
+  scroll-behavior: smooth;
 }
 
-.confrontation-dialogue.typing { cursor: pointer; }
+.conf-chat-log.typing { cursor: pointer; }
 
-.conf-dialogue-text {
-  color: #f0d0d0;
-  font-size: 1.05rem;
-  line-height: 1.9;
-  letter-spacing: 0.03em;
-  white-space: pre-line;
+.conf-log-entry {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+  white-space: pre-wrap;
 }
+
+.conf-log-entry.suspect { color: #f0d0d0; }
+.conf-log-entry.player  { color: #6abf6a; text-align: right; }
+.conf-log-entry.evidence { color: #c8a96e; text-align: right; font-weight: bold; }
 
 .cursor {
   animation: blink 0.6s step-end infinite;
@@ -114,12 +95,14 @@
 }
 
 .skip-hint {
-  position: absolute;
-  bottom: 0.6rem;
-  right: 1rem;
+  position: sticky;
+  bottom: 0;
+  align-self: flex-end;
   font-size: 0.72rem;
   color: #5a3030;
   letter-spacing: 0.1em;
+  background: #150000;
+  padding: 2px 4px;
 }
 
 /* 証拠パネル（InterrogationPage から流用） */
@@ -319,6 +302,114 @@
 }
 
 .confront-send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* 起訴確定ボタン */
+.confront-indict-btn {
+  width: 100%;
+  background: #3a0000;
+  border: 1px solid #c84040;
+  color: #e05050;
+  padding: 11px;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.15s;
+}
+
+.confront-indict-btn:hover:not(:disabled) {
+  background: #c84040;
+  color: #fff;
+}
+
+.confront-indict-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* 証拠提示バッジ */
+.conf-evidence-badge {
+  font-size: 0.75rem;
+  color: #c8a040;
+  letter-spacing: 0.05em;
+}
+
+/* ローディングインジケーター */
+.dialogue-typing-indicator {
+  color: #5a3030;
+  font-size: 0.88rem;
+  font-style: italic;
+  letter-spacing: 0.1em;
+}
+
+/* 告発確認画面 */
+.confrontation-confirm {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.confront-confirm-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.confront-confirm-label {
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  color: #c84040;
+}
+
+.confront-confirm-suspect {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #e8e0d0;
+  letter-spacing: 0.05em;
+}
+
+.confront-confirm-question {
+  color: #c8c0b0;
+  font-size: 1rem;
+  line-height: 1.8;
+  max-width: 360px;
+}
+
+.confront-confirm-evidence {
+  background: #150000;
+  border: 1px solid #3a1010;
+  border-radius: 4px;
+  padding: 1rem 1.4rem;
+  text-align: left;
+  max-width: 320px;
+  width: 100%;
+}
+
+.confront-evidence-label {
+  font-size: 0.78rem;
+  letter-spacing: 0.15em;
+  color: #c84040;
+  margin-bottom: 0.6rem;
+}
+
+.confront-evidence-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.confront-evidence-list li {
+  font-size: 0.88rem;
+  color: #c8a96e;
+}
 
 /* エンディング */
 .ending {

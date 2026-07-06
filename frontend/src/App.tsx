@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import TitlePage from './pages/TitlePage'
+import LanguageSelectPage from './pages/LanguageSelectPage'
 import OpeningPage from './pages/OpeningPage'
 import MapPage from './pages/MapPage'
 import LocationPage from './pages/LocationPage'
@@ -14,6 +15,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<TitlePage />} />
+        <Route path="/language" element={<LanguageSelectPage />} />
         <Route path="/opening" element={<OpeningPage />} />
         <Route path="/map" element={<MapPage />} />
         <Route path="/location/:id" element={<LocationPage />} />

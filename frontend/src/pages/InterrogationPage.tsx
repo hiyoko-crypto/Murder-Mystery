@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getMockReplies, getMockEvidenceReplies } from '../data/mockData'
-import { useGameState } from '../hooks/useGameState'
+import { useGame } from '../contexts/GameContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
 import { emotionLabel } from '../utils/emotion'
@@ -12,17 +11,23 @@ import './InterrogationPage.css'
 export default function InterrogationPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { evidence, unlockLocation, markSpokenTo } = useGameState()
+  const { foundItems, refetchState, getConversation, setConversation } = useGame()
   const { lang, t } = useLanguage()
-  const { suspects: getSuspects, items: getItems, locations: getLocations, locationBg, examineRules } = useScenario()
+  const { suspects: getSuspects, items: getItems, locations: getLocations, locationBg } = useScenario()
 
   const suspects     = getSuspects(lang)
-  const mockReplies  = getMockReplies(lang)
-  const mockEvidenceReplies = getMockEvidenceReplies(lang)
   const items        = getItems(lang)
   const allLocations = getLocations(lang)
 
-  const [messages, setMessages] = useState<Message[]>([])
+  const [messages, setMessagesLocal] = useState<Message[]>(() => getConversation(id ?? ''))
+
+  const setMessages = (updater: Message[] | ((prev: Message[]) => Message[])) => {
+    setMessagesLocal(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater
+      setConversation(id ?? '', next)
+      return next
+    })
+  }
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [currentEmotion, setCurrentEmotion] = useState<Emotion>('neutral')
@@ -34,8 +39,8 @@ export default function InterrogationPage() {
   const [currentSuspectMsg, setCurrentSuspectMsg] = useState<Message | null>(null)
   const [isTyping, setIsTyping] = useState(false)
   const [lastPlayerText, setLastPlayerText] = useState('')
+  const [unlockNotice, setUnlockNotice] = useState<string | null>(null)
 
-  const replyIndexRef = useRef(0)
   const logEndRef = useRef<HTMLDivElement>(null)
   const typingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -74,8 +79,7 @@ export default function InterrogationPage() {
 
   if (!suspect) return <div>{t('not.found')}</div>
 
-  const replies = mockReplies[suspect.id] ?? []
-  const foundEvidenceItems = items.filter((item) => evidence.includes(item.id))
+  const foundEvidenceItems = items.filter((item) => foundItems.includes(item.id))
 
   const deliverReply = (msg: Message) => {
     setMessages((prev) => [...prev, msg])
@@ -83,59 +87,28 @@ export default function InterrogationPage() {
     setLoading(false)
   }
 
-  const getMockReply = (itemId?: string): Message => {
-    if (itemId) {
-      const evidenceReply = mockEvidenceReplies[itemId]?.[suspect.id]
-      if (evidenceReply) return { role: 'suspect', ...evidenceReply }
-    }
-    if (replies.length === 0) {
-      return { role: 'suspect', text: '...', emotion: 'neutral' }
-    }
-    const reply = replies[replyIndexRef.current % replies.length]
-    replyIndexRef.current += 1
-    return { role: 'suspect', text: reply.text, emotion: reply.emotion }
-  }
+  const getErrorReply = (): Message => ({
+    role: 'suspect',
+    text: lang === 'ja' ? '…（通信エラー。バックエンドを確認してください）' : '…(Connection error. Please check the backend.)',
+    emotion: 'neutral',
+  })
 
-  const fetchReply = async (allMessages: Message[], itemId?: string) => {
-    const latestPlayer = [...allMessages].reverse().find(m => m.role === 'player')
-    const messageText = latestPlayer?.text ?? ''
+  const fetchReply = async (messageText: string) => {
     try {
       const res = await sendChat(suspect.id, messageText, lang)
       deliverReply({ role: 'suspect', text: res.text, emotion: res.emotion as Emotion })
-      // Unlock location signalled by the backend after testimony
-      const addUnlockMessage = (locId: string) => {
-        const locName = allLocations.find(l => l.id === locId)?.name ?? locId
+      if (res.unlocked_location) {
+        await refetchState()
+        const locName = allLocations.find(l => l.id === res.unlocked_location)?.name ?? res.unlocked_location
         const text = lang === 'ja'
           ? `🗺️ 新しい場所が解放されました：${locName}`
           : `🗺️ New area unlocked: ${locName}`
         setMessages(prev => [...prev, { role: 'system', text }])
-      }
-      if (res.unlocked_location) {
-        unlockLocation(res.unlocked_location)
-        addUnlockMessage(res.unlocked_location)
-      } else {
-        // Fallback: unlock alibi location on first question
-        markSpokenTo(suspect.id)
-        const alibiLoc = examineRules?.suspectAlibiLocation[suspect.id]
-        if (alibiLoc && allMessages.filter(m => m.role === 'player').length === 1) {
-          unlockLocation(alibiLoc)
-          addUnlockMessage(alibiLoc)
-        }
+        setUnlockNotice(locName)
       }
     } catch (err) {
-      console.warn('API unavailable, using mock:', err)
-      // Still unlock alibi location in mock mode
-      markSpokenTo(suspect.id)
-      const alibiLoc = examineRules?.suspectAlibiLocation[suspect.id]
-      if (alibiLoc && allMessages.filter(m => m.role === 'player').length === 1) {
-        unlockLocation(alibiLoc)
-        const locName = allLocations.find(l => l.id === alibiLoc)?.name ?? alibiLoc
-        const text = lang === 'ja'
-          ? `🗺️ 新しい場所が解放されました：${locName}`
-          : `🗺️ New area unlocked: ${locName}`
-        setMessages(prev => [...prev, { role: 'system', text }])
-      }
-      deliverReply(getMockReply(itemId))
+      console.warn('API unavailable:', err)
+      deliverReply(getErrorReply())
     }
   }
 
@@ -145,18 +118,15 @@ export default function InterrogationPage() {
     if ((!hasText && !hasEvidence) || loading || isTyping) return
 
     const evidenceItem = selectedEvidence
-    const text = hasText
-      ? input.trim()
-      : `${evidenceItem!.emoji} ${evidenceItem!.name} ${t('interro.present')}`
-
     const displayText = hasEvidence
       ? hasText
-        ? `${t('interro.present.fmt')}${evidenceItem!.emoji} ${evidenceItem!.name}｜${text}`
+        ? `${t('interro.present.fmt')}${evidenceItem!.emoji} ${evidenceItem!.name}｜${input.trim()}`
         : `${evidenceItem!.emoji} ${evidenceItem!.name} ${t('interro.present')}`
-      : text
+      : input.trim()
 
     setInput('')
     setSelectedEvidence(null)
+    setUnlockNotice(null)
     setLastPlayerText(displayText)
 
     const playerMsg: Message = {
@@ -167,7 +137,7 @@ export default function InterrogationPage() {
     const next = [...messages, playerMsg]
     setMessages(next)
     setLoading(true)
-    fetchReply(next, evidenceItem?.id)
+    fetchReply(displayText)
   }
 
   const handleSelectEvidence = (itemId: string) => {
@@ -192,7 +162,7 @@ export default function InterrogationPage() {
         <button className="back-btn" onClick={() => navigate(-1)}>← {lang === 'ja' ? '戻る' : 'Back'}</button>
         <span className="header-title">{suspect.name}</span>
         <div className="header-actions">
-          <span className="evidence-count-badge">{t('interro.evidence')} {evidence.length}{t('interro.unit')}</span>
+          <span className="evidence-count-badge">{t('interro.evidence')} {foundItems.length}{t('interro.unit')}</span>
           <button
             className={`log-btn${showLog ? ' active' : ''}`}
             onClick={() => { setShowLog((v) => !v); setShowEvidencePanel(false) }}
@@ -204,7 +174,7 @@ export default function InterrogationPage() {
       </div>
 
       <div className="character-area">
-        <div className="character-emotion-display">{emotionLabel(currentEmotion)}</div>
+        <div className="character-emotion-display">{emotionLabel(currentEmotion, lang)}</div>
         <div className="character-name-display">{suspect.name}</div>
       </div>
 
@@ -231,6 +201,11 @@ export default function InterrogationPage() {
         {isTyping && (
           <span className="skip-hint">{t('interro.skip')}</span>
         )}
+        {unlockNotice && !isTyping && (
+          <div className="interro-unlock-notice">
+            🗺️ {lang === 'ja' ? `新しい場所が解放されました：${unlockNotice}` : `New area unlocked: ${unlockNotice}`}
+          </div>
+        )}
       </div>
 
       {showEvidencePanel && (
@@ -252,7 +227,7 @@ export default function InterrogationPage() {
                   <span className="ep-emoji">{item.emoji}</span>
                   <div className="ep-info">
                     <span className="ep-name">{item.name}</span>
-                    <span className="ep-detail">{item.detail}</span>
+                    {lang === 'en' && <span className="ep-detail">{item.detail}</span>}
                   </div>
                 </button>
               ))}
@@ -281,7 +256,7 @@ export default function InterrogationPage() {
                   <div key={i} className={`log-entry ${msg.role}`}>
                     <span className="log-role">
                       {msg.role === 'player' ? t('interro.detective') : suspect.name}
-                      {msg.emotion ? `　${emotionLabel(msg.emotion)}` : ''}
+                      {msg.emotion ? `　${emotionLabel(msg.emotion, lang)}` : ''}
                     </span>
                     <p className="log-text">
                       {msg.presentedItemId ? `${t('interro.present.fmt')}${msg.text}` : msg.text}

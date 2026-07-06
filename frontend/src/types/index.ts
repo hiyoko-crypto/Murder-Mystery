@@ -12,11 +12,9 @@ export interface Item {
   id: string
   name: string
   emoji: string
-  discoveryText: string  // 発見時に表示されるテキスト
+  discoveryText: string
   detail: string
   locationId: string
-  found: boolean
-  requiresItems?: string[]  // 発見に必要な先行アイテムID
 }
 
 export interface Location {

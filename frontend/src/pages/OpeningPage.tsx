@@ -2,45 +2,90 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
-import { fetchBriefing } from '../api/examine'
+import { fetchBriefing, type BriefingResult } from '../api/examine'
 import './OpeningPage.css'
 
 export default function OpeningPage() {
   const navigate = useNavigate()
   const { lang, t } = useLanguage()
-  const { locations: getLocations } = useScenario()
+  const { examineRules } = useScenario()
 
-  const [briefingText, setBriefingText] = useState<string | null>(null)
-  const [briefingError, setBriefingError] = useState<string | null>(null)
+  const [briefing, setBriefing] = useState<BriefingResult | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState(false)
 
-  useEffect(() => {
-    setBriefingText(null)
-    setBriefingError(null)
+  const loadBriefing = () => {
+    setLoading(true)
+    setFetchError(false)
     fetchBriefing(lang)
-      .then(b => {
-        const text = lang === 'ja'
-          ? `${b.title}\n\n${b.setting}\n\n${b.victim}\n\n現場: ${b.scene}\n凶器: ${b.weapon}`
-          : `${b.title}\n\n${b.setting}\n\n${b.victim}\n\nScene: ${b.scene}\nWeapon: ${b.weapon}`
-        setBriefingText(text)
-      })
-      .catch((err) => {
-        console.error('[OpeningPage] briefing fetch failed:', err)
-        setBriefingError(
-          lang === 'ja'
-            ? '事件概要を取得できませんでした。バックエンドの /briefing を確認してください。'
-            : 'Failed to load the case briefing. Check the backend /briefing endpoint.',
-        )
-      })
-  }, [lang])
+      .then(b => { setBriefing(b); setFetchError(false) })
+      .catch(() => { setBriefing(null); setFetchError(true) })
+      .finally(() => setLoading(false))
+  }
 
-  const firstLocationId = getLocations(lang)[0]?.id ?? 'garden'
-  const openingText = briefingText ?? briefingError ?? (lang === 'ja' ? '事件概要を読み込み中...' : 'Loading case briefing...')
+  useEffect(() => { loadBriefing() }, [lang]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const firstLocationId = examineRules?.initialLocations[0] ?? ''
+
+  const ja = lang === 'ja'
 
   return (
     <div className="opening-page">
       <div className="opening-content">
-        <pre className="opening-text">{openingText.trim()}</pre>
-        <button className="opening-btn" onClick={() => navigate(`/location/${firstLocationId}`)}>
+        {loading ? (
+          <p className="opening-text" style={{ opacity: 0.5 }}>
+            {ja ? '読み込み中...' : 'Loading...'}
+          </p>
+        ) : briefing ? (
+          <div className="briefing-card">
+            <p className="briefing-eyebrow">{ja ? '事件報告書' : 'CASE FILE'}</p>
+            <h2 className="briefing-title">{briefing.title}</h2>
+            <div className="briefing-divider" />
+
+            <p className="briefing-setting">{briefing.setting}</p>
+
+            <div className="briefing-victim-block">
+              <span className="briefing-victim-label">{ja ? '被害者' : 'VICTIM'}</span>
+              <p className="briefing-victim-text">{briefing.victim}</p>
+            </div>
+
+            <div className="briefing-facts">
+              <div className="briefing-fact">
+                <span className="briefing-fact-icon">⏰</span>
+                <span className="briefing-fact-label">{ja ? '死亡推定' : 'Time of Death'}</span>
+                <span className="briefing-fact-value">{briefing.time_of_murder}</span>
+              </div>
+              <div className="briefing-fact">
+                <span className="briefing-fact-icon">🔍</span>
+                <span className="briefing-fact-label">{ja ? '発見時刻' : 'Discovered'}</span>
+                <span className="briefing-fact-value">{briefing.time_discovered}</span>
+              </div>
+              <div className="briefing-fact">
+                <span className="briefing-fact-icon">🗡️</span>
+                <span className="briefing-fact-label">{ja ? '凶器' : 'Weapon'}</span>
+                <span className="briefing-fact-value">{briefing.weapon}</span>
+              </div>
+            </div>
+
+            <p className="briefing-scene">📍 {briefing.scene}</p>
+          </div>
+        ) : fetchError ? (
+          <div className="opening-error">
+            <p className="opening-text">
+              {ja
+                ? '事件の詳細を読み込めませんでした。'
+                : 'Could not load case details.'}
+            </p>
+            <button className="opening-retry-btn" onClick={loadBriefing}>
+              {ja ? '再試行' : 'Retry'}
+            </button>
+          </div>
+        ) : null}
+        <button
+          className="opening-btn"
+          onClick={() => navigate(`/location/${firstLocationId}`)}
+          disabled={!firstLocationId}
+        >
           {t('opening.next')}
         </button>
       </div>

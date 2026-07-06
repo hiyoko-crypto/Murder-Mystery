@@ -43,8 +43,48 @@ export interface ApiScenario {
   examineRules?: ExamineRules
 }
 
+// Keyword → emoji table: first match wins, checked against lowercased (name + description)
+const KEYWORD_EMOJI: Array<[string[], string]> = [
+  [['candlestick', 'candle', '燭台', 'キャンドル'],            '🕯️'],
+  [['knife', 'blade', 'dagger', '短剣', 'ナイフ'],            '🗡️'],
+  [['sword', 'sabre', 'rapier', 'katana', '刀', '剣'],        '⚔️'],
+  [['gun', 'pistol', 'revolver', 'firearm', '銃', 'ピストル'], '🔫'],
+  [['poison', 'vial', 'flask', '毒', '毒薬'],                 '🧪'],
+  [['bottle', 'glass', 'wine', 'whisky', 'whiskey', '瓶', 'ボトル', 'ワイン'], '🍾'],
+  [['mirror', 'compact', '鏡', 'ミラー', 'コンパクト'],        '🪞'],
+  [['key', '鍵', 'キー'],                                     '🗝️'],
+  [['lock', 'locked', '錠', '施錠'],                          '🔒'],
+  [['door', 'ドア', '扉'],                                    '🚪'],
+  [['grate', 'vent', 'grille', 'shaft', '格子', '換気', 'ダクト'], '🔩'],
+  [['rope', 'cord', 'wire', '縄', 'ロープ', 'ひも'],          '🪢'],
+  [['letter', 'note', 'message', 'memo', '手紙', 'メモ', '書簡'], '📜'],
+  [['paper', 'document', 'receipt', 'ticket', '書類', '紙', 'チケット'], '📄'],
+  [['book', 'diary', 'journal', 'notebook', '日記', '本', 'ノート'], '📖'],
+  [['photo', 'photograph', 'picture', 'image', '写真', '画像'], '📷'],
+  [['ring', '指輪', 'リング'],                                '💍'],
+  [['glove', '手袋', 'グローブ'],                             '🧤'],
+  [['scarf', 'stole', 'スカーフ'],                            '🧣'],
+  [['hat', 'cap', '帽子'],                                    '🎩'],
+  [['blood', 'stain', '血', '染み'],                          '🩸'],
+  [['wallet', 'purse', '財布'],                               '👛'],
+  [['watch', 'clock', '時計', '懐中時計'],                    '⌚'],
+  [['lighter', 'match', 'flame', 'fire', 'ライター', 'マッチ'], '🔥'],
+  [['cigarette', 'cigar', 'tobacco', '煙草', 'タバコ'],       '🚬'],
+  [['hammer', 'mallet', 'wrench', 'tool', 'ハンマー', '槌'],  '🔨'],
+  [['bag', 'briefcase', 'suitcase', 'バッグ', 'カバン'],      '💼'],
+  [['handkerchief', 'cloth', 'fabric', 'ハンカチ', '布'],     '🩲'],
+  [['shoe', 'boot', 'footprint', '靴', '足跡'],               '👟'],
+  [['phone', 'mobile', 'cell', '電話', 'スマホ'],             '📱'],
+  [['computer', 'laptop', 'tablet', 'パソコン'],               '💻'],
+  [['money', 'cash', 'coin', '金', '現金', 'コイン'],         '💰'],
+]
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function emojiForLabels(labels: string[]): string {
+function emojiForItem(labels: string[], name: string, description: string): string {
+  const text = `${name} ${description}`.toLowerCase()
+  for (const [keywords, emoji] of KEYWORD_EMOJI) {
+    if (keywords.some(kw => text.includes(kw.toLowerCase()))) return emoji
+  }
   if (labels.includes('MurderWeapon')) return '⚔️'
   if (labels.includes('Evidence')) return '🔍'
   return '📦'
@@ -143,7 +183,7 @@ function parseKgFormat(raw: any): ApiScenario {
       id: item.id,
       name: item.properties?.name ?? item.id,
       description: item.properties?.description ?? item.properties?.significance ?? '',
-      emoji: emojiForLabels(item.labels ?? []),
+      emoji: emojiForItem(item.labels ?? [], item.properties?.name ?? '', item.properties?.description ?? ''),
       type: (item.labels ?? []).find((l: string) => l !== 'Item') ?? 'Item',
       locationId: itemToLoc[item.id] ?? '',
     })),

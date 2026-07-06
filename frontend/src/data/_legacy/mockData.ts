@@ -1,10 +1,10 @@
-import type { Suspect, Item, Location } from '../types'
+import type { Suspect, Item, Location } from '../../types'
 import {
   locationData, itemData, suspectData, openingTextData,
   mockRepliesData, mockEvidenceRepliesData, confrontScriptData,
   type Lang,
-} from '../i18n'
-import type { Emotion } from '../types'
+} from '../../i18n'
+import type { Emotion } from '../../types'
 
 /* 言語ごとにデータを返すヘルパー */
 export function getLocations(lang: Lang): Location[] {
