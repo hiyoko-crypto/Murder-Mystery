@@ -83,7 +83,11 @@ export default function LocationPage() {
       const result = await examineLocation(id!, lang)
       setBackendFetched(true)
       if (result.unlocked_location) unlockLocation(result.unlocked_location)
-      const queue = result.newly_found
+      const queue = [...result.newly_found, ...result.already_found].filter(
+        (item, index, allItems) =>
+          !foundItems.includes(item.id) &&
+          allItems.findIndex((candidate) => candidate.id === item.id) === index,
+      )
       if (queue.length === 0) {
         setAllFound(true)
       } else {
