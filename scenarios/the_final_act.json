@@ -242,7 +242,8 @@
         "rel": "FOUND_DEAD_IN",
         "to": "n_dressing_room",
         "properties": {
-          "visible_to": "all"
+          "known_by": "all",
+          "provenance": "public_report"
         }
       },
       {
@@ -251,7 +252,8 @@
         "rel": "FOUND_IN",
         "to": "n_dressing_room",
         "properties": {
-          "visible_to": "all"
+          "known_by": "all",
+          "provenance": "public_report"
         }
       },
       {
@@ -260,7 +262,8 @@
         "rel": "KILLED",
         "to": "n_marcus",
         "properties": {
-          "visible_to": "all"
+          "known_by": "all",
+          "provenance": "public_report"
         }
       },
       {
@@ -269,7 +272,12 @@
         "rel": "FOUND_IN",
         "to": "n_dressing_room",
         "properties": {
-          "visible_to": "all"
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_dressing_room"
+          }
         }
       },
       {
@@ -278,7 +286,12 @@
         "rel": "FOUND_IN",
         "to": "n_dressing_room",
         "properties": {
-          "visible_to": "all"
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_dressing_room"
+          }
         }
       },
       {
@@ -287,7 +300,12 @@
         "rel": "FOUND_IN",
         "to": "n_dressing_room",
         "properties": {
-          "visible_to": "all"
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_dressing_room"
+          }
         }
       },
       {
@@ -296,7 +314,12 @@
         "rel": "FOUND_IN",
         "to": "n_vent_shaft",
         "properties": {
-          "visible_to": "all"
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_vent_shaft"
+          }
         }
       },
       {
@@ -305,7 +328,12 @@
         "rel": "CONNECTS_TO",
         "to": "n_dressing_room",
         "properties": {
-          "visible_to": "all"
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_vent_grate"
+          }
         }
       },
       {
@@ -314,7 +342,12 @@
         "rel": "CONNECTS_TO",
         "to": "n_elena_room",
         "properties": {
-          "visible_to": "all"
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_vent_grate"
+          }
         }
       },
       {
@@ -323,8 +356,9 @@
         "rel": "HAS_MOTIVE",
         "to": "n_marcus",
         "properties": {
-          "visible_to": "all",
-          "detail": "Debt contracts — Marcus controlled her career"
+          "detail": "Debt contracts — Marcus controlled her career",
+          "known_by": "all",
+          "provenance": "public_hearsay"
         }
       },
       {
@@ -333,8 +367,9 @@
         "rel": "HAS_MOTIVE",
         "to": "n_marcus",
         "properties": {
-          "visible_to": "all",
-          "detail": "Fake credentials — Marcus was blackmailing him"
+          "detail": "Fake credentials — Marcus was blackmailing him",
+          "known_by": "all",
+          "provenance": "public_hearsay"
         }
       },
       {
@@ -343,8 +378,9 @@
         "rel": "HAS_MOTIVE",
         "to": "n_marcus",
         "properties": {
-          "visible_to": "all",
-          "detail": "Wrongful termination on the morning of the murder"
+          "detail": "Wrongful termination on the morning of the murder",
+          "known_by": "all",
+          "provenance": "public_hearsay"
         }
       },
       {
@@ -353,12 +389,13 @@
         "rel": "VISITED",
         "to": "n_dressing_room",
         "properties": {
-          "visible_to": [
+          "time": "7:00 PM",
+          "detail": "Claimed to discuss blocking notes; Julian saw Elena near Marcus's room",
+          "known_by": [
             "n_elena",
             "n_julian"
           ],
-          "time": "7:00 PM",
-          "detail": "Claimed to discuss blocking notes; secretly loosened the vent grate with a small screwdriver"
+          "provenance": "direct_observation"
         }
       },
       {
@@ -367,12 +404,13 @@
         "rel": "STRUCK",
         "to": "n_marcus",
         "properties": {
-          "visible_to": [
-            "n_elena"
-          ],
           "time": "9:05 PM",
           "detail": "Killed Marcus with the brass candlestick after entering via the shaft",
-          "hidden_from_detective": true
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
         }
       },
       {
@@ -381,8 +419,9 @@
         "rel": "PERFORMED_ON",
         "to": "n_stage",
         "properties": {
-          "visible_to": "all",
-          "time": "7:15 PM - 9:00 PM"
+          "time": "7:15 PM - 9:00 PM",
+          "known_by": "all",
+          "provenance": "public_report"
         }
       },
       {
@@ -391,12 +430,13 @@
         "rel": "CRAWLED_THROUGH",
         "to": "n_vent_shaft",
         "properties": {
-          "visible_to": [
-            "n_elena"
-          ],
           "time": "9:00 PM",
           "detail": "Used the two-minute intermission blackout to enter the vent shaft from her dressing room",
-          "hidden_from_detective": true
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
         }
       },
       {
@@ -405,12 +445,13 @@
         "rel": "DROPPED",
         "to": "n_silver_compact",
         "properties": {
-          "visible_to": [
-            "n_elena"
-          ],
           "time": "9:08 PM",
           "detail": "Accidentally dropped the compact while returning through the vent shaft",
-          "hidden_from_detective": true
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
         }
       },
       {
@@ -419,7 +460,14 @@
         "rel": "OWNS",
         "to": "n_silver_compact",
         "properties": {
-          "visible_to": "all"
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_silver_compact"
+          }
         }
       },
       {
@@ -428,9 +476,12 @@
         "rel": "WAS_IN",
         "to": "n_elena_room",
         "properties": {
-          "visible_to": "all",
           "time": "9:10 PM",
-          "detail": "Alibi claim: touching up makeup and greeting well-wishers"
+          "detail": "Alibi claim: touching up makeup and greeting well-wishers",
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
         }
       },
       {
@@ -439,12 +490,13 @@
         "rel": "VISITED",
         "to": "n_dressing_room",
         "properties": {
-          "visible_to": [
+          "time": "6:45 PM",
+          "detail": "Confronted Marcus over blackmail demands",
+          "known_by": [
             "n_julian",
             "n_elena"
           ],
-          "time": "6:45 PM",
-          "detail": "Confronted Marcus over blackmail demands"
+          "provenance": "direct_observation"
         }
       },
       {
@@ -453,11 +505,12 @@
         "rel": "WROTE",
         "to": "n_torn_letter",
         "properties": {
-          "visible_to": [
+          "time": "7:00 PM",
+          "detail": "Threatened to go to the press, then tore up the letter and left the pieces in Marcus's bin",
+          "known_by": [
             "n_julian"
           ],
-          "time": "7:00 PM",
-          "detail": "Threatened to go to the press, then tore up the letter and left the pieces in Marcus's bin"
+          "provenance": "self_knowledge"
         }
       },
       {
@@ -466,7 +519,12 @@
         "rel": "WRITTEN_BY",
         "to": "n_julian",
         "properties": {
-          "visible_to": "all"
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_torn_letter"
+          }
         }
       },
       {
@@ -475,12 +533,13 @@
         "rel": "SAW",
         "to": "n_elena",
         "properties": {
-          "visible_to": [
+          "time": "7:05 PM",
+          "detail": "Passed each other in the corridor outside Marcus's room",
+          "known_by": [
             "n_julian",
             "n_elena"
           ],
-          "time": "7:05 PM",
-          "detail": "Passed each other in the corridor outside Marcus's room"
+          "provenance": "direct_observation"
         }
       },
       {
@@ -489,9 +548,16 @@
         "rel": "HAS_ALIBI",
         "to": "n_lobby",
         "properties": {
-          "visible_to": "all",
           "time": "9:00 PM - 9:30 PM",
-          "detail": "With investors Barton and Finch; multiple witnesses"
+          "detail": "With investors Barton and Finch; multiple witnesses",
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "self_knowledge",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_lobby"
+          }
         }
       },
       {
@@ -500,8 +566,11 @@
         "rel": "FIRED_BY",
         "to": "n_marcus",
         "properties": {
-          "visible_to": "all",
-          "time": "10:00 AM"
+          "time": "10:00 AM",
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge"
         }
       },
       {
@@ -510,9 +579,16 @@
         "rel": "HAS_ALIBI",
         "to": "n_bar",
         "properties": {
-          "visible_to": "all",
           "time": "8:00 PM - 10:00 PM",
-          "detail": "At the ground-floor bar all evening; spoke with bartender Tommy Reeves and bought three rounds"
+          "detail": "At the ground-floor bar all evening; spoke with bartender Tommy Reeves and bought three rounds",
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_bar"
+          }
         }
       },
       {
@@ -521,9 +597,16 @@
         "rel": "CANNOT_ACCESS",
         "to": "n_dressing_room",
         "properties": {
-          "visible_to": "all",
           "time": "8:00 PM",
-          "detail": "Backstage pass revoked after firing"
+          "detail": "Backstage pass revoked after firing",
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_bar"
+          }
         }
       },
       {
@@ -532,12 +615,13 @@
         "rel": "RETURNED_THROUGH",
         "to": "n_vent_shaft",
         "properties": {
-          "visible_to": [
-            "n_elena"
-          ],
           "time": "9:08 PM",
           "detail": "Crawled back through the shaft to Elena's dressing room after the killing",
-          "hidden_from_detective": true
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
         }
       },
       {
@@ -546,111 +630,25 @@
         "rel": "WAS_IN",
         "to": "n_stalls",
         "properties": {
-          "visible_to": "all",
           "time": "7:30 PM - 9:00 PM",
-          "detail": "Sat in the front row during Act 1, visible to dozens of audience members"
+          "detail": "Sat in the front row during Act 1, visible to dozens of audience members",
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "self_knowledge"
         }
       }
     ]
   },
   "suspects": [
     {
-      "node_id": "n_elena",
-      "subgraph": {
-        "visible_edges": [
-          "e1",
-          "e2",
-          "e3",
-          "e4",
-          "e5",
-          "e6",
-          "e7",
-          "e8",
-          "e9",
-          "e10",
-          "e11",
-          "e12",
-          "e13",
-          "e15",
-          "e18",
-          "e19",
-          "e20",
-          "e22",
-          "e23",
-          "e24",
-          "e25",
-          "e26",
-          "e27",
-          "e29"
-        ],
-        "hidden_edges": [
-          "e14",
-          "e16",
-          "e17",
-          "e28"
-        ]
-      }
+      "node_id": "n_elena"
     },
     {
-      "node_id": "n_julian",
-      "subgraph": {
-        "visible_edges": [
-          "e1",
-          "e2",
-          "e3",
-          "e4",
-          "e5",
-          "e6",
-          "e7",
-          "e8",
-          "e9",
-          "e10",
-          "e11",
-          "e12",
-          "e15",
-          "e18",
-          "e19",
-          "e20",
-          "e21",
-          "e22",
-          "e23",
-          "e24",
-          "e25",
-          "e26",
-          "e27",
-          "e29"
-        ],
-        "hidden_edges": []
-      }
+      "node_id": "n_julian"
     },
     {
-      "node_id": "n_leo",
-      "subgraph": {
-        "visible_edges": [
-          "e1",
-          "e2",
-          "e3",
-          "e4",
-          "e5",
-          "e6",
-          "e7",
-          "e8",
-          "e9",
-          "e10",
-          "e11",
-          "e12",
-          "e15",
-          "e18",
-          "e19",
-          "e22",
-          "e24",
-          "e25",
-          "e26",
-          "e27",
-          "e29"
-        ],
-        "hidden_edges": []
-      }
+      "node_id": "n_leo"
     }
   ],
   "examine_rules": {

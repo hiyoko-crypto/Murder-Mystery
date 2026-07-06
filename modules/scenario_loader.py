@@ -17,7 +17,11 @@ class ScenarioLoader:
         # id -> edge dict
         self.edges: dict = {e["id"]: e for e in kg["edges"]}
 
-        # node_id -> suspect entry (timeline, subgraph)
+        self._has_known_by = any(
+            "known_by" in e.get("properties", {}) for e in kg["edges"]
+        )
+
+        # node_id -> suspect entry (timeline, optional legacy subgraph)
         self.suspects: dict = {s["node_id"]: s for s in self.data["suspects"]}
 
     # ------------------------------------------------------------------
@@ -70,18 +74,45 @@ class ScenarioLoader:
         if suspect_entry is None:
             raise ValueError(f"Suspect node_id '{node_id}' not found in scenario.")
 
-        sub = suspect_entry["subgraph"]
-        visible_edges = [
-            self.edges[eid] for eid in sub.get("visible_edges", []) if eid in self.edges
-        ]
-        hidden_edges = [
-            self.edges[eid] for eid in sub.get("hidden_edges", []) if eid in self.edges
-        ]
+        if self._has_known_by:
+            visible_edges = []
+            hidden_edges = []
+            for edge in self.edges.values():
+                if not self._edge_known_by(edge, node_id):
+                    continue
+                if edge.get("properties", {}).get("hidden_from_detective"):
+                    hidden_edges.append(edge)
+                else:
+                    visible_edges.append(edge)
+            hidden_edge_ids = {e["id"] for e in hidden_edges}
+        else:
+            sub = suspect_entry.get("subgraph", {})
+            visible_edges = [
+                self.edges[eid] for eid in sub.get("visible_edges", []) if eid in self.edges
+            ]
+            hidden_edges = [
+                self.edges[eid] for eid in sub.get("hidden_edges", []) if eid in self.edges
+            ]
+            hidden_edge_ids = set(sub.get("hidden_edges", []))
 
         return {
             "node":            self.nodes[node_id],
             "visible_edges":   visible_edges,
             "hidden_edges":    hidden_edges,
-            "hidden_edge_ids": set(sub.get("hidden_edges", [])),
+            "hidden_edge_ids": hidden_edge_ids,
             "timeline":        suspect_entry.get("timeline", []),
         }
+
+    def _edge_known_by(self, edge: dict, node_id: str) -> bool:
+        props = edge.get("properties", {})
+        known_by = props.get("known_by")
+        if known_by is None:
+            known_by = props.get("visible_to")
+
+        if known_by == "all":
+            return True
+        if isinstance(known_by, str):
+            return known_by == node_id
+        if isinstance(known_by, list):
+            return node_id in known_by
+        return False

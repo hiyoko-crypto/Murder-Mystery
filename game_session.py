@@ -243,7 +243,7 @@ class GameSession:
         return self.agents[self.current_suspect_id]
 
     def _unlock_locations(self, agent: SuspectAgentKG) -> list:
-        return self.tracker.unlock_from_testimony(agent.last_used_edge_ids)
+        return self.tracker.unlock_from_testimony(agent.last_used_edge_ids, agent.node_id)
 
     def _suspect_info(self, node_id: str) -> SuspectInfo:
         return SuspectInfo(

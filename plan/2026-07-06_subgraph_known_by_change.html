@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2026-07-06 サブグラフ生成方式の変更</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #202124;
+      --muted: #62656a;
+      --line: #d9d7cf;
+      --accent: #2b6f6d;
+      --accent-soft: #e4f1ef;
+      --warn: #9a5b00;
+      --warn-soft: #fff4dc;
+      --code: #f1f3f4;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.75;
+    }
+
+    main {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 40px 24px 64px;
+    }
+
+    header {
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 34px 0 14px;
+      font-size: 24px;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 22px 0 10px;
+      font-size: 18px;
+      line-height: 1.4;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    ul {
+      margin: 8px 0 18px;
+      padding-left: 22px;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+
+    code {
+      background: var(--code);
+      border: 1px solid #e0e2e4;
+      border-radius: 5px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      background: #1f2328;
+      color: #f6f8fa;
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    pre code {
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      padding: 0;
+      color: inherit;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 22px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 11px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #efeee9;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: 17px;
+      max-width: 860px;
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 18px 0;
+    }
+
+    .note {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 14px 16px;
+      margin: 16px 0;
+    }
+
+    .warning {
+      background: var(--warn-soft);
+      border-left: 4px solid var(--warn);
+      padding: 14px 16px;
+      margin: 16px 0;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 2px 10px;
+      background: var(--paper);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .step {
+      min-height: 116px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 820px) {
+      main {
+        padding: 28px 16px 48px;
+      }
+
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>サブグラフ生成方式の変更</h1>
+      <p class="lead">
+        2026-07-06 時点の変更メモ。容疑者ごとのサブグラフを JSON に手書きで保存する方式から、
+        全体 Knowledge Graph のエッジメタデータをもとに実行時へ導出する方式へ寄せる。
+      </p>
+      <div class="meta">
+        <span class="tag">対象: backend / scenario JSON</span>
+        <span class="tag">主目的: 二重管理の削減</span>
+        <span class="tag">主目的: 知識範囲と発見条件の分離</span>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>結論</h2>
+      <p>
+        サブグラフはファイルとして保存しない。<code>scenarios/the_final_act.json</code> には全体 KG と
+        エッジごとの <code>known_by</code> / <code>provenance</code> / <code>player_discovery</code> を保存し、
+        <code>ScenarioLoader.get_subgraph(node_id)</code> が実行時に容疑者ごとの
+        <code>visible_edges</code> と <code>hidden_edges</code> を生成する。
+      </p>
+      <p>
+        生成されたサブグラフは各 <code>SuspectAgentKG</code> インスタンスの
+        <code>self.subgraph</code> にメモリ上で保持され、質問ごとに LLM プロンプトへ渡される。
+      </p>
+    </section>
+
+    <section>
+      <h2>変更前の問題</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>問題</th>
+            <th>内容</th>
+            <th>影響</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>サブグラフの手書き管理</td>
+            <td><code>suspects[].subgraph.visible_edges</code> に容疑者ごとの edge id を列挙していた。</td>
+            <td>全体 KG を変更したとき、各容疑者の edge list を更新し忘れると不整合が起きる。</td>
+          </tr>
+          <tr>
+            <td><code>visible_to</code> の意味混在</td>
+            <td>キャラが知っている事実と、プレイヤーが調査で発見できる証拠が同じフィールドで表現されていた。</td>
+            <td>容疑者が本来知らない物証や他人のアリバイを話してしまう原因になる。</td>
+          </tr>
+          <tr>
+            <td>場所解放の混線</td>
+            <td>証言で使われた edge の from/to に場所が含まれると、その場所が解放され得る。</td>
+            <td>Julian の会話から Leo の Theatre Bar が解放されるような不自然な進行が起きる。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>変更後のデータ設計</h2>
+      <p>
+        エッジの <code>properties</code> に、別々の意味を持つフィールドを分けて持たせる。
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>フィールド</th>
+            <th>意味</th>
+            <th>例</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>known_by</code></td>
+            <td>この事実を知っているキャラ。<code>"all"</code>、容疑者 id の配列、または空配列。</td>
+            <td><code>["n_julian"]</code>, <code>"all"</code>, <code>[]</code></td>
+          </tr>
+          <tr>
+            <td><code>provenance</code></td>
+            <td>その知識の由来。LLM が「自分の体験」と「噂・公的情報」を混同しないために使う。</td>
+            <td><code>self_knowledge</code>, <code>direct_observation</code>, <code>public_report</code>, <code>discoverable_evidence</code></td>
+          </tr>
+          <tr>
+            <td><code>player_discovery</code></td>
+            <td>プレイヤーが調査で発見できる物証・事実の条件。</td>
+            <td><code>{"method": "examine_location", "target": "n_dressing_room"}</code></td>
+          </tr>
+          <tr>
+            <td><code>hidden_from_detective</code></td>
+            <td>犯人などが知っているが、探偵には明かしてはいけない事実。</td>
+            <td><code>true</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <pre><code>{
+  "id": "e26",
+  "from": "n_leo",
+  "rel": "HAS_ALIBI",
+  "to": "n_bar",
+  "properties": {
+    "time": "8:00 PM - 10:00 PM",
+    "detail": "At the ground-floor bar all evening...",
+    "known_by": ["n_leo"],
+    "provenance": "self_knowledge",
+    "player_discovery": {
+      "method": "examine_location",
+      "target": "n_bar"
+    }
+  }
+}</code></pre>
+    </section>
+
+    <section>
+      <h2>実行時の流れ</h2>
+      <div class="flow">
+        <div class="step">
+          <strong>1. GameSession 作成</strong>
+          <span><code>GameSession</code> が <code>ScenarioLoader</code> を初期化する。</span>
+        </div>
+        <div class="step">
+          <strong>2. SuspectAgent 作成</strong>
+          <span>容疑者ごとに <code>SuspectAgentKG</code> を作る。</span>
+        </div>
+        <div class="step">
+          <strong>3. subgraph 導出</strong>
+          <span><code>loader.get_subgraph(node_id)</code> が <code>known_by</code> を見て edge を分類する。</span>
+        </div>
+        <div class="step">
+          <strong>4. LLM へ渡す</strong>
+          <span><code>build_system_prompt()</code> が subgraph をプロンプト化する。</span>
+        </div>
+      </div>
+
+      <pre><code>GameSession(...)
+  -> ScenarioLoader(...)
+  -> SuspectAgentKG(loader, node_id, ledger)
+       -> self.subgraph = loader.get_subgraph(node_id)
+       -> ask(...)
+            -> build_system_prompt(self.subgraph, self.loader.nodes, ledger_text)</code></pre>
+    </section>
+
+    <section>
+      <h2>実装された主な変更</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ファイル</th>
+            <th>変更内容</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>modules/scenario_loader.py</code></td>
+            <td><code>known_by</code> から容疑者ごとの <code>visible_edges</code> / <code>hidden_edges</code> を導出する。</td>
+          </tr>
+          <tr>
+            <td><code>scenarios/the_final_act.json</code></td>
+            <td><code>visible_to</code> と手書き <code>suspects[].subgraph</code> を廃止し、エッジに <code>known_by</code> / <code>provenance</code> / <code>player_discovery</code> を追加。</td>
+          </tr>
+          <tr>
+            <td><code>modules/subgraph_to_prompt.py</code></td>
+            <td>LLM に渡す事実を <code>self_knowledge</code> / <code>direct_observation</code> と <code>public_report</code> / <code>public_hearsay</code> に分けて提示する。</td>
+          </tr>
+          <tr>
+            <td><code>modules/location_tracker.py</code></td>
+            <td>証言による場所解放を、話者本人の <code>HAS_ALIBI</code> / <code>WAS_IN</code> に限定する。</td>
+          </tr>
+          <tr>
+            <td><code>game_session.py</code></td>
+            <td>場所解放時に <code>agent.node_id</code> を渡し、話者ベースで判定する。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>期待される効果</h2>
+      <ul>
+        <li>全体 KG と容疑者別 subgraph の二重管理がなくなる。</li>
+        <li>容疑者が他人のアリバイや未発見の物証を自然に知っている状態を避けやすくなる。</li>
+        <li>LLM に「これは本人の知識」「これは噂・公的情報」と明示できる。</li>
+        <li>証言で解放される場所が、話者本人の発言に紐づきやすくなる。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>現在残っている設計課題</h2>
+      <div class="warning">
+        <p>
+          <code>player_discovery</code> は JSON 上に追加済みだが、探索進行そのものはまだ既存の
+          <code>examine_rules</code> が担当している。つまり、探索ルールはまだ完全には一本化されていない。
+        </p>
+      </div>
+      <p>
+        次の段階では、<code>player_discovery</code> から調査時に得られる evidence を導出し、
+        <code>examine_rules</code> の役割を減らすか、両者の責務を明確に分ける必要がある。
+      </p>
+      <p>
+        ただし、<code>n_vent_grate</code> を調べたときに <code>n_vent_shaft</code> を解放するような
+        「エッジ発見」と「場所解放」が一致しないケースがあるため、完全自動化する場合は追加の設計が必要。
+      </p>
+    </section>
+
+    <section>
+      <h2>検証メモ</h2>
+      <ul>
+        <li><code>json.tool</code> による JSON 構文チェックは通過。</li>
+        <li><code>compileall</code> による Python 構文チェックは通過。</li>
+        <li>Julian の subgraph / prompt に <code>Theatre Lobby</code> は含まれ、<code>Theatre Bar</code> は含まれないことを確認。</li>
+        <li>Julian の発言として <code>e26</code> を扱っても Bar は解放されず、Leo の発言として <code>e26</code> を扱うと Bar が解放されることを確認。</li>
+      </ul>
+      <p class="small">
+        LLM 実行はモデルの起動状態に依存するため、このメモでは LLM 前段のサブグラフ生成、プロンプト組み立て、場所解放ロジックを検証対象としている。
+      </p>
+    </section>
+
+    <section class="note">
+      <h2>担当者向け要点</h2>
+      <p>
+        今後シナリオを編集するときは、容疑者ごとの edge list を手で更新するのではなく、
+        各 edge の <code>known_by</code> と <code>provenance</code> を正しく付ける。
+        サブグラフはロード時に自動生成されるため、JSON に保存する必要はない。
+      </p>
+    </section>
+  </main>
+</body>
+</html>

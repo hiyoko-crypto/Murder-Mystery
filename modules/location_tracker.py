@@ -29,7 +29,7 @@ class LocationTracker:
     # Testimony-based unlocking
     # ------------------------------------------------------------------
 
-    def unlock_from_testimony(self, used_edge_ids: list) -> list:
+    def unlock_from_testimony(self, used_edge_ids: list, speaker_id: str | None = None) -> list:
         """
         Check used_edge_ids; unlock any location whose node appears as
         from/to on a used edge and has unlock_from_testimony=true.
@@ -39,7 +39,16 @@ class LocationTracker:
         newly = []
         for eid in used_edge_ids:
             edge = self.loader.edges.get(eid, {})
-            for node_ref in [edge.get("from"), edge.get("to")]:
+            if speaker_id is not None:
+                if edge.get("from") != speaker_id:
+                    continue
+                if edge.get("rel") not in {"HAS_ALIBI", "WAS_IN"}:
+                    continue
+                node_refs = [edge.get("to")]
+            else:
+                node_refs = [edge.get("from"), edge.get("to")]
+
+            for node_ref in node_refs:
                 if not node_ref:
                     continue
                 r = self.loc_rules.get(node_ref, {})

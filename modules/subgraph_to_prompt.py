@@ -11,11 +11,30 @@ def _edge_to_triple(edge: dict, nodes: dict) -> str:
     props     = edge.get("properties", {})
 
     line = f"{edge['id']}: {from_name} --[{rel}]--> {to_name}"
+    if "provenance" in props:
+        line += f"  ({props['provenance']})"
     if "time" in props:
         line += f"  @ {props['time']}"
     if "detail" in props:
         line += f'  "{props["detail"]}"'
     return line
+
+
+def _group_visible_edges(edges: list) -> dict:
+    groups = {
+        "personal": [],
+        "public": [],
+        "other": [],
+    }
+    for edge in edges:
+        provenance = edge.get("properties", {}).get("provenance", "")
+        if provenance in {"self_knowledge", "direct_observation"}:
+            groups["personal"].append(edge)
+        elif provenance in {"public_report", "public_hearsay"}:
+            groups["public"].append(edge)
+        else:
+            groups["other"].append(edge)
+    return groups
 
 
 def build_system_prompt(subgraph: dict, nodes: dict, ledger_text: str = "") -> str:
@@ -33,11 +52,22 @@ def build_system_prompt(subgraph: dict, nodes: dict, ledger_text: str = "") -> s
     lines.append(f"\nInterrogation style: {props.get('interrogation_style', '')}")
 
     # ── Visible triples ─────────────────────────────────────────────
+    groups = _group_visible_edges(subgraph["visible_edges"])
     lines.append("\n\n[Facts you know]")
-    lines.append("Base concrete case claims on the triples below.")
+    lines.append("Base concrete case claims on the triples below, respecting the provenance labels.")
     lines.append("You may add harmless conversational detail, emotion, uncertainty, and natural phrasing as long as it does not contradict these facts or your prior statements.")
     lines.append("Do not invent major new evidence, witnesses, alibis, locations, murder methods, or case-solving facts.")
-    for edge in subgraph["visible_edges"]:
+    if groups["personal"]:
+        lines.append("\nPersonal knowledge / direct observations — you may speak about these as your own knowledge:")
+    for edge in groups["personal"]:
+        lines.append("  " + _edge_to_triple(edge, nodes))
+    if groups["public"]:
+        lines.append("\nPublic reports / hearsay — you may mention these, but do not present them as your own direct experience:")
+    for edge in groups["public"]:
+        lines.append("  " + _edge_to_triple(edge, nodes))
+    if groups["other"]:
+        lines.append("\nOther known facts — use cautiously and only as written:")
+    for edge in groups["other"]:
         lines.append("  " + _edge_to_triple(edge, nodes))
 
     # ── Hidden triples ──────────────────────────────────────────────
