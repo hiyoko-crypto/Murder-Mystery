@@ -53,6 +53,16 @@ export default function InterrogationPage() {
   const logEndRef = useRef<HTMLDivElement>(null)
   const typingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Bumped on every send and on cancel — fetchReply checks this after its
+  // await to tell whether the player bailed out while waiting, since the
+  // backend call itself can't actually be aborted mid-flight (it's already
+  // running server-side by the time the response would arrive).
+  const requestIdRef = useRef(0)
+  // What to restore into the input/evidence chip if the player cancels
+  // before the reply comes back, so a mistaken send doesn't lose their text.
+  const pendingInputRef = useRef('')
+  const pendingEvidenceRef = useRef<typeof items[0] | null>(null)
+  const prevLastPlayerTextRef = useRef('')
   // Player statements made since entering interrogation mode — accumulated
   // as the "reason" handed to /indict when the player explicitly files the
   // charge. A ref, not state: it's an accumulator read at submit time, never
@@ -126,9 +136,13 @@ export default function InterrogationPage() {
     emotion: 'neutral',
   })
 
-  const fetchReply = async (messageText: string) => {
+  const fetchReply = async (messageText: string, requestId: number) => {
     try {
       const res = await sendChat(suspect.id, messageText, lang)
+      // Player hit cancel while this was in flight — the backend has already
+      // processed it by now regardless, but there's nothing left to show for
+      // it: skip displaying the reply and skip recording it as a statement.
+      if (requestIdRef.current !== requestId) return
       deliverReply({ role: 'suspect', text: res.text, emotion: res.emotion as Emotion })
       const truncated = messageText.length > 40 ? `${messageText.slice(0, 40)}…` : messageText
       appendHistory({
@@ -151,6 +165,7 @@ export default function InterrogationPage() {
       }
       if (interrogating) accusationRef.current.push(messageText)
     } catch (err) {
+      if (requestIdRef.current !== requestId) return
       console.warn('API unavailable:', err)
       deliverReply(getErrorReply())
     }
@@ -227,6 +242,10 @@ export default function InterrogationPage() {
         : `${evidenceItem!.emoji} ${evidenceItem!.name} ${t('interro.present')}`
       : input.trim()
 
+    pendingInputRef.current = input.trim()
+    pendingEvidenceRef.current = evidenceItem
+    prevLastPlayerTextRef.current = lastPlayerText
+
     setInput('')
     setSelectedEvidence(null)
     setUnlockNotice(null)
@@ -239,7 +258,22 @@ export default function InterrogationPage() {
     }
     setMessages((prev) => [...prev, playerMsg])
     setLoading(true)
-    fetchReply(displayText)
+    const requestId = ++requestIdRef.current
+    fetchReply(displayText, requestId)
+  }
+
+  // Backs out of a send while the reply is still loading — the backend call
+  // itself keeps running (see fetchReply's requestId check), but the pending
+  // question is pulled back out of the chat and the input/evidence chip are
+  // restored so a mistaken send can be corrected without losing it.
+  const cancelSend = () => {
+    if (!loading) return
+    requestIdRef.current++
+    setLoading(false)
+    setMessages(prev => prev.slice(0, -1))
+    setLastPlayerText(prevLastPlayerTextRef.current)
+    setInput(pendingInputRef.current)
+    setSelectedEvidence(pendingEvidenceRef.current)
   }
 
   const handleSelectEvidence = (itemId: string) => {
@@ -300,7 +334,16 @@ export default function InterrogationPage() {
         )}
         {isEmpty && <p className="dialogue-hint">{t('interro.hint')}</p>}
         {loading && !isTyping && (
-          <p className="dialogue-typing-indicator">{t('interro.typing')}</p>
+          <div className="dialogue-loading-row">
+            <p className="dialogue-typing-indicator">{t('interro.typing')}</p>
+            <button
+              className="dialogue-cancel-btn"
+              onClick={(e) => { e.stopPropagation(); cancelSend() }}
+              title={tt('送信を取り消す', 'Cancel this question')}
+            >
+              ✕ {tt('取り消す', 'Cancel')}
+            </button>
+          </div>
         )}
         {currentSuspectMsg && (
           <p className="dialogue-text">
