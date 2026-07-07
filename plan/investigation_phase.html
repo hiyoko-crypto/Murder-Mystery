@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>捜査フェーズ — 現在の実装</title>
+<style>
+  :root {
+    --bg: #f3f5f7;
+    --surface: #ffffff;
+    --ink: #1a2230;
+    --muted: #5c6b7a;
+    --line: #dde3e8;
+    --accent: #35618f;
+    --accent-soft: #e4edf5;
+    --phase: #3f7d5c;
+    --phase-soft: #e3f1e9;
+    --warn: #a3620a;
+    --warn-soft: #fbf0dd;
+    --code-bg: #eef1f4;
+    --code-ink: #24303d;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181c;
+      --surface: #1b2126;
+      --ink: #e7ebee;
+      --muted: #93a1ab;
+      --line: #2c353c;
+      --accent: #8fb6d9;
+      --accent-soft: #223140;
+      --phase: #7fc9a1;
+      --phase-soft: #1c2f26;
+      --warn: #e3ac54;
+      --warn-soft: #362b16;
+      --code-bg: #20272d;
+      --code-ink: #d8dee2;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181c;
+    --surface: #1b2126;
+    --ink: #e7ebee;
+    --muted: #93a1ab;
+    --line: #2c353c;
+    --accent: #8fb6d9;
+    --accent-soft: #223140;
+    --phase: #7fc9a1;
+    --phase-soft: #1c2f26;
+    --warn: #e3ac54;
+    --warn-soft: #362b16;
+    --code-bg: #20272d;
+    --code-ink: #d8dee2;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    line-height: 1.8;
+  }
+
+  a { color: var(--accent); }
+
+  .shell { display: flex; max-width: 1160px; margin: 0 auto; align-items: flex-start; }
+
+  nav.toc {
+    position: sticky;
+    top: 0;
+    flex: 0 0 240px;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 28px 18px 40px 24px;
+    font-size: 0.8rem;
+  }
+  nav.toc .eyebrow { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--phase); font-weight: 700; margin-bottom: 10px; }
+  nav.toc a { display: block; color: var(--muted); text-decoration: none; padding: 5px 0; border-left: 2px solid transparent; padding-left: 10px; margin-left: -12px; }
+  nav.toc a:hover { color: var(--ink); }
+  nav.toc .sub { padding-left: 22px; font-size: 0.76rem; }
+
+  main { flex: 1; min-width: 0; padding: 44px 40px 120px; max-width: 820px; }
+
+  header.doc-head { margin-bottom: 40px; }
+  .phase-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--phase);
+    background: var(--phase-soft);
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1 { font-size: 1.7rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.01em; text-wrap: balance; }
+  .lede { color: var(--muted); font-size: 0.96rem; max-width: 62ch; }
+  .meta-row { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 18px; font-size: 0.8rem; color: var(--muted); }
+  .meta-row b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  h2 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin: 56px 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+    scroll-margin-top: 20px;
+  }
+  h2 .num { color: var(--phase); font-variant-numeric: tabular-nums; margin-right: 8px; }
+  h3 { font-size: 1rem; font-weight: 700; margin: 28px 0 8px; scroll-margin-top: 20px; }
+  p { margin: 0 0 13px; max-width: 68ch; }
+  ul, ol { margin: 0 0 13px; padding-left: 1.35em; }
+  li { margin-bottom: 5px; max-width: 64ch; }
+  strong { color: var(--ink); }
+
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, "Courier New", monospace;
+    font-size: 0.85em;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 14px 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    margin: 0 0 16px;
+  }
+  pre code { background: none; padding: 0; }
+
+  .cite { color: var(--muted); font-size: 0.8em; }
+
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 20px; font-size: 0.86rem; }
+  .table-wrap { overflow-x: auto; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; }
+
+  .decision {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 16px 0 22px;
+  }
+  .decision .label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .decision p:last-child { margin-bottom: 0; }
+
+  .rough {
+    background: var(--warn-soft);
+    border-left: 3px solid var(--warn);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 10px 0 16px;
+  }
+  .rough .label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--warn); margin-bottom: 6px; }
+  .rough p:last-child { margin-bottom: 0; }
+
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px 0 22px; font-size: 0.85rem; }
+  .flow .node { background: var(--surface); border: 1px solid var(--line); border-radius: 7px; padding: 8px 13px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.8rem; }
+  .flow .arrow { color: var(--muted); }
+
+  footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.82rem; }
+  footer a { margin-right: 16px; }
+
+  @media (max-width: 880px) {
+    .shell { flex-direction: column; }
+    nav.toc { position: static; height: auto; width: 100%; padding: 20px 20px 0; }
+    main { padding: 20px 20px 80px; max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="toc">
+    <div class="eyebrow">On this page</div>
+    <a href="#architecture">1. 全体アーキテクチャ</a>
+    <a href="#data-model">2. シナリオデータモデル</a>
+    <a href="#conversation">3. 容疑者との会話パイプライン</a>
+    <a href="#unlock">4. 場所・アイテムの開放</a>
+    <a href="#i18n">5. 翻訳・多言語対応</a>
+    <a href="#frontend">6. フロントエンド</a>
+    <a href="#rough-edges">7. 既知の食い違い・未整理点</a>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <div class="phase-badge">Phase 1 of 2 — 捜査</div>
+      <h1>捜査フェーズの実装</h1>
+      <p class="lede">
+        プレイヤーが容疑者に尋問し、現場を調査し、場所やアイテムを発見していく――起訴（<a href="indictment_phase.html">Phase 2</a>）に至るまでの全プロセスの現在の実装をまとめる。
+      </p>
+      <div class="meta-row">
+        <span>対象シナリオ: <b>the_final_act.json</b></span>
+        <span>ノード: <b>77</b></span>
+        <span>エッジ: <b>150</b>（<code>rel</code>種別 96）</span>
+        <span>容疑者: <b>3</b>（Elena / Julian / Leo）</span>
+      </div>
+    </header>
+
+    <section id="architecture">
+      <h2><span class="num">1</span>全体アーキテクチャ</h2>
+      <p>
+        プレイ方法は3通りあるが、すべて<code>GameSession</code>という単一のゲームロジック窓口に集約される。
+      </p>
+      <div class="flow">
+        <div class="node">main_kg.py</div><span class="arrow">→</span>
+        <div class="node">run_game_kg.py</div><span class="arrow">→</span>
+        <div class="node">GameSession</div>
+      </div>
+      <div class="flow">
+        <div class="node">api.py（FastAPI）</div><span class="arrow">→</span>
+        <div class="node">GameSession</div><span class="arrow">→</span>
+        <div class="node">frontend（React）</div>
+      </div>
+
+      <ul>
+        <li><code>main_kg.py</code> — 言語選択のみを行うCLIブートストラップ。ゲームロジックは一切持たず、<code>suspect_agents/run_game_kg.py</code>に丸ごと委譲する。</li>
+        <li><code>suspect_agents/run_game_kg.py</code> — ファイル冒頭に「ゲームロジックは全て<code>game_session.py</code>にあり、ここは入出力だけを扱う」と明記されている通りの純粋なCLI I/O層。<code>session.get_briefing()</code> / <code>get_examine_options()</code> / <code>examine_location()</code> / <code>examine_item()</code> / <code>switch_suspect()</code> / <code>ask()</code> / <code>get_state()</code> / <code>indict()</code>——<code>GameSession</code>の公開APIだけを呼ぶ。</li>
+        <li><code>api.py</code> — Reactフロントエンド向けFastAPIサーバー。起動時（<code>lifespan</code>）に<b>英語版・日本語版の<code>GameSession</code>を2つ</b>生成し、<code>_sessions: dict[str, GameSession]</code>に保持する。つまり英語プレイと日本語プレイは同じセッションの言語切替ではなく、完全に独立した2つのゲーム進行として並行している。</li>
+        <li><code>game_session.py</code> — 実体。<code>__init__</code>で<code>ScenarioLoader</code>・<code>CommitmentLedger</code>・<code>LocationTracker</code>・容疑者ノードごとの<code>SuspectAgentKG</code>を組み立て、CLIとHTTP両方から使われる公開APIをすべて持つ。</li>
+      </ul>
+
+      <h3>api.py のエンドポイント一覧</h3>
+      <div class="table-wrap">
+      <table>
+        <tr><th>Method &amp; Path</th><th>呼び出す GameSession メソッド</th></tr>
+        <tr><td><code>GET /health</code></td><td>なし（<code>_sessions</code>のキーとロード状況を返すだけ）</td></tr>
+        <tr><td><code>GET /scenario</code></td><td>なし（シナリオJSONをそのまま返す）</td></tr>
+        <tr><td><code>GET /scenarios</code></td><td>なし（<code>scenarios/*.json</code>を列挙）</td></tr>
+        <tr><td><code>GET /briefing?lang=</code></td><td><code>get_briefing()</code></td></tr>
+        <tr><td><code>GET /state?lang=</code></td><td><code>get_state()</code></td></tr>
+        <tr><td><code>POST /chat</code></td><td><code>switch_suspect(suspect_id)</code> → <code>ask(message)</code></td></tr>
+        <tr><td><code>POST /examine/location/{id}</code></td><td><code>examine_location(id)</code></td></tr>
+        <tr><td><code>GET /examine/item/{id}</code></td><td><code>examine_item(id)</code></td></tr>
+        <tr><td><code>POST /reset</code></td><td>両言語の<code>GameSession</code>を作り直す（バックエンド再起動相当）</td></tr>
+        <tr><td><code>POST /indict</code></td><td><code>indict(suspect_id, reason)</code></td></tr>
+      </table>
+      </div>
+
+      <div class="decision">
+        <div class="label">設計上の判断</div>
+        <p>
+          容疑者切替専用のエンドポイントは存在せず、<code>/chat</code>1本が<code>switch_suspect</code>と<code>ask</code>を毎回まとめて実行する。フロントエンドは「今どの容疑者と話しているか」を意識せず、常に「この容疑者にこのメッセージを送る」という単位でリクエストできる。
+        </p>
+      </div>
+      <div class="decision">
+        <div class="label">設計上の判断</div>
+        <p>
+          <code>ask()</code>・<code>examine_*()</code>は<code>asyncio.to_thread</code>経由で呼ばれる。<code>GameSession</code>とOllamaクライアントは完全に同期的（<code>modules/llm_client.py</code>のブロッキングな<code>urllib.request</code>呼び出し）なので、これがないとLLM応答待ちの間FastAPIのイベントループ全体が止まってしまう。
+        </p>
+      </div>
+    </section>
+
+    <section id="data-model">
+      <h2><span class="num">2</span>シナリオデータモデル</h2>
+      <p>
+        <code>scenarios/the_final_act.json</code>のトップレベルキーは
+        <code>scenario_id</code> / <code>title</code> / <code>setting</code> / <code>murder_details</code> / <code>knowledge_graph</code> / <code>suspects</code> / <code>examine_rules</code> / <code>solution</code> / <code>display_names_ja</code>。
+        <code>solution</code>（<code>proof_graph</code>含む）は起訴判定専用なので<a href="indictment_phase.html">Phase 2のドキュメント</a>で扱う。
+      </p>
+
+      <h3>knowledge_graph.nodes（77件）</h3>
+      <p>
+        各ノードは <code>{"id", "labels": [...], "properties": {...}}</code>。<strong><code>labels</code>はフラットな<code>type</code>ではなく配列</strong>で、粒度の異なるラベルを重ねられる。例えば被害者は<code>["Character","Victim"]</code>、凶器は<code>["Item","MurderWeapon"]</code>。イベント系ノードはさらに細分化されており、<code>["Event","VisitEvent"]</code> <code>["Event","MovementEvent"]</code> <code>["Event","CrimeEvent"]</code> <code>["Event","PresenceEvent"]</code> <code>["Event","TamperingEvent"]</code>など、ファイル全体で35通りのラベルの組み合わせが存在する。
+      </p>
+      <p>
+        プロパティはノードの種類によって異なる。人物なら<code>name</code> / <code>role</code> / <code>bio</code> / <code>tags</code> / <code>interrogation_style</code>（容疑者のみ<code>guilty: bool</code>）、アイテムなら<code>name</code> / <code>description</code> / <code>significance</code>、時間軸を持つノードは<code>time</code>または<code>start_time</code>/<code>end_time</code>を持つ。
+      </p>
+
+      <h3>knowledge_graph.edges（150件）</h3>
+      <pre><code>{"id": "e14", "from": "n_elena", "to": "n_marcus", "rel": "STRUCK",
+ "properties": {"known_by": ["n_elena"], "provenance": "self_knowledge",
+                "hidden_from_detective": true, "time": "9:05 PM"}}</code></pre>
+      <ul>
+        <li><code>known_by</code>（150/150に存在）— <code>"all"</code>（全員が知る公開事実、43件）／容疑者ノードIDの配列（自己知識）／<code>[]</code>（誰も語れず、<code>examine</code>でしか判明しない事実、40件）。</li>
+        <li><code>hidden_from_detective: true</code>（18件）— 容疑者は知っているが、探偵には決して口にしてはならない事実。</li>
+        <li><code>provenance</code>（150/150）— <code>self_knowledge</code> / <code>direct_observation</code> / <code>public_report</code> / <code>public_hearsay</code> / <code>discoverable_evidence</code>。プロンプト内でエッジをグルーピングする際に使われる（§3）。</li>
+        <li><code>player_discovery</code>（44/150）— <code>{"method": "examine_location", "target": "..."}</code>のような形。詳細は§7参照。</li>
+      </ul>
+
+      <h3>examine_rules</h3>
+      <p>
+        <code>{"locations": {...}, "items": {...}}</code>。場所ごとに<code>initially_available</code> / <code>unlock_from_testimony</code> / <code>unlock_from_item</code>（任意）/ <code>items_present</code> / <code>description</code>。アイテムごとに<code>unlocks_location</code>（あれば場所IDを指す）。§4のアンロック機構が参照する。
+      </p>
+
+      <h3>ScenarioLoader（modules/scenario_loader.py）</h3>
+      <p>
+        JSONを一度だけ読み込み、<code>self.nodes</code> / <code>self.edges</code>をID索引化する。中心的なメソッドは<code>get_subgraph(node_id)</code> ――「この容疑者は何を知っているか」を返すクエリで、全エッジを走査し、<code>known_by</code>と<code>hidden_from_detective</code>で<code>visible_edges</code> / <code>hidden_edges</code>に振り分ける。
+      </p>
+      <div class="decision">
+        <div class="label">設計上の判断</div>
+        <p>
+          「誰が何を知っているか」を容疑者ごとのハードコードされたリストではなく<strong>エッジ側のプロパティ</strong>として持たせている。これにより、ある事実を誰に知らせるかの変更はJSON側の1行の編集で完結し、プロンプト生成・隠蔽漏洩チェック・場所開放のすべてに自動的に反映される。容疑者固有のコード変更は不要。
+        </p>
+      </div>
+    </section>
+
+    <section id="conversation">
+      <h2><span class="num">3</span>容疑者との会話パイプライン</h2>
+
+      <h3>プロンプト構築（modules/subgraph_to_prompt.py）</h3>
+      <p>
+        <code>build_system_prompt(subgraph, nodes, ledger_text)</code>が、可視エッジを<code>provenance</code>で <strong>personal</strong>（自己知識・直接観察＝「自分の経験として語ってよい」）／<strong>public</strong>（公開報告・伝聞＝「自分の体験のように語ってはいけない」）／<strong>other</strong> にグルーピングし、隠蔽エッジは<code>[Facts you know but must NOT reveal]</code>ブロックとして別枠で渡す。末尾でコミットメント台帳のテキスト（後述）と、厳格なJSON出力形式の指示を付ける。
+      </p>
+      <pre><code>{"response": "...", "used_edge_ids": ["e14", "e19"], "asserted_triples": [["Elena","WAS_IN","ElenaRoom"]]}</code></pre>
+
+      <h3>応答生成と検証のリトライループ（suspect_agents/suspect_agent_kg.py）</h3>
+      <ol>
+        <li>日本語モードなら、質問をまず英語に翻訳する（<code>translate_question_to_english</code>）。<strong>KG上の推論はUI言語に関わらず常に英語で行われる。</strong></li>
+        <li>台帳テキストとシステムプロンプトを組み立て、<code>llm_messages()</code>を呼ぶ（<code>temperature=0.7</code>）。</li>
+        <li><code>validator_kg.validate_response()</code>で検証。失敗したら<code>[Previous output was invalid: {error}...]</code>というヒントを追記して再送——最大<code>MAX_RETRIES = 3</code>回。</li>
+        <li>成功したら<code>used_edge_ids</code>を<code>last_used_edge_ids</code>として保持（§4の場所開放が参照）、台帳に記録、日本語モードなら応答を翻訳して返す。</li>
+        <li>3回とも失敗した場合は安全な定型応答（"I need a moment to collect myself..."）にフォールバックする。</li>
+      </ol>
+
+      <h3>validate_response() が実際にチェックしていること（suspect_agents/validator_kg.py）</h3>
+      <ul>
+        <li>JSON抽出＋パースが成功するか</li>
+        <li><code>response</code> / <code>used_edge_ids</code> / <code>asserted_triples</code>の型が正しいか</li>
+        <li><strong>漏洩チェック</strong>: <code>used_edge_ids ∩ hidden_edge_ids</code>が空か</li>
+        <li><strong>グラウンディングチェック</strong>: <code>used_edge_ids</code>が渡された<code>visible_edge_ids</code>の外を指していないか</li>
+        <li><strong>矛盾チェック</strong>: <code>CommitmentLedger.check_contradiction()</code>に委譲</li>
+      </ul>
+
+      <h3>CommitmentLedger（suspect_agents/commitment_ledger.py）</h3>
+      <p>
+        容疑者IDごとにターン記録（質問・使用エッジ・主張トリプル・要約）を蓄積する。<code>check_contradiction()</code>は「同じ(主語, 関係)の組に対して、以前と異なる目的語を主張した」場合だけを矛盾とみなす、単純な文字列一致ベースの判定。台帳は<code>GameSession</code>に1つだけ存在し、全容疑者エージェントで共有される（容疑者ごとに別インスタンスではない）。
+      </p>
+      <div class="decision">
+        <div class="label">設計上の判断</div>
+        <p>
+          矛盾検出をあえて浅く・構文的にしているのは、高速かつ100%決定的なハードゲートとして機能させるため。意味レベルの矛盾やほのめかしを拾う「セマンティックバリデータ」（<code>ENABLE_SEMANTIC_VALIDATOR</code>）も実装済みだが、現在は<code>False</code>で無効化されている。1ターンあたりのLLM呼び出し回数がほぼ3倍（質問翻訳＋本応答＋意味検証＋各リトライ）に増えるためと見られる。
+        </p>
+      </div>
+    </section>
+
+    <section id="unlock">
+      <h2><span class="num">4</span>場所・アイテムの開放（modules/location_tracker.py）</h2>
+
+      <h3>機構1: アイテム連鎖によるアンロック</h3>
+      <p>
+        <code>examine_item(item_id)</code>が<code>examine_rules.items[item_id].unlocks_location</code>を見て、あれば新しい場所として開放する。例: 「換気口の格子」を調べると「換気ダクト」が開放される。
+      </p>
+
+      <h3>機構2: 証言によるアンロック</h3>
+      <p>
+        容疑者が回答するたびに、<code>unlock_from_testimony(used_edge_ids, speaker_id)</code>が呼ばれる。使用されたエッジが<code>speaker --[WAS_IN]--> location</code>なら直接、あるいは<code>speaker --[PARTICIPATED_IN]--> event</code>のようなイベント参加エッジなら、そのイベントから<code>--[OCCURRED_AT]--></code>で辿れる場所を候補にする。候補の場所に<code>unlock_from_testimony: true</code>が設定されていれば開放される。
+      </p>
+
+      <div class="decision">
+        <div class="label">設計上の判断</div>
+        <p>
+          2つの機構があるのは、ミステリーにおける「発見」が本質的に2種類あるため。物理的探索（グレートを外すと通路が見える、という決め打ちの連鎖）と、言葉による発見（証言から「その場所」が浮かび上がる、というLLMの出力に依存する動的な連鎖）。後者はイベント経由の探索が必要なぶん、複雑なロジック（<code>_testimony_location_refs</code>）になっている。
+        </p>
+      </div>
+    </section>
+
+    <section id="i18n">
+      <h2><span class="num">5</span>翻訳・多言語対応</h2>
+      <p>
+        <code>modules/translator.py</code>はLLMベースのコンテンツ翻訳を担う3関数（質問のJA→EN、応答のEN→JA、UI/ゲーム内テキストのEN→JA）で、いずれも<code>display_names_ja</code>（固有名詞のEN⇄JA対応表）をヒントとして渡す。<code>GameSession._display_text()</code>は結果を<code>self._translation_cache</code>にメモ化し、同じ英文を二度翻訳しない。
+      </p>
+      <p>
+        <code>modules/i18n.py</code>はCLI自身のUI文字列（メニュー・プロンプト等、約40キー）を保持する静的な辞書で、ゲーム内容の翻訳とは完全に別レイヤー。
+      </p>
+      <div class="decision">
+        <div class="label">設計上の判断</div>
+        <p>
+          サブグラフ構築・検証・台帳・場所開放は<strong>すべて英語で動く</strong>。日本語は「入ってくる質問」と「出ていく応答・UI文言」という2つの境界だけに現れるプレゼンテーション層の関心事にすぎない。これによりKG/バリデータ側のロジックは言語非依存のまま保て、<code>display_names_ja</code>が両方向の翻訳で固有名詞の一貫性を保証する唯一の情報源になる。
+        </p>
+      </div>
+    </section>
+
+    <section id="frontend">
+      <h2><span class="num">6</span>フロントエンド（概略）</h2>
+      <ul>
+        <li><code>contexts/ScenarioContext.tsx</code> — <code>/scenario</code>を一度取得し、<code>displayNamesJa</code>をクライアント側で適用した容疑者/場所/アイテムのアクセサを提供。</li>
+        <li><code>contexts/GameContext.tsx</code>（実質的な<code>useGameState</code>）— <code>/state</code>をポーリングし、容疑者ごとの会話履歴はサーバーではなくReactのローカル状態で保持する。</li>
+        <li><code>api/scenario.ts</code>の<code>parseKgFormat()</code> — <code>knowledge_graph</code>の生データから容疑者/場所/アイテムをクライアント側で独自に再導出している（バックエンドの<code>ScenarioLoader</code>/<code>LocationTracker</code>とは別実装）。</li>
+      </ul>
+      <div class="rough">
+        <div class="label">留意点</div>
+        <p>
+          <code>parseKgFormat()</code>はノードの<code>labels</code>やエッジの<code>rel</code>名の命名規則にフロントエンド側で独自に依存している（例: アイテムの絵文字をキーワードマッチで推測）。バックエンドとフロントエンドの間にスキーマ/型の共有はなく、KGの命名を変えると両方を手動で追従させる必要がある。
+        </p>
+      </div>
+    </section>
+
+    <section id="rough-edges">
+      <h2><span class="num">7</span>既知の食い違い・未整理点</h2>
+      <p>コードを実際に読んで見つかった、仕様と実装がずれている・使われていない箇所。今回は修正せず記録のみ。</p>
+      <ul>
+        <li><strong><code>player_discovery</code>が未使用</strong> — エッジの44件に付与されているが、Python側にもフロントエンド側にもこれを読むコードが存在しない。「どうやって発見されるべきか」の意図を表すメタデータのように見えるが、実際のアンロックは<code>examine_rules</code>だけで完結しており無関係。</li>
+        <li><strong>ScenarioLoaderのレガシースキーマ対応は死んでいる</strong> — <code>_has_known_by</code>が常に<code>True</code>になる現在のシナリオでは、<code>suspects[].subgraph</code>ベースの旧経路は到達しない。</li>
+        <li><strong><code>ask_stream()</code>はスタブ</strong> — <code>game_session.py</code>に存在するが、内部で<code>ask()</code>を1チャンクの疑似ジェネレータでラップしているだけ。<code>llm_client.py</code>自体がストリーミング未対応で、どのエンドポイントからも呼ばれていない。</li>
+        <li><strong><code>examine</code>系エンドポイントの動詞が不統一</strong> — <code>POST /examine/location/{id}</code>に対し<code>GET /examine/item/{id}</code>。</li>
+        <li><strong><code>api.py</code>が<code>GameSession</code>の非公開属性を直接読む</strong> — <code>/chat</code>が<code>gs._new_location_ids</code>を直接参照している。小さなレイヤー違反。</li>
+        <li><strong><code>llm_messages(quality=True)</code>は無効</strong> — 引数として受け取るが<code>modules/llm_client.py</code>内で一度も使われていない。</li>
+        <li><strong>セマンティックバリデータは実装済みだが無効</strong> — <code>ENABLE_SEMANTIC_VALIDATOR = False</code>。有効化すれば意味レベルの漏洩・矛盾・捏造も検知できるが、現状は構文チェックのみで運用されている。</li>
+      </ul>
+    </section>
+
+    <footer>
+      <a href="indictment_phase.html">→ Phase 2: 起訴フェーズの実装</a>
+      <a href="the_final_act_kg.html">→ 知識グラフの可視化</a>
+      <a href="past_implementation/">→ 過去の設計ドキュメント</a>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

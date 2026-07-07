@@ -40,11 +40,7 @@ class LocationTracker:
         for eid in used_edge_ids:
             edge = self.loader.edges.get(eid, {})
             if speaker_id is not None:
-                if edge.get("from") != speaker_id:
-                    continue
-                if edge.get("rel") not in {"HAS_ALIBI", "WAS_IN"}:
-                    continue
-                node_refs = [edge.get("to")]
+                node_refs = self._testimony_location_refs(edge, speaker_id)
             else:
                 node_refs = [edge.get("from"), edge.get("to")]
 
@@ -56,6 +52,40 @@ class LocationTracker:
                     self.known_locations.add(node_ref)
                     newly.append(node_ref)
         return newly
+
+    def _testimony_location_refs(self, edge: dict, speaker_id: str) -> list:
+        if edge.get("from") == speaker_id and edge.get("rel") == "WAS_IN":
+            return [edge.get("to")]
+
+        event_id = None
+        if edge.get("from") == speaker_id and edge.get("rel") in {
+            "PARTICIPATED_IN",
+            "CLAIMED_PARTICIPATION_IN",
+        }:
+            event_id = edge.get("to")
+        elif self._speaker_participated_in_event(speaker_id, edge.get("from")):
+            event_id = edge.get("from")
+
+        if not event_id:
+            return []
+
+        refs = []
+        for candidate in self.loader.edges.values():
+            if candidate.get("from") != event_id:
+                continue
+            if candidate.get("rel") in {"OCCURRED_AT", "ENDED_AT", "STARTED_AT"}:
+                refs.append(candidate.get("to"))
+        return refs
+
+    def _speaker_participated_in_event(self, speaker_id: str, event_id: str | None) -> bool:
+        if not event_id:
+            return False
+        for edge in self.loader.edges.values():
+            if edge.get("from") != speaker_id or edge.get("to") != event_id:
+                continue
+            if edge.get("rel") in {"PARTICIPATED_IN", "CLAIMED_PARTICIPATION_IN"}:
+                return True
+        return False
 
     # ------------------------------------------------------------------
     # Location examination

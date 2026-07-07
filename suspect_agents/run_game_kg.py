@@ -199,7 +199,9 @@ def build_and_run_game(scenario_path: str, language: str) -> None:
     session = GameSession(scenario_path, language)
 
     _print_briefing(session.get_briefing())
-    _choose_suspect(session)
+    active = _choose_suspect(session)
+    if not active:
+        _run_indict(session)
 
     while True:
         user_input = input(f"\n{t('question_prompt')}").strip()
@@ -220,10 +222,6 @@ def build_and_run_game(scenario_path: str, language: str) -> None:
             _run_examine(session)
 
         else:
-            if session.current_suspect_id is None:
-                _run_indict(session)
-                continue
-
             print(f"\n{t('response_header')}\n")
             response = session.ask(user_input)
             print(response)

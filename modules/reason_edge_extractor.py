@@ -11,6 +11,8 @@ from modules.llm_client import llm
 
 
 CONFIDENCE_THRESHOLD = 0.6
+MAX_RETRIES = 3
+DEBUG_EXTRACTION = True
 
 _PROMPT = """\
 You map a player's murder accusation explanation to knowledge-graph edge IDs.
@@ -18,7 +20,7 @@ You map a player's murder accusation explanation to knowledge-graph edge IDs.
 Task:
 - Read the player's explanation, which may be in Japanese or English.
 - Rewrite it into atomic factual claims.
-- Map each claim to the KG edges it meaningfully mentions, paraphrases, or contradicts.
+- Map each claim to the KG edges it meaningfully mentions or paraphrases.
 - Do not judge whether the accusation wins.
 - Do not solve the case.
 - Return only valid JSON.
@@ -32,7 +34,7 @@ Relation guide:
 - FOUND_IN: an item, person, or clue was found in a location.
 - OWNS: ownership, belonging, initials, signature, personal property, or possession.
 - CONNECTS_TO: a route, passage, shaft, door, corridor, or way between places.
-- HAS_ALIBI: a person was somewhere else at a relevant time.
+- WAS_IN / PARTICIPATED_IN / OCCURRED_AT: a person or event was at a relevant place and time.
 - CANNOT_ACCESS: a person could not enter or access a place.
 - For other relations, use the natural meaning of the relation label and edge detail.
 
@@ -41,13 +43,6 @@ For each mapped edge, assign confidence from 0.0 to 1.0:
 - 0.70-0.89: clear implication from the player's wording.
 - 0.50-0.69: plausible but incomplete/ambiguous mention.
 - below 0.50: weak guess; include only if useful for debugging.
-
-Also report major invented claims that do not correspond to the KG and would change the case logic, such as:
-- invented evidence
-- invented witnesses
-- invented alibis
-- invented murder methods
-- invented locations or routes
 
 Return exactly this shape:
 {{
@@ -64,17 +59,7 @@ Return exactly this shape:
       "matched_claim": "A compact was found in the ventilation shaft.",
       "quote": "the player's phrase that supports this edge"
     }}
-  ],
-  "contradicted_edges": [
-    {{
-      "edge_id": "e2",
-      "confidence": 0.85,
-      "matched_claim": "The player's claim contradicts this KG edge.",
-      "quote": "the player's phrase that contradicts this edge",
-      "reason": "brief explanation"
-    }}
-  ],
-  "invented_major_claims": []
+  ]
 }}
 
 [Knowledge graph edges]
@@ -97,9 +82,21 @@ def _extract_json(text: str) -> str:
     return text
 
 
+def _node_label(node_id: str, nodes: dict) -> str:
+    props = nodes.get(node_id, {}).get("properties", {})
+    name = props.get("name", node_id)
+    if "time" in props:
+        return f"{name} @ {props['time']}"
+    if "start_time" in props or "end_time" in props:
+        start = props.get("start_time", "?")
+        end = props.get("end_time", "?")
+        return f"{name} @ {start} - {end}"
+    return name
+
+
 def _edge_to_line(edge: dict, nodes: dict) -> str:
-    from_name = nodes.get(edge["from"], {}).get("properties", {}).get("name", edge["from"])
-    to_name = nodes.get(edge["to"], {}).get("properties", {}).get("name", edge["to"])
+    from_name = _node_label(edge["from"], nodes)
+    to_name = _node_label(edge["to"], nodes)
     props = edge.get("properties", {})
 
     line = f'{edge["id"]}: {from_name} --[{edge["rel"]}]--> {to_name}'
@@ -128,6 +125,10 @@ def _node_text(nodes: dict, display_names: dict = None) -> str:
             parts.append(f'Description: {props["description"]}')
         if props.get("significance"):
             parts.append(f'Significance: {props["significance"]}')
+        if props.get("time"):
+            parts.append(f'Time: {props["time"]}')
+        if props.get("start_time") or props.get("end_time"):
+            parts.append(f'Time range: {props.get("start_time", "?")} - {props.get("end_time", "?")}')
         lines.append(" | ".join(parts))
     return "\n".join(lines)
 
@@ -215,75 +216,71 @@ def extract_reason_edges(
     display_names: dict = None,
     confidence_threshold: float = CONFIDENCE_THRESHOLD,
 ) -> dict:
-    prompt = _PROMPT.format(
+    base_prompt = _PROMPT.format(
         edge_text=_edge_text(edges, nodes),
         node_text=_node_text(nodes, display_names),
         reason_text=reason_text,
     )
-    raw = llm(prompt, temperature=0.0)
-    cleaned = _extract_json(raw)
-
     known_edge_ids = set(edges)
     threshold = _coerce_confidence(confidence_threshold)
 
+    prompt = base_prompt
+    raw = ""
+    last_error = None
+
+    for attempt in range(MAX_RETRIES):
+        raw = llm(prompt, temperature=0.0)
+        parsed, error = _parse_response(raw)
+
+        if error is None:
+            mentioned_matches = parsed.get("mentioned_edges")
+            if mentioned_matches is None:
+                mentioned_matches = _legacy_matches(parsed.get("mentioned_edge_ids", []), known_edge_ids)
+
+            mentioned_edge_ids, mentioned_edges = _clean_edge_matches(
+                mentioned_matches,
+                known_edge_ids,
+                threshold,
+            )
+
+            if DEBUG_EXTRACTION and attempt > 0:
+                print(f"[ReasonExtractor] OK after {attempt + 1} attempts.")
+
+            return {
+                "mentioned_edge_ids": mentioned_edge_ids,
+                "mentioned_edges": mentioned_edges,
+                "claims": _clean_claims(parsed.get("claims")),
+                "confidence_threshold": threshold,
+                "raw": raw,
+            }
+
+        last_error = error
+        if DEBUG_EXTRACTION:
+            print(f"[ReasonExtractor] Attempt {attempt + 1} failed: {error}")
+        prompt = (
+            f"{base_prompt}\n\n"
+            f"[Previous output was invalid: {error}. Return valid JSON only, matching the exact shape above.]"
+        )
+
+    if DEBUG_EXTRACTION:
+        print(f"[ReasonExtractor] All {MAX_RETRIES} attempts failed. Last error: {last_error}")
+
+    return {
+        "mentioned_edge_ids": [],
+        "mentioned_edges": [],
+        "claims": [],
+        "confidence_threshold": threshold,
+        "raw": raw,
+        "llm_error": last_error,
+    }
+
+
+def _parse_response(raw: str) -> tuple[dict, str | None]:
+    cleaned = _extract_json(raw)
     try:
         parsed = json.loads(cleaned)
     except json.JSONDecodeError as e:
-        return {
-            "mentioned_edge_ids": [],
-            "contradicted_edge_ids": [],
-            "invented_major_claims": [],
-            "mentioned_edges": [],
-            "contradicted_edges": [],
-            "claims": [],
-            "confidence_threshold": threshold,
-            "raw": raw,
-            "llm_error": f"edge extraction failed: {e}",
-        }
-
+        return {}, f"edge extraction failed: {e}"
     if not isinstance(parsed, dict):
-        return {
-            "mentioned_edge_ids": [],
-            "contradicted_edge_ids": [],
-            "invented_major_claims": [],
-            "mentioned_edges": [],
-            "contradicted_edges": [],
-            "claims": [],
-            "confidence_threshold": threshold,
-            "raw": raw,
-            "llm_error": "edge extraction did not return a JSON object",
-        }
-
-    invented = parsed.get("invented_major_claims", [])
-    if not isinstance(invented, list):
-        invented = []
-
-    mentioned_matches = parsed.get("mentioned_edges")
-    contradicted_matches = parsed.get("contradicted_edges")
-
-    if mentioned_matches is None:
-        mentioned_matches = _legacy_matches(parsed.get("mentioned_edge_ids", []), known_edge_ids)
-    if contradicted_matches is None:
-        contradicted_matches = _legacy_matches(parsed.get("contradicted_edge_ids", []), known_edge_ids)
-
-    mentioned_edge_ids, mentioned_edges = _clean_edge_matches(
-        mentioned_matches,
-        known_edge_ids,
-        threshold,
-    )
-    contradicted_edge_ids, contradicted_edges = _clean_edge_matches(
-        contradicted_matches,
-        known_edge_ids,
-        threshold,
-    )
-
-    return {
-        "mentioned_edge_ids": mentioned_edge_ids,
-        "contradicted_edge_ids": contradicted_edge_ids,
-        "invented_major_claims": [str(item) for item in invented],
-        "mentioned_edges": mentioned_edges,
-        "contradicted_edges": contradicted_edges,
-        "claims": _clean_claims(parsed.get("claims")),
-        "confidence_threshold": threshold,
-        "raw": raw,
-    }
+        return {}, "edge extraction did not return a JSON object"
+    return parsed, None

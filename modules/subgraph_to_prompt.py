@@ -4,9 +4,21 @@ Translation to Japanese is handled downstream by translator.py.
 """
 
 
+def _node_label(node_id: str, nodes: dict) -> str:
+    props = nodes.get(node_id, {}).get("properties", {})
+    name = props.get("name", node_id)
+    if "time" in props:
+        return f"{name} @ {props['time']}"
+    if "start_time" in props or "end_time" in props:
+        start = props.get("start_time", "?")
+        end = props.get("end_time", "?")
+        return f"{name} @ {start} - {end}"
+    return name
+
+
 def _edge_to_triple(edge: dict, nodes: dict) -> str:
-    from_name = nodes.get(edge["from"], {}).get("properties", {}).get("name", edge["from"])
-    to_name   = nodes.get(edge["to"],   {}).get("properties", {}).get("name", edge["to"])
+    from_name = _node_label(edge["from"], nodes)
+    to_name   = _node_label(edge["to"], nodes)
     rel       = edge["rel"]
     props     = edge.get("properties", {})
 
@@ -56,7 +68,7 @@ def build_system_prompt(subgraph: dict, nodes: dict, ledger_text: str = "") -> s
     lines.append("\n\n[Facts you know]")
     lines.append("Base concrete case claims on the triples below, respecting the provenance labels.")
     lines.append("You may add harmless conversational detail, emotion, uncertainty, and natural phrasing as long as it does not contradict these facts or your prior statements.")
-    lines.append("Do not invent major new evidence, witnesses, alibis, locations, murder methods, or case-solving facts.")
+    lines.append("Do not invent major new evidence, witnesses, claimed whereabouts, locations, murder methods, or case-solving facts.")
     if groups["personal"]:
         lines.append("\nPersonal knowledge / direct observations — you may speak about these as your own knowledge:")
     for edge in groups["personal"]:
