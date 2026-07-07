@@ -35,16 +35,29 @@ class CommitmentLedger:
     # Read — LLM input
     # ------------------------------------------------------------------
 
-    def get_ledger_text(self, node_id: str, max_turns: int = 6) -> str:
-        """Return a compact summary of recent turns for LLM context."""
-        entries = self._ledger.get(node_id, [])
-        if not entries:
-            return ""
-        recent = entries[-max_turns:]
+    def get_self_graph_text(self, node_id: str, max_turns: int = 6) -> str:
+        """
+        Render this suspect's own asserted_triples from recent turns as a
+        small triple graph, grouped by turn, e.g.:
+
+            Turn 2:
+              Elena --[WAS_IN]--> Elena's Dressing Room @ 7:00 PM
+            Turn 5:
+              Elena --[OWNS]--> Silver Compact
+
+        This is the suspect's own self-reported claims, not verified KG
+        facts — kept separate from the real subgraph the prompt is built
+        from.
+        """
+        entries = self._ledger.get(node_id, [])[-max_turns:]
         lines = []
-        for e in recent:
-            edge_str = ", ".join(e["used_edge_ids"]) if e["used_edge_ids"] else "—"
-            lines.append(f"Turn {e['turn']} (edges: {edge_str}): {e['response_summary']}")
+        for e in entries:
+            triples = [t for t in e.get("asserted_triples", []) if len(t) == 3]
+            if not triples:
+                continue
+            lines.append(f"Turn {e['turn']}:")
+            for subj, rel, obj in triples:
+                lines.append(f"  {subj} --[{rel}]--> {obj}")
         return "\n".join(lines)
 
     # ------------------------------------------------------------------

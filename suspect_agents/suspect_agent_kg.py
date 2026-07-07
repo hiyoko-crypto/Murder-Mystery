@@ -59,7 +59,7 @@ class SuspectAgentKG:
                 display_names=display_names_ja,
             )
 
-        ledger_text    = self.ledger.get_ledger_text(self.node_id)
+        ledger_text    = self.ledger.get_self_graph_text(self.node_id)
         system_content = build_system_prompt(self.subgraph, self.loader.nodes, ledger_text)
 
         system_msg = {"role": "system", "content": system_content}

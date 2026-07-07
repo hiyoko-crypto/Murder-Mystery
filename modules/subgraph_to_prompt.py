@@ -92,7 +92,8 @@ def build_system_prompt(subgraph: dict, nodes: dict, ledger_text: str = "") -> s
 
     # ── Commitment ledger ───────────────────────────────────────────
     if ledger_text:
-        lines.append("\n\n[What you have told the detective so far — maintain consistency]")
+        lines.append("\n\n[Your own prior statements this interrogation — maintain consistency]")
+        lines.append("These are your own past claims, not verified case facts. Do not contradict them.")
         lines.append(ledger_text)
 
     # ── Output format ───────────────────────────────────────────────
@@ -100,7 +101,8 @@ def build_system_prompt(subgraph: dict, nodes: dict, ledger_text: str = "") -> s
     lines.append("Respond ONLY in the following JSON. No text outside the JSON.")
     lines.append('{"response": "Your spoken response in English", "used_edge_ids": ["e1", "e2"], "asserted_triples": [["Subject", "REL", "Object"]]}')
     lines.append("used_edge_ids: edge IDs used as the basis for your response.")
-    lines.append("asserted_triples: fact triples extractable from your response.")
+    lines.append("asserted_triples: ONLY the fact triples explicitly stated in the \"response\" text above — not background facts you merely relied on without saying.")
+    lines.append("Do not repeat a triple from your own prior statements below unless you are restating that exact fact again right now.")
     lines.append('If a triple has a specific time attached (from the facts above or your own response), append it to the object as "Object @ time", e.g. ["Elena", "VISITED", "Marcus\'s Dressing Room @ 7:00 PM"]. Omit the time if none applies — do not invent one.')
 
     return "\n".join(lines)

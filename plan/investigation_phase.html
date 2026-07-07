@@ -309,14 +309,17 @@
 
       <h3>プロンプト構築（modules/subgraph_to_prompt.py）</h3>
       <p>
-        <code>build_system_prompt(subgraph, nodes, ledger_text)</code>が、可視エッジを<code>provenance</code>で <strong>personal</strong>（自己知識・直接観察＝「自分の経験として語ってよい」）／<strong>public</strong>（公開報告・伝聞＝「自分の体験のように語ってはいけない」）／<strong>other</strong> にグルーピングし、隠蔽エッジは<code>[Facts you know but must NOT reveal]</code>ブロックとして別枠で渡す。末尾でコミットメント台帳のテキスト（後述）と、厳格なJSON出力形式の指示を付ける。
+        <code>build_system_prompt(subgraph, nodes, ledger_text)</code>が、可視エッジを<code>provenance</code>で <strong>personal</strong>（自己知識・直接観察＝「自分の経験として語ってよい」）／<strong>public</strong>（公開報告・伝聞＝「自分の体験のように語ってはいけない」）／<strong>other</strong> にグルーピングし、隠蔽エッジは<code>[Facts you know but must NOT reveal]</code>ブロックとして別枠で渡す。末尾で自己申告グラフ（後述）と、厳格なJSON出力形式の指示を付ける。
       </p>
-      <pre><code>{"response": "...", "used_edge_ids": ["e14", "e19"], "asserted_triples": [["Elena","WAS_IN","ElenaRoom"]]}</code></pre>
+      <pre><code>{"response": "...", "used_edge_ids": ["e14", "e19"], "asserted_triples": [["Elena","WAS_IN","ElenaRoom @ 9:10 PM"]]}</code></pre>
+      <p>
+        <code>asserted_triples</code>の指示は「本文で明言した事実だけ」「時刻があればオブジェクト側に<code>@ time</code>で付与」「以前の自己申告と同じ事実を今回も述べた場合以外は繰り返さない」の3点を明示している。当初は単に「応答から抽出できる事実」とだけ指示していたが、実際には本文で言っていない背景知識まで大量に自己申告したり、内容が変わっても前ターンと同じトリプルをそのまま繰り返したりする挙動が見られたため、この3点を明文化した。
+      </p>
 
       <h3>応答生成と検証のリトライループ（suspect_agents/suspect_agent_kg.py）</h3>
       <ol>
         <li>日本語モードなら、質問をまず英語に翻訳する（<code>translate_question_to_english</code>）。<strong>KG上の推論はUI言語に関わらず常に英語で行われる。</strong></li>
-        <li>台帳テキストとシステムプロンプトを組み立て、<code>llm_messages()</code>を呼ぶ（<code>temperature=0.7</code>）。</li>
+        <li><code>CommitmentLedger.get_self_graph_text()</code>で自己申告グラフを組み立て、システムプロンプトに載せて<code>llm_messages()</code>を呼ぶ（<code>temperature=0.7</code>）。</li>
         <li><code>validator_kg.validate_response()</code>で検証。失敗したら<code>[Previous output was invalid: {error}...]</code>というヒントを追記して再送——最大<code>MAX_RETRIES = 3</code>回。</li>
         <li>成功したら<code>used_edge_ids</code>を<code>last_used_edge_ids</code>として保持（§4の場所開放が参照）、台帳に記録、日本語モードなら応答を翻訳して返す。</li>
         <li>3回とも失敗した場合は安全な定型応答（"I need a moment to collect myself..."）にフォールバックする。</li>
@@ -330,10 +333,23 @@
         <li><strong>グラウンディングチェック</strong>: <code>used_edge_ids</code>が渡された<code>visible_edge_ids</code>の外を指していないか</li>
       </ul>
 
-      <h3>CommitmentLedger（suspect_agents/commitment_ledger.py）</h3>
+      <h3>CommitmentLedger と自己申告グラフ（suspect_agents/commitment_ledger.py）</h3>
       <p>
-        容疑者IDごとにターン記録（質問・使用エッジ・主張トリプル・要約）を蓄積する。台帳は<code>GameSession</code>に1つだけ存在し、全容疑者エージェントで共有される（容疑者ごとに別インスタンスではない）。<code>asserted_triples</code>に時刻情報がある場合は<code>"Object @ time"</code>の形でオブジェクト側に含めるよう、プロンプト側（<code>subgraph_to_prompt.py</code>）で指示している。
+        容疑者IDごとにターン記録（質問・使用エッジ・主張トリプル・要約）を蓄積する。台帳は<code>GameSession</code>に1つだけ存在し、全容疑者エージェントで共有される（容疑者ごとに別インスタンスではない）。
       </p>
+      <p>
+        <code>get_self_graph_text(node_id, max_turns=6)</code>が、直近ターンの<code>asserted_triples</code>をターンごとにグルーピングし、本物のKGエッジと同じ見た目（<code>Subject --[REL]--> Object</code>）で書き出す。これがプロンプトの<code>[Your own prior statements this interrogation — maintain consistency]</code>ブロックとしてそのまま渡される。
+      </p>
+      <pre><code>Turn 1:
+  Elena Rostova --[WAS_IN]--> Elena's Dressing Room @ 9:10 PM
+Turn 2:
+  Elena Rostova --[WAS_IN]--> Elena's Dressing Room @ 9:10 PM</code></pre>
+      <div class="decision">
+        <div class="label">設計上の判断</div>
+        <p>
+          以前は「Turn N（edges: e1,e2）: 応答冒頭100文字」という自由文のプローズ要約を<code>get_ledger_text()</code>が生成しており、<code>asserted_triples</code>自体は矛盾チェック専用の内部データで容疑者本人には一切見せていなかった。本物のサブグラフと同じ書式に揃えた構造化テキストに置き換えることで、荒い100文字要約より正確に「自分が何を言ったか」を思い出せるようにしている。本物のサブグラフ（<code>visible_edges</code>）とは完全に別の変数として扱っており、グラウンディングチェックの対象には含まれない。
+        </p>
+      </div>
       <div class="rough">
         <div class="label">留意点</div>
         <p>
