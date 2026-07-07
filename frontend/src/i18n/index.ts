@@ -34,8 +34,6 @@ export const ui: Record<string, Record<Lang, string>> = {
   'loc.talk.title':     { ja: '— 話す —',               en: '— Talk —' },
 
   /* InterrogationPage */
-  'interro.evidence':   { ja: '証拠',                    en: 'Evidence' },
-  'interro.unit':       { ja: '件',                      en: '' },
   'interro.log':        { ja: '会話ログ',                en: 'Chat Log' },
   'interro.hint':       { ja: '何か聞いてみよう',        en: 'Ask something…' },
   'interro.typing':     { ja: '……',                      en: '……' },
@@ -49,38 +47,15 @@ export const ui: Record<string, Record<Lang, string>> = {
   'interro.present.fmt':{ ja: '【証拠提示】',            en: '[Evidence] ' },
   'interro.detective':  { ja: '探偵',                    en: 'Detective' },
 
-  /* ConfrontationPage */
-  'confront.label':     { ja: '— 対決 —',               en: '— Confrontation —' },
-  'confront.back':      { ja: '← 戻る',                 en: '← Back' },
-  'confront.skip':      { ja: 'タップでスキップ',        en: 'Tap to skip' },
-  'confront.evidence':  { ja: '証拠を選ぶ',              en: 'Select Evidence' },
-  'confront.noevidence':{ ja: '証拠がない',              en: 'No evidence' },
-  'confront.used':      { ja: '（提示済み）',            en: '(presented)' },
-  'confront.comment':   { ja: 'コメントを追加（省略可）...', en: 'Add a comment (optional)…' },
-  'confront.input':     { ja: '発言を入力...',           en: 'Enter statement…' },
-  'confront.send':      { ja: '送信',                    en: 'Send' },
-  'confront.present':   { ja: 'を突きつける',            en: '— Present' },
-  'confront.evidence.fmt': { ja: '【証拠】',             en: '[Evidence] ' },
-  'confront.detective': { ja: '探偵：「',                en: 'Detective: "' },
-
   /* Endings */
   'ending.confession':  { ja: '— 自白 —',               en: '— Confession —' },
   'ending.confessed':   { ja: 'は観念したように俯いた。\n探偵の追及の前に、すべての嘘が崩れ落ちた。',
                           en: 'bowed their head in resignation.\nEvery lie crumbled before the detective\'s relentless pursuit.' },
   'ending.solved':      { ja: '事件は解決した。',        en: 'The case is solved.' },
   'ending.toTitle':     { ja: 'タイトルへ戻る',          en: 'Return to Title' },
-  'ending.wrong':       { ja: '— 見当違い —',           en: '— Wrong Accusation —' },
-  'ending.innocent':    { ja: 'は無実だった。\n証拠が足りない。もう一度調査しよう。',
-                          en: 'is innocent.\nNot enough evidence. Investigate again.' },
-  'ending.reaccuse':    { ja: '告発し直す',              en: 'Try Again' },
-  'ending.backinv':     { ja: '調査に戻る',              en: 'Back to Investigation' },
   'ending.cutoff':      { ja: '— 会話終了 —',           en: '— Conversation Ended —' },
   'ending.cutoff.text': { ja: 'は口を閉ざした。\n的外れな証拠を出しすぎた。証拠を整理し直そう。',
                           en: 'has gone silent.\nToo many wrong pieces of evidence. Rethink your strategy.' },
-
-  /* AccusationPage */
-  'accuse.title':       { ja: '— 犯人を告発せよ —',     en: '— Accuse the Culprit —' },
-  'accuse.subtitle':    { ja: '真犯人だと思う人物を選べ',en: 'Select who you believe is the culprit' },
 
   /* EvidencePage */
   'evidence.title':     { ja: '証拠一覧',                en: 'Evidence' },

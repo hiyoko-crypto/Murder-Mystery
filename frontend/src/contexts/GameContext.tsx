@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
 import { resetSession } from '../api/session'
 import { useLanguage } from './LanguageContext'
+import { useCaseNotes } from './CaseNotesContext'
 import type { Message } from '../types'
 
 interface GameContextValue {
@@ -16,6 +17,7 @@ const GameCtx = createContext<GameContextValue | null>(null)
 
 export function GameProvider({ children }: { children: ReactNode }) {
   const { lang } = useLanguage()
+  const { resetNotebook } = useCaseNotes()
   const [unlockedLocations, setUnlockedLocations] = useState<string[]>([])
   const [foundItems, setFoundItems] = useState<string[]>([])
   const [conversations, setConversations] = useState<Record<string, Message[]>>({})
@@ -45,8 +47,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setUnlockedLocations([])
     setFoundItems([])
     setConversations({})
+    resetNotebook()
     await refetchState()
-  }, [refetchState])
+  }, [refetchState, resetNotebook])
 
   const getConversation = useCallback(
     (suspectId: string): Message[] => conversations[suspectId] ?? [],

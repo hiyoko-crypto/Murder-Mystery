@@ -1,7 +1,7 @@
 .evidence-page {
   min-height: 100vh;
   padding: 1.5rem;
-  background: #0d0d0d;
+  background: var(--paper);
   max-width: 700px;
   margin: 0 auto;
 }
@@ -15,7 +15,7 @@
 
 .evidence-header h2 {
   font-size: 1.2rem;
-  color: #c8a96e;
+  color: var(--gold-dark);
   letter-spacing: 0.1em;
 }
 
@@ -26,9 +26,9 @@
 }
 
 .evidence-card {
-  background: #1a1a1a;
-  border: 1px solid #c8a96e44;
-  color: #e8e0d0;
+  background: var(--paper-panel);
+  border: 1px solid var(--border);
+  color: var(--ink);
   padding: 1.2rem;
   border-radius: 6px;
   display: flex;
@@ -40,8 +40,8 @@
 }
 
 .evidence-card:hover {
-  border-color: #c8a96e;
-  background: #1f1a14;
+  border-color: var(--gold);
+  background: var(--gold-soft);
 }
 
 .evidence-emoji {

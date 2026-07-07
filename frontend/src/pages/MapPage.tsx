@@ -4,6 +4,7 @@ import { useGame } from '../contexts/GameContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
 import ConfirmResetDialog from '../components/ConfirmResetDialog'
+import NotebookLauncher from '../components/notebook/NotebookLauncher'
 import './MapPage.css'
 
 export default function MapPage() {
@@ -30,6 +31,7 @@ export default function MapPage() {
           {lang === 'ja' ? 'メインメニューに戻る' : 'Return to Main Menu'}
         </button>
         <h2 className="map-title">{t('map.title')}</h2>
+        <NotebookLauncher />
       </div>
       <div className="location-list">
         {locations.map((loc) => (

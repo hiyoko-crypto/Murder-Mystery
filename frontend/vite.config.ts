@@ -5,15 +5,18 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/health':    'http://localhost:8000',
-      '/scenario':  'http://localhost:8000',
-      '/scenarios': 'http://localhost:8000',
-      '/chat':      'http://localhost:8000',
-      '/state':     'http://localhost:8000',
-      '/briefing':  'http://localhost:8000',
-      '/examine':   'http://localhost:8000',
-      '/indict':    'http://localhost:8000',
-      '/reset':     'http://localhost:8000',
+      // 明示的に 127.0.0.1 を指定する — "localhost" は ::1 にも解決され、
+      // このマシンでは別の何か（WSL/Docker関連らしき最小サービス）が
+      // [::1]:8000 を掴んでいて、そちらに転送されると本物のAPIが404になる。
+      '/health':    'http://127.0.0.1:8000',
+      '/scenario':  'http://127.0.0.1:8000',
+      '/scenarios': 'http://127.0.0.1:8000',
+      '/chat':      'http://127.0.0.1:8000',
+      '/state':     'http://127.0.0.1:8000',
+      '/briefing':  'http://127.0.0.1:8000',
+      '/examine':   'http://127.0.0.1:8000',
+      '/indict':    'http://127.0.0.1:8000',
+      '/reset':     'http://127.0.0.1:8000',
     },
   },
 })

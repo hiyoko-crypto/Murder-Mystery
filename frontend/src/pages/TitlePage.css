@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #0d0d0d 0%, #1a0a0a 100%);
+  background: linear-gradient(180deg, var(--paper) 0%, #ecdfbd 100%);
   position: relative;
 }
 
@@ -17,8 +17,8 @@
 
 .lang-btn {
   background: none;
-  border: 1px solid #444;
-  color: #666;
+  border: 1px solid var(--border-strong);
+  color: var(--ink-faint);
   padding: 5px 12px;
   border-radius: 3px;
   font-size: 0.78rem;
@@ -28,12 +28,12 @@
   transition: all 0.15s;
 }
 
-.lang-btn:hover { border-color: #888; color: #aaa; }
+.lang-btn:hover { border-color: var(--ink-soft); color: var(--ink); }
 
 .lang-btn.active {
-  border-color: #c8a96e;
-  color: #c8a96e;
-  background: rgba(200, 169, 110, 0.08);
+  border-color: var(--gold);
+  color: var(--gold-dark);
+  background: var(--gold-soft);
 }
 
 .title-content {
@@ -44,13 +44,13 @@
   font-size: 5rem;
   font-weight: 700;
   letter-spacing: 0.3em;
-  color: #c8a96e;
-  text-shadow: 0 0 30px rgba(200, 169, 110, 0.4);
+  color: var(--gold-dark);
+  text-shadow: 0 0 30px rgba(156, 107, 31, 0.25);
   margin-bottom: 0.3em;
 }
 
 .title-subtitle {
-  color: #888;
+  color: var(--ink-soft);
   font-size: 1.1rem;
   letter-spacing: 0.2em;
   margin-bottom: 3rem;
@@ -58,8 +58,8 @@
 
 .title-btn {
   background: none;
-  border: 2px solid #c8a96e;
-  color: #c8a96e;
+  border: 2px solid var(--gold);
+  color: var(--gold-dark);
   font-size: 1.1rem;
   padding: 14px 48px;
   letter-spacing: 0.15em;
@@ -68,6 +68,6 @@
 }
 
 .title-btn:hover {
-  background: #c8a96e;
-  color: #0d0d0d;
+  background: var(--gold);
+  color: var(--paper-white);
 }

@@ -1,18 +1,14 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { fetchScenario, type ApiScenario, type ExamineRules } from '../api/scenario'
+import { matchBackground, BG_LIBRARY, type BgCredit } from '../utils/backgroundMatch'
+import { triggerUnsplashDownload } from '../api/unsplashFallback'
 import type { Suspect, Location, Item } from '../types'
 import type { Lang } from '../i18n'
 
-const BG_POOL = [
-  'https://images.unsplash.com/photo-1723053140058-7aa2e74ac794?q=80&w=1470&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1780383908348-66fe35ee95cf?w=1200&q=80',
-  'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=928&auto=format&fit=crop',
-]
-
 const STATIC_BG: Record<string, string> = {
-  garden:   BG_POOL[0],
-  ballroom: BG_POOL[1],
-  study:    BG_POOL[2],
+  garden:   BG_LIBRARY[0].url,
+  ballroom: BG_LIBRARY[1].url,
+  study:    BG_LIBRARY[2].url,
 }
 
 interface ScenarioCtx {
@@ -20,6 +16,7 @@ interface ScenarioCtx {
   loading: boolean
   examineRules: ExamineRules | null
   locationBg: (locationId: string) => string
+  locationBgCredit: (locationId: string) => BgCredit | null
   suspects: (lang: Lang) => Suspect[]
   locations: (lang: Lang) => Location[]
   items: (lang: Lang) => Item[]
@@ -38,11 +35,34 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false))
   }, [])
 
-  const bgMap: Record<string, string> = scenario
-    ? Object.fromEntries(scenario.locations.map((l, i) => [l.id, BG_POOL[i % BG_POOL.length]]))
-    : STATIC_BG
+  // Keyword-matching every location against BG_LIBRARY only depends on the
+  // scenario itself (not lang), so memoizing avoids redoing the scan on
+  // every render — e.g. a language toggle in a parent provider.
+  const bgMatches = useMemo(
+    () => (scenario ? scenario.locations.map((l) => [l.id, matchBackground(l.name, l.description)] as const) : []),
+    [scenario],
+  )
+  const bgMap: Record<string, string> = useMemo(
+    () => (scenario ? Object.fromEntries(bgMatches.map(([id, m]) => [id, m.url])) : STATIC_BG),
+    [scenario, bgMatches],
+  )
+  const bgCreditMap: Record<string, BgCredit> = useMemo(
+    () => Object.fromEntries(bgMatches.map(([id, m]) => [id, m.credit])),
+    [bgMatches],
+  )
 
-  const locationBg = (id: string) => bgMap[id] ?? BG_POOL[0]
+  useEffect(() => {
+    if (!scenario) return
+    // Unsplash's guidelines want a download ping for every photo actually
+    // used, not just browsed — each of these is the one we've committed to
+    // showing for that location, so it's a real "use," not casual browsing.
+    for (const [, match] of bgMatches) {
+      triggerUnsplashDownload(match.credit.unsplashId)
+    }
+  }, [scenario, bgMatches])
+
+  const locationBg = (id: string) => bgMap[id] ?? BG_LIBRARY[0].url
+  const locationBgCredit = (id: string): BgCredit | null => bgCreditMap[id] ?? null
 
   const ja = (enName: string, lang: Lang): string => {
     if (lang !== 'ja' || !scenario?.displayNamesJa) return enName
@@ -89,6 +109,7 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
       loading,
       examineRules: scenario?.examineRules ?? null,
       locationBg,
+      locationBgCredit,
       suspects,
       locations,
       items,

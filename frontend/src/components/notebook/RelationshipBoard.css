@@ -1,0 +1,284 @@
+.relationship-board {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 0.5rem;
+}
+
+.rel-toolbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* .rel-hint はTimelineBoardでも単体で使い回している共有クラスなので、
+   ここではデフォルトで伸びないようにしておき、ツールバー内でだけ
+   横幅いっぱいに広がるよう .rel-toolbar 配下に限定して上書きする */
+.rel-hint {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.02em;
+  padding: 0 0.2rem;
+}
+
+.rel-toolbar .rel-hint {
+  flex: 1;
+  min-width: 0;
+}
+
+.rel-add-node-btn {
+  flex-shrink: 0;
+  background: var(--paper-white);
+  border: 1.5px solid var(--gold);
+  color: var(--gold-dark);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.rel-add-node-btn:hover {
+  background: var(--gold);
+  color: var(--paper-white);
+}
+
+.relationship-canvas {
+  flex: 1;
+  min-height: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--paper-white);
+}
+
+.relationship-canvas .react-flow__node.rel-node {
+  background: var(--paper-panel);
+  border: 1px solid var(--gold);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  text-align: center;
+  width: auto;
+}
+
+/* 被害者ノードは一目でわかるよう別の色にする */
+.relationship-canvas .react-flow__node.rel-node-victim {
+  background: var(--danger-soft);
+  border: 2px solid var(--danger);
+  color: var(--danger-text);
+  font-weight: bold;
+}
+
+/* 4方向どこからでも接続できるようにしたハンドル。source/targetを同じ位置に
+   重ねているので見た目は1方向あたり1つの点になる */
+.relationship-canvas .react-flow__handle.rel-handle {
+  width: 9px;
+  height: 9px;
+  background: var(--gold);
+  border: 1.5px solid var(--paper-white);
+}
+
+/* エッジのラベル＝曲げハンドル。ドラッグで弧を調整、クリックで編集を開く */
+.rel-edge-label {
+  background: #fffcf5;
+  border: 1px solid rgba(43, 32, 19, 0.15);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: all;
+  cursor: grab;
+  user-select: none;
+}
+
+.rel-edge-label:active {
+  cursor: grabbing;
+}
+
+.relationship-canvas .react-flow__edge.rel-edge .react-flow__edge-path {
+  stroke: var(--gold);
+  stroke-width: 1.5;
+}
+
+.relationship-canvas .react-flow__edge.rel-edge .react-flow__edge-text {
+  fill: var(--ink);
+}
+
+.relationship-canvas .react-flow__edge.rel-edge .react-flow__edge-textbg {
+  fill: var(--paper-white);
+}
+
+/* ── 関係を選ぶ／編集するポップアップ ── */
+.rel-editor-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: rgba(43, 32, 19, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.rel-editor-card {
+  background: var(--paper-panel);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--gold);
+  border-radius: 8px;
+  padding: 1.2rem 1.4rem;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  box-shadow: 0 12px 32px rgba(43, 32, 19, 0.3);
+}
+
+.rel-editor-title {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--ink);
+  text-align: center;
+}
+
+.rel-bidir-toggle {
+  align-self: center;
+  background: var(--paper-white);
+  border: 1.5px solid var(--border-strong);
+  color: var(--ink-soft);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.rel-bidir-toggle.active {
+  border-color: var(--gold);
+  color: var(--gold-dark);
+  background: var(--gold-soft);
+}
+
+.rel-preset-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.rel-preset-btn {
+  background: var(--paper-white);
+  border: 1.5px solid var(--border-strong);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.rel-preset-btn:hover {
+  filter: brightness(0.92);
+}
+
+.rel-editor-divider {
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  text-align: center;
+  margin: 0.2rem 0;
+}
+
+.rel-editor-input {
+  background: var(--paper-white);
+  border: 1px solid var(--border-strong);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.rel-editor-input:focus {
+  border-color: var(--gold);
+}
+
+.rel-swatch-row {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.rel-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.rel-swatch.selected {
+  border-color: var(--ink);
+}
+
+.rel-editor-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.3rem;
+}
+
+.rel-editor-delete {
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
+  color: var(--danger-text);
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  margin-right: auto;
+}
+
+.rel-editor-cancel {
+  background: none;
+  border: 1px solid var(--border-strong);
+  color: var(--ink-soft);
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.rel-editor-ok {
+  background: var(--gold);
+  border: 1px solid var(--gold);
+  color: var(--paper-white);
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.rel-editor-ok:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

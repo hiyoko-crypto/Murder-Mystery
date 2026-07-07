@@ -4,7 +4,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #0d0d0d 0%, #1a0a0a 100%);
+  background: linear-gradient(180deg, var(--paper) 0%, #ecdfbd 100%);
   gap: 2.4rem;
 }
 
@@ -12,7 +12,7 @@
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.3em;
-  color: #4a3f2e;
+  color: var(--ink-faint);
   text-transform: uppercase;
   margin: 0;
 }
@@ -24,9 +24,9 @@
 }
 
 .lang-select-card {
-  background: none;
-  border: 1px solid rgba(200, 169, 110, 0.25);
-  color: #f0e8d8;
+  background: var(--paper-panel);
+  border: 1px solid var(--border);
+  color: var(--ink);
   width: 180px;
   padding: 2.4rem 1.5rem;
   display: flex;
@@ -48,9 +48,9 @@
 }
 
 .lang-select-card:hover {
-  background: rgba(200, 169, 110, 0.08);
-  border-color: #c8a96e;
-  color: #c8a96e;
+  background: var(--gold-soft);
+  border-color: var(--gold);
+  color: var(--gold-dark);
 }
 
 .lang-select-label {
@@ -62,23 +62,23 @@
 .lang-select-sub {
   font-size: 0.78rem;
   letter-spacing: 0.12em;
-  color: #666;
+  color: var(--ink-faint);
 }
 
 .lang-select-card:hover .lang-select-sub {
-  color: #a08050;
+  color: var(--gold-dark);
 }
 
 .lang-select-divider {
   width: 1px;
-  background: rgba(200, 169, 110, 0.2);
+  background: var(--border);
   flex-shrink: 0;
 }
 
 .lang-select-back {
   background: none;
   border: none;
-  color: #444;
+  color: var(--ink-faint);
   font-size: 0.82rem;
   letter-spacing: 0.1em;
   cursor: pointer;
@@ -88,5 +88,5 @@
 }
 
 .lang-select-back:hover {
-  color: #888;
+  color: var(--ink);
 }

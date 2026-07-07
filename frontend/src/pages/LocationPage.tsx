@@ -3,8 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useGame } from '../contexts/GameContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
+import { useCaseNotes } from '../contexts/CaseNotesContext'
 import { examineLocation, examineItem, fetchBriefing, type BriefingResult } from '../api/examine'
 import ConfirmResetDialog from '../components/ConfirmResetDialog'
+import NotebookLauncher from '../components/notebook/NotebookLauncher'
+import BgCredit from '../components/BgCredit'
 import './LocationPage.css'
 import './OpeningPage.css'
 
@@ -23,6 +26,7 @@ export default function LocationPage() {
   const { foundItems, unlockedLocations, refetchState, resetGame } = useGame()
   const { lang, t } = useLanguage()
   const { locations: getLocations, items: getItems, suspects: getSuspects, locationBg } = useScenario()
+  const { appendHistory } = useCaseNotes()
 
   const locations   = getLocations(lang)
   const items       = getItems(lang)
@@ -81,6 +85,16 @@ export default function LocationPage() {
       setDiscoveries(newDiscoveries)
       setAllFound(true)
       setMode('found-list')
+      if (result.newly_found.length > 0) {
+        appendHistory({
+          type: 'examine_location',
+          locationId: id,
+          itemIds: result.newly_found.map(i => i.id),
+          summary: lang === 'ja'
+            ? `${location.name}を調べ、${result.newly_found.map(i => i.name).join('、')}を発見`
+            : `Examined ${location.name}, found ${result.newly_found.map(i => i.name).join(', ')}`,
+        })
+      }
       await refetchState()
     } catch {
       setMode('menu')
@@ -100,6 +114,14 @@ export default function LocationPage() {
       if (res.unlocked_location) {
         const locName = locations.find(l => l.id === res.unlocked_location)?.name ?? res.unlocked_location
         setUnlockNoticeName(locName)
+        appendHistory({
+          type: 'unlock_location',
+          locationId: res.unlocked_location,
+          itemIds: [item.itemId],
+          summary: lang === 'ja'
+            ? `${item.name}を調べ、${locName}が解放された`
+            : `Examining ${item.name} unlocked ${locName}`,
+        })
         await refetchState()
       }
     } catch {
@@ -146,9 +168,12 @@ export default function LocationPage() {
 
       {/* ヘッダー */}
       <div className="loc-header">
-        <button className="back-btn" onClick={handleOpenCaseFile}>
-          {lang === 'ja' ? '📋 事件概要' : '📋 Case File'}
-        </button>
+        <div className="loc-header-group">
+          <button className="back-btn" onClick={handleOpenCaseFile}>
+            {lang === 'ja' ? '📋 事件概要' : '📋 Case File'}
+          </button>
+          <NotebookLauncher className="loc-notebook-btn" />
+        </div>
         <button className="loc-menu-btn" onClick={() => setShowMenuConfirm(true)}>
           {lang === 'ja' ? 'メインメニューに戻る' : 'Return to Main Menu'}
         </button>
@@ -199,7 +224,7 @@ export default function LocationPage() {
         <div className="loc-panel loc-content-panel">
           <div className="loc-panel-header">
             <span className="loc-panel-title">{location.name} {t('loc.examine.title')}</span>
-            <button className="loc-panel-close" onClick={() => setMode('menu')}>✕</button>
+            <button className="icon-btn-close" onClick={() => setMode('menu')}>✕</button>
           </div>
           <div className="loc-discovery-log">
             <p className="loc-examine-prompt">
@@ -216,7 +241,7 @@ export default function LocationPage() {
             <span className="loc-panel-title">
               {lang === 'ja' ? '発見した手がかり' : 'CLUES FOUND'}
             </span>
-            <button className="loc-panel-close" onClick={() => setMode('menu')}>✕</button>
+            <button className="icon-btn-close" onClick={() => setMode('menu')}>✕</button>
           </div>
           <div className="loc-discovery-log">
             {discoveries.length === 0 && (
@@ -250,7 +275,7 @@ export default function LocationPage() {
               <span className="loc-item-card-eyebrow">
                 {lang === 'ja' ? '手がかり' : 'CLUE'}
               </span>
-              <button className="loc-panel-close" onClick={() => setMode('found-list')}>✕</button>
+              <button className="icon-btn-close" onClick={() => setMode('found-list')}>✕</button>
             </div>
 
             <div className="loc-item-card-body">
@@ -264,7 +289,8 @@ export default function LocationPage() {
               {!itemDetailLoading && itemSignificance && (
                 <p className="loc-item-detail-text loc-item-significance">{itemSignificance}</p>
               )}
-              <div className="loc-item-detail-badge">
+              <div className="evidence-added-badge">
+                <span className="evidence-added-badge-check">✓</span>
                 {lang === 'ja' ? '証拠カードに追加済み' : 'Added to evidence'}
               </div>
               {unlockNoticeName && (
@@ -283,7 +309,7 @@ export default function LocationPage() {
         <div className="loc-panel loc-content-panel">
           <div className="loc-panel-header">
             <span className="loc-panel-title">{t('loc.talk.title')}</span>
-            <button className="loc-panel-close" onClick={() => setMode('menu')}>✕</button>
+            <button className="icon-btn-close" onClick={() => setMode('menu')}>✕</button>
           </div>
           <div className="loc-talk-list">
             {allSuspects.map((suspect) => (
@@ -308,7 +334,7 @@ export default function LocationPage() {
               <span className="loc-panel-title">
                 {lang === 'ja' ? '— 移動先を選ぶ —' : '— Choose Destination —'}
               </span>
-              <button className="loc-panel-close" onClick={() => setMode('menu')}>✕</button>
+              <button className="icon-btn-close" onClick={() => setMode('menu')}>✕</button>
             </div>
             <div className="loc-move-list">
               {moveLocations.map((loc) => {
@@ -343,7 +369,7 @@ export default function LocationPage() {
               <span className="loc-panel-title">
                 {lang === 'ja' ? '— 事件概要 —' : '— CASE FILE —'}
               </span>
-              <button className="loc-panel-close" onClick={() => setShowCaseFile(false)}>✕</button>
+              <button className="icon-btn-close" onClick={() => setShowCaseFile(false)}>✕</button>
             </div>
             <div className="loc-casefile-body">
               {briefingLoading && (
@@ -396,6 +422,9 @@ export default function LocationPage() {
         onConfirm={handleConfirmReturn}
       />
 
+      {mode === 'menu' && !showCaseFile && (
+        <BgCredit locationId={location.id} className="loc-position" />
+      )}
     </div>
   )
 }

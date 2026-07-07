@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
 import { useGame } from '../contexts/GameContext'
+import { useCaseNotes } from '../contexts/CaseNotesContext'
 import { examineItem } from '../api/examine'
 import './ItemDetailPage.css'
 
@@ -12,6 +13,7 @@ export default function ItemDetailPage() {
   const { lang } = useLanguage()
   const { items: getItems, locations: getLocations } = useScenario()
   const { refetchState } = useGame()
+  const { appendHistory } = useCaseNotes()
   const items = getItems(lang)
   const locations = getLocations(lang)
 
@@ -28,6 +30,15 @@ export default function ItemDetailPage() {
         setDetail({ name: res.name, description: res.description, significance: res.significance })
         if (res.unlocked_location) {
           setNewLocId(res.unlocked_location)
+          const locName = locations.find(l => l.id === res.unlocked_location)?.name ?? res.unlocked_location
+          appendHistory({
+            type: 'unlock_location',
+            locationId: res.unlocked_location,
+            itemIds: [id],
+            summary: lang === 'ja'
+              ? `${res.name}を調べ、${locName}が解放された`
+              : `Examining ${res.name} unlocked ${locName}`,
+          })
           refetchState()
         }
       })
@@ -59,7 +70,10 @@ export default function ItemDetailPage() {
             {displaySig}
           </p>
         )}
-        <div className="item-detail-badge">{lang === 'ja' ? '証拠カードに追加済み' : 'Added to evidence'}</div>
+        <div className="evidence-added-badge">
+          <span className="evidence-added-badge-check">✓</span>
+          {lang === 'ja' ? '証拠カードに追加済み' : 'Added to evidence'}
+        </div>
 
         {newLocName && (
           <div className="item-unlock-notice">
