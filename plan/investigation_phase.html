@@ -328,17 +328,22 @@
         <li><code>response</code> / <code>used_edge_ids</code> / <code>asserted_triples</code>の型が正しいか</li>
         <li><strong>漏洩チェック</strong>: <code>used_edge_ids ∩ hidden_edge_ids</code>が空か</li>
         <li><strong>グラウンディングチェック</strong>: <code>used_edge_ids</code>が渡された<code>visible_edge_ids</code>の外を指していないか</li>
-        <li><strong>矛盾チェック</strong>: <code>CommitmentLedger.check_contradiction()</code>に委譲</li>
       </ul>
 
       <h3>CommitmentLedger（suspect_agents/commitment_ledger.py）</h3>
       <p>
-        容疑者IDごとにターン記録（質問・使用エッジ・主張トリプル・要約）を蓄積する。<code>check_contradiction()</code>は「同じ(主語, 関係)の組に対して、以前と異なる目的語を主張した」場合だけを矛盾とみなす、単純な文字列一致ベースの判定。台帳は<code>GameSession</code>に1つだけ存在し、全容疑者エージェントで共有される（容疑者ごとに別インスタンスではない）。
+        容疑者IDごとにターン記録（質問・使用エッジ・主張トリプル・要約）を蓄積する。台帳は<code>GameSession</code>に1つだけ存在し、全容疑者エージェントで共有される（容疑者ごとに別インスタンスではない）。<code>asserted_triples</code>に時刻情報がある場合は<code>"Object @ time"</code>の形でオブジェクト側に含めるよう、プロンプト側（<code>subgraph_to_prompt.py</code>）で指示している。
       </p>
+      <div class="rough">
+        <div class="label">留意点</div>
+        <p>
+          以前は<code>check_contradiction()</code>という「同じ(主語,関係)の組に対して、以前と異なる目的語を主張した場合を矛盾とみなす」文字列完全一致ベースの矛盾チェックが<code>validate_response()</code>から呼ばれていたが、削除した。<code>asserted_triples</code>はLLMの自己申告した自由文字列で、同じ事実でも言い回しが変わるだけ（時刻の有無を含む）で「別の目的語」と誤判定され、実際には矛盾していない言い直しを不要にリトライさせるリスクの方が大きいと判断したため。意味レベルでの矛盾検出は、無効化されている「セマンティックバリデータ」（<code>ENABLE_SEMANTIC_VALIDATOR</code>、次項）側の役割として残されている。
+        </p>
+      </div>
       <div class="decision">
         <div class="label">設計上の判断</div>
         <p>
-          矛盾検出をあえて浅く・構文的にしているのは、高速かつ100%決定的なハードゲートとして機能させるため。意味レベルの矛盾やほのめかしを拾う「セマンティックバリデータ」（<code>ENABLE_SEMANTIC_VALIDATOR</code>）も実装済みだが、現在は<code>False</code>で無効化されている。1ターンあたりのLLM呼び出し回数がほぼ3倍（質問翻訳＋本応答＋意味検証＋各リトライ）に増えるためと見られる。
+          意味レベルの矛盾やほのめかしを拾う「セマンティックバリデータ」は実装済みだが、現在は<code>ENABLE_SEMANTIC_VALIDATOR = False</code>で無効化されている。1ターンあたりのLLM呼び出し回数がほぼ3倍（質問翻訳＋本応答＋意味検証＋各リトライ）に増えるためと見られる。
         </p>
       </div>
     </section>

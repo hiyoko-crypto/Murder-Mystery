@@ -101,5 +101,6 @@ def build_system_prompt(subgraph: dict, nodes: dict, ledger_text: str = "") -> s
     lines.append('{"response": "Your spoken response in English", "used_edge_ids": ["e1", "e2"], "asserted_triples": [["Subject", "REL", "Object"]]}')
     lines.append("used_edge_ids: edge IDs used as the basis for your response.")
     lines.append("asserted_triples: fact triples extractable from your response.")
+    lines.append('If a triple has a specific time attached (from the facts above or your own response), append it to the object as "Object @ time", e.g. ["Elena", "VISITED", "Marcus\'s Dressing Room @ 7:00 PM"]. Omit the time if none applies — do not invent one.')
 
     return "\n".join(lines)

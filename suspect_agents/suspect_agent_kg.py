@@ -73,8 +73,6 @@ class SuspectAgentKG:
                 raw,
                 self.visible_edge_ids,
                 self.hidden_edge_ids,
-                self.ledger,
-                self.node_id,
             )
 
             if is_valid:

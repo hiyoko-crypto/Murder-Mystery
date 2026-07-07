@@ -1,12 +1,8 @@
 """
 Commitment Ledger — tracks what each suspect has claimed across turns.
 
-Used both as:
-  1. LLM input  : summarise past claims so the model stays consistent
-  2. Validator  : detect triple-level contradictions after each response
+Used as LLM input: summarise past claims so the model stays consistent.
 """
-
-from typing import Optional
 
 
 class CommitmentLedger:
@@ -50,38 +46,6 @@ class CommitmentLedger:
             edge_str = ", ".join(e["used_edge_ids"]) if e["used_edge_ids"] else "—"
             lines.append(f"Turn {e['turn']} (edges: {edge_str}): {e['response_summary']}")
         return "\n".join(lines)
-
-    # ------------------------------------------------------------------
-    # Validate — contradiction detection
-    # ------------------------------------------------------------------
-
-    def check_contradiction(
-        self, node_id: str, new_triples: list
-    ) -> tuple[bool, Optional[str]]:
-        """
-        Check whether new_triples contradict any previously committed triple.
-
-        A contradiction is detected when:
-          same subject + same relation + different object
-
-        Returns (is_contradiction, reason_string).
-        """
-        past_triples = []
-        for entry in self._ledger.get(node_id, []):
-            past_triples.extend(entry.get("asserted_triples", []))
-
-        for new_t in new_triples:
-            if len(new_t) < 3:
-                continue
-            subj, rel, obj = str(new_t[0]), str(new_t[1]), str(new_t[2])
-            for past_t in past_triples:
-                if len(past_t) < 3:
-                    continue
-                p_subj, p_rel, p_obj = str(past_t[0]), str(past_t[1]), str(past_t[2])
-                if p_subj == subj and p_rel == rel and p_obj != obj:
-                    return True, f"矛盾: ({subj}, {rel}, {p_obj}) vs ({subj}, {rel}, {obj})"
-
-        return False, None
 
     # ------------------------------------------------------------------
     # Serialisation (for save/load)
