@@ -201,7 +201,7 @@
       <div class="meta-row">
         <span>対象シナリオ: <b>the_final_act.json</b></span>
         <span>ノード: <b>77</b></span>
-        <span>エッジ: <b>150</b>（<code>rel</code>種別 96）</span>
+        <span>エッジ: <b>137</b>（<code>rel</code>種別 90）</span>
         <span>容疑者: <b>3</b>（Elena / Julian / Leo）</span>
       </div>
     </header>
@@ -226,7 +226,7 @@
         <li><code>main_kg.py</code> — 言語選択のみを行うCLIブートストラップ。ゲームロジックは一切持たず、<code>suspect_agents/run_game_kg.py</code>に丸ごと委譲する。</li>
         <li><code>suspect_agents/run_game_kg.py</code> — ファイル冒頭に「ゲームロジックは全て<code>game_session.py</code>にあり、ここは入出力だけを扱う」と明記されている通りの純粋なCLI I/O層。<code>session.get_briefing()</code> / <code>get_examine_options()</code> / <code>examine_location()</code> / <code>examine_item()</code> / <code>switch_suspect()</code> / <code>ask()</code> / <code>get_state()</code> / <code>indict()</code>——<code>GameSession</code>の公開APIだけを呼ぶ。</li>
         <li><code>api.py</code> — Reactフロントエンド向けFastAPIサーバー。起動時（<code>lifespan</code>）に<b>英語版・日本語版の<code>GameSession</code>を2つ</b>生成し、<code>_sessions: dict[str, GameSession]</code>に保持する。つまり英語プレイと日本語プレイは同じセッションの言語切替ではなく、完全に独立した2つのゲーム進行として並行している。</li>
-        <li><code>game_session.py</code> — 実体。<code>__init__</code>で<code>ScenarioLoader</code>・<code>CommitmentLedger</code>・<code>LocationTracker</code>・容疑者ノードごとの<code>SuspectAgentKG</code>を組み立て、CLIとHTTP両方から使われる公開APIをすべて持つ。</li>
+        <li><code>game_session.py</code> — 実体。<code>__init__</code>で<code>ScenarioLoader</code>・<code>LocationTracker</code>・容疑者ノードごとの<code>SuspectAgentKGVerbatim</code>を組み立て、CLIとHTTP両方から使われる公開APIをすべて持つ。</li>
       </ul>
 
       <h3>api.py のエンドポイント一覧</h3>
@@ -276,16 +276,23 @@
         プロパティはノードの種類によって異なる。人物なら<code>name</code> / <code>role</code> / <code>bio</code> / <code>tags</code> / <code>interrogation_style</code>（容疑者のみ<code>guilty: bool</code>）、アイテムなら<code>name</code> / <code>description</code> / <code>significance</code>、時間軸を持つノードは<code>time</code>または<code>start_time</code>/<code>end_time</code>を持つ。
       </p>
 
-      <h3>knowledge_graph.edges（150件）</h3>
-      <pre><code>{"id": "e14", "from": "n_elena", "to": "n_marcus", "rel": "STRUCK",
+      <h3>knowledge_graph.edges（137件）</h3>
+      <pre><code>{"id": "e12", "from": "n_elena", "to": "n_marcus", "rel": "STRUCK",
  "properties": {"known_by": ["n_elena"], "provenance": "self_knowledge",
                 "hidden_from_detective": true, "time": "9:05 PM"}}</code></pre>
       <ul>
-        <li><code>known_by</code>（150/150に存在）— <code>"all"</code>（全員が知る公開事実、43件）／容疑者ノードIDの配列（自己知識）／<code>[]</code>（誰も語れず、<code>examine</code>でしか判明しない事実、40件）。</li>
-        <li><code>hidden_from_detective: true</code>（18件）— 容疑者は知っているが、探偵には決して口にしてはならない事実。</li>
-        <li><code>provenance</code>（150/150）— <code>self_knowledge</code> / <code>direct_observation</code> / <code>public_report</code> / <code>public_hearsay</code> / <code>discoverable_evidence</code>。プロンプト内でエッジをグルーピングする際に使われる（§3）。</li>
-        <li><code>player_discovery</code>（44/150）— <code>{"method": "examine_location", "target": "..."}</code>のような形。詳細は§7参照。</li>
+        <li><code>known_by</code>（137/137に存在）— <code>"all"</code>（全員が知る公開事実、41件）／容疑者ノードIDの配列（自己知識）／<code>[]</code>（誰も語れず、<code>examine</code>でしか判明しない事実、40件）。</li>
+        <li><code>hidden_from_detective: true</code>（15件）— 容疑者は知っているが、探偵には決して口にしてはならない事実。</li>
+        <li><code>provenance</code>（137/137）— <code>self_knowledge</code> / <code>direct_observation</code> / <code>public_report</code> / <code>public_hearsay</code> / <code>discoverable_evidence</code>。プロンプト内でエッジをグルーピングする際に使われる（§3）。</li>
+        <li><code>player_discovery</code>（41/137）— <code>{"method": "examine_location", "target": "..."}</code>のような形。詳細は§7参照。</li>
       </ul>
+
+      <div class="decision">
+        <div class="label">設計上の判断（2026-07-08 整理）</div>
+        <p>
+          イベントノード導入時、同じ事実が「直接エッジ」（例: <code>Elena --[VISITED]--> Marcus's Dressing Room</code>）と「イベント分解」（<code>PARTICIPATED_IN</code> → <code>OCCURRED_AT</code> の連鎖）の両方で二重に表現されたまま残っていた。<code>location_tracker.py</code>の証言アンロックは後者（イベント分解）に依存しているため、削除できるのは前者の直接エッジ側だけ——という前提で、<code>proof_graph</code>・<code>key_evidence_edges</code>・<code>red_herring_edges</code>のいずれにも参照されていないことを1件ずつ確認したうえで、2回に分けて計12本の直接エッジを削除した（150→137エッジ）。判定ロジックが直接参照していた3本（旧<code>e24</code>・旧<code>e26</code>・旧<code>e27</code>）は、削除前に同じグループが既に参照していた同内容のイベント分解エッジに<code>proof_graph</code>側の参照を差し替えてから削除した。情報の欠落はなく（時刻・provenance・known_byはすべてイベント分解側に同じ値で存在）、容疑者プロンプトは約1割縮小した。削除のたびにエッジIDを<code>e1</code>〜<code>eN</code>で連番に振り直しているため、<strong>エッジIDは版によって変わりうる</strong>——外部から特定のIDを決め打ちで参照しない。
+        </p>
+      </div>
 
       <h3>examine_rules</h3>
       <p>
@@ -309,19 +316,19 @@
 
       <h3>プロンプト構築（modules/subgraph_to_prompt.py）</h3>
       <p>
-        <code>build_system_prompt(subgraph, nodes, ledger_text)</code>が、可視エッジを<code>provenance</code>で <strong>personal</strong>（自己知識・直接観察＝「自分の経験として語ってよい」）／<strong>public</strong>（公開報告・伝聞＝「自分の体験のように語ってはいけない」）／<strong>other</strong> にグルーピングし、隠蔽エッジは<code>[Facts you know but must NOT reveal]</code>ブロックとして別枠で渡す。末尾で自己申告グラフ（後述）と、厳格なJSON出力形式の指示を付ける。
+        <code>build_system_prompt(subgraph, nodes, ledger_text)</code>が、可視エッジを<code>provenance</code>で <strong>personal</strong>（自己知識・直接観察＝「自分の経験として語ってよい」）／<strong>public</strong>（公開報告・伝聞＝「自分の体験のように語ってはいけない」）／<strong>other</strong> にグルーピングし、隠蔽エッジは<code>[Facts you know but must NOT reveal]</code>ブロックとして別枠で渡す。末尾で自己申告グラフ（<code>ledger_text</code>、後述）と、厳格なJSON出力形式の指示を付ける。<code>ledger_text</code>が空文字列なら<code>[Your own prior statements...]</code>ブロック自体が丸ごと省略される——本番の<code>SuspectAgentKGVerbatim</code>は常にこれを空で呼び、代わりに§3後半の対話履歴で同じ役割を果たす。
       </p>
       <pre><code>{"response": "...", "used_edge_ids": ["e14", "e19"], "asserted_triples": [["Elena","WAS_IN","ElenaRoom @ 9:10 PM"]]}</code></pre>
       <p>
         <code>asserted_triples</code>の指示は「本文で明言した事実だけ」「時刻があればオブジェクト側に<code>@ time</code>で付与」「以前の自己申告と同じ事実を今回も述べた場合以外は繰り返さない」の3点を明示している。当初は単に「応答から抽出できる事実」とだけ指示していたが、実際には本文で言っていない背景知識まで大量に自己申告したり、内容が変わっても前ターンと同じトリプルをそのまま繰り返したりする挙動が見られたため、この3点を明文化した。
       </p>
 
-      <h3>応答生成と検証のリトライループ（suspect_agents/suspect_agent_kg.py）</h3>
+      <h3>応答生成と検証のリトライループ（suspect_agents/suspect_agent_kg_verbatim.py）</h3>
       <ol>
         <li>日本語モードなら、質問をまず英語に翻訳する（<code>translate_question_to_english</code>）。<strong>KG上の推論はUI言語に関わらず常に英語で行われる。</strong></li>
-        <li><code>CommitmentLedger.get_self_graph_text()</code>で自己申告グラフを組み立て、システムプロンプトに載せて<code>llm_messages()</code>を呼ぶ（<code>temperature=0.7</code>）。</li>
+        <li>システムプロンプト（<code>ledger_text=""</code>）＋<code>self.chat_history</code>（後述）＋今回の質問をひとつの<code>messages</code>配列にまとめ、<code>llm_messages()</code>を呼ぶ（<code>temperature=0.7</code>）。</li>
         <li><code>validator_kg.validate_response()</code>で検証。失敗したら<code>[Previous output was invalid: {error}...]</code>というヒントを追記して再送——最大<code>MAX_RETRIES = 3</code>回。</li>
-        <li>成功したら<code>used_edge_ids</code>を<code>last_used_edge_ids</code>として保持（§4の場所開放が参照）、台帳に記録、日本語モードなら応答を翻訳して返す。</li>
+        <li>成功したら<code>used_edge_ids</code>を<code>last_used_edge_ids</code>として保持（§4の場所開放が参照）、質問と応答のプレーンテキストを<code>chat_history</code>に追記、日本語モードなら応答を翻訳して返す。</li>
         <li>3回とも失敗した場合は安全な定型応答（"I need a moment to collect myself..."）にフォールバックする。</li>
       </ol>
 
@@ -332,28 +339,48 @@
         <li><strong>漏洩チェック</strong>: <code>used_edge_ids ∩ hidden_edge_ids</code>が空か</li>
         <li><strong>グラウンディングチェック</strong>: <code>used_edge_ids</code>が渡された<code>visible_edge_ids</code>の外を指していないか</li>
       </ul>
+      <div class="rough">
+        <div class="label">留意点</div>
+        <p>
+          <code>asserted_triples</code>は今もJSON出力スキーマの必須フィールドであり続けている（プロンプトの指示も§3冒頭の通り健在）が、下記の記憶方式の切り替え後は<strong>誰も読まない</strong>。生成させて検証だけしてその場で捨てている状態。プロンプト長を削る余地として残っている。
+        </p>
+      </div>
 
-      <h3>CommitmentLedger と自己申告グラフ（suspect_agents/commitment_ledger.py）</h3>
+      <h3>対話履歴による記憶（現在の実装）</h3>
       <p>
-        容疑者IDごとにターン記録（質問・使用エッジ・主張トリプル・要約）を蓄積する。台帳は<code>GameSession</code>に1つだけ存在し、全容疑者エージェントで共有される（容疑者ごとに別インスタンスではない）。
+        <code>SuspectAgentKGVerbatim.chat_history</code>は容疑者エージェントごとに持つプレーンな<code>[{"role": "user"/"assistant", "content": "..."}]</code>のリストで、質問・応答のたびに素の文字列（JSONの<code>response</code>だけを取り出したもの）が2件ずつ追記される。毎ターン、システムプロンプトの直後・今回の質問の直前に丸ごと挟んで再送する。
+      </p>
+      <pre><code>[system]    ← build_system_prompt(..., ledger_text="")
+[user]      "Detective: Where were you during the intermission?"
+[assistant] "I was in the Backstage Corridor..."      ← 実際の生の応答
+[user]      "Detective: What debts or contracts..."
+[assistant] "Marcus quietly took over my debt..."     ← 実際の生の応答
+[user]      "Detective: <今回の質問>"</code></pre>
+      <p>
+        <code>"user"</code> / <code>"assistant"</code>というロール自体には、プロンプト側で「userは探偵の発言」のような明示的な説明は一切与えていない。Ollamaのchat補完APIの標準的な慣習（assistant＝モデル自身の過去の出力、user＝相手の発言）にモデルの学習が依拠しているのと、各ユーザーターンの本文が毎回<code>"Detective: "</code>で始まっていることの2つで、暗黙に「userロール＝探偵」だと判別できている。
+      </p>
+      <div class="decision">
+        <div class="label">設計上の判断（2026-07-08）</div>
+        <p>
+          以前は下記のCommitmentLedgerによる構造化トリプル要約を自己申告記憶として渡していたが、比較実験で「幕間中の居場所」のような同一事実を2通りの言い回しで尋ねると、トリプル要約方式では稀に矛盾する回答（例: 一度は「舞台裏の廊下」、別ターンでは「自室」）が発生することを確認した。同じ質問セットをそのまま実際の生の発言履歴の再送に切り替えて再テストしたところ、直接的な言い換え（同じ質問をほぼそのまま繰り返す）に対する一貫性は明確に改善した。一方、時刻を変えた聞き方（「9:10PMはどこにいたか」）のような、より離れたフレーミングでは新しい矛盾が生じる余地が残ることも確認済み——完全解決ではなく改善という評価。この結果を受けて<code>game_session.py</code>の本番エージェントを<code>SuspectAgentKG</code>から<code>SuspectAgentKGVerbatim</code>に切り替えた。トレードオフとして、ターンを重ねるごとに素の会話文がそのままコンテキストに積み上がるため、トリプル要約（最大直近6ターン、圧縮済み）よりトークン消費が大きい。
+        </p>
+      </div>
+
+      <h3>CommitmentLedger と自己申告グラフ（保持のみ・本番未使用）</h3>
+      <p>
+        <code>suspect_agents/commitment_ledger.py</code> / <code>suspect_agents/suspect_agent_kg.py</code>は削除せずコードベースに残されている。将来トリプル方式を改善して採用し直す可能性があるための保持であり、現在<code>game_session.py</code>からは一切参照されない。
       </p>
       <p>
-        <code>get_self_graph_text(node_id, max_turns=6)</code>が、直近ターンの<code>asserted_triples</code>をターンごとにグルーピングし、本物のKGエッジと同じ見た目（<code>Subject --[REL]--> Object</code>）で書き出す。これがプロンプトの<code>[Your own prior statements this interrogation — maintain consistency]</code>ブロックとしてそのまま渡される。
+        容疑者IDごとにターン記録（質問・使用エッジ・主張トリプル）を蓄積する<code>CommitmentLedger</code>を、<code>GameSession</code>に1つだけ持たせ全容疑者エージェントで共有する設計だった。<code>get_self_graph_text(node_id, max_turns=6)</code>が直近ターンの<code>asserted_triples</code>をターンごとにグルーピングし、本物のKGエッジと同じ見た目（<code>Subject --[REL]--> Object</code>）で書き出し、<code>ledger_text</code>として<code>build_system_prompt()</code>に渡していた。
       </p>
       <pre><code>Turn 1:
   Elena Rostova --[WAS_IN]--> Elena's Dressing Room @ 9:10 PM
 Turn 2:
   Elena Rostova --[WAS_IN]--> Elena's Dressing Room @ 9:10 PM</code></pre>
-      <div class="decision">
-        <div class="label">設計上の判断</div>
-        <p>
-          以前は「Turn N（edges: e1,e2）: 応答冒頭100文字」という自由文のプローズ要約を<code>get_ledger_text()</code>が生成しており、<code>asserted_triples</code>自体は矛盾チェック専用の内部データで容疑者本人には一切見せていなかった。本物のサブグラフと同じ書式に揃えた構造化テキストに置き換えることで、荒い100文字要約より正確に「自分が何を言ったか」を思い出せるようにしている。本物のサブグラフ（<code>visible_edges</code>）とは完全に別の変数として扱っており、グラウンディングチェックの対象には含まれない。
-        </p>
-      </div>
       <div class="rough">
-        <div class="label">留意点</div>
+        <div class="label">留意点（当時の記録）</div>
         <p>
-          以前は<code>check_contradiction()</code>という「同じ(主語,関係)の組に対して、以前と異なる目的語を主張した場合を矛盾とみなす」文字列完全一致ベースの矛盾チェックが<code>validate_response()</code>から呼ばれていたが、削除した。<code>asserted_triples</code>はLLMの自己申告した自由文字列で、同じ事実でも言い回しが変わるだけ（時刻の有無を含む）で「別の目的語」と誤判定され、実際には矛盾していない言い直しを不要にリトライさせるリスクの方が大きいと判断したため。意味レベルでの矛盾検出は、無効化されている「セマンティックバリデータ」（<code>ENABLE_SEMANTIC_VALIDATOR</code>、次項）側の役割として残されている。
+          さらに以前は<code>check_contradiction()</code>という「同じ(主語,関係)の組に対して、以前と異なる目的語を主張した場合を矛盾とみなす」文字列完全一致ベースの矛盾チェックが<code>validate_response()</code>から呼ばれていたが、削除した。<code>asserted_triples</code>はLLMの自己申告した自由文字列で、同じ事実でも言い回しが変わるだけ（時刻の有無を含む）で「別の目的語」と誤判定され、実際には矛盾していない言い直しを不要にリトライさせるリスクの方が大きいと判断したため。
         </p>
       </div>
       <div class="decision">

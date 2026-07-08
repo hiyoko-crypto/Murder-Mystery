@@ -228,7 +228,7 @@
         プレイヤーが容疑者を指名し、理由を述べ、勝敗が決まるまでの現在の実装。<a href="investigation_phase.html">Phase 1（捜査）</a>で集めた情報がここでどう評価されるかをまとめる。
       </p>
       <div class="meta-row">
-        <span>判定対象エッジ: <b>20</b> / 全150エッジ中</span>
+        <span>判定対象エッジ: <b>20</b> / 全137エッジ中</span>
         <span>最低スコア: <b>5</b></span>
         <span>抽出リトライ: <b>最大3回</b></span>
       </div>
@@ -257,29 +257,29 @@
       <h2><span class="num">2</span>データ構造: solution / proof_graph</h2>
       <pre><code>"solution": {
   "killer_node": "n_elena",
-  "key_evidence_edges": ["e14", "e16", "e17", "e18", "e95", "e98", "e102"],
-  "red_herring_edges": ["e21", "e22", "e12"],
+  "key_evidence_edges": ["e12", "e13", "e82", "e85", "e89"],
+  "red_herring_edges": ["e15", "e11"],
   "proof_graph": {
     "minimum_score": 5,
     "groups": [
       {
         "id": "compact_link",
-        "edge_ids": ["e7", "e18", "e68"],
+        "edge_ids": ["e6", "e13", "e55"],
         "min_required": 2,
         "weight": 4,
         "required": true,
         "description": "The silver compact was found in the ventilation shaft and belongs to Elena."
       },
-      { "id": "vent_route", "edge_ids": ["e8","e9","e55"], "min_required": 2, "weight": 2, "required": false, ... },
-      { "id": "locked_room", "edge_ids": ["e6","e50","e54"], "min_required": 1, "weight": 1, "required": false, ... },
-      { "id": "julian_presence_clears", "edge_ids": ["e24","e129","e133","e134","e138"], "min_required": 1, "weight": 1, "required": false, ... },
-      { "id": "leo_cleared", "edge_ids": ["e141","e144","e148","e152","e26","e27"], "min_required": 1, "weight": 1, "required": false, ... }
+      { "id": "vent_route", "edge_ids": ["e7","e8","e42"], "min_required": 2, "weight": 2, "required": false, ... },
+      { "id": "locked_room", "edge_ids": ["e5","e37","e41"], "min_required": 1, "weight": 1, "required": false, ... },
+      { "id": "julian_presence_clears", "edge_ids": ["e112","e111","e115","e116","e120"], "min_required": 1, "weight": 1, "required": false, ... },
+      { "id": "leo_cleared", "edge_ids": ["e124","e134","e123","e126","e130"], "min_required": 1, "weight": 1, "required": false, ... }
     ]
   },
   "explanation": "Elena entered Marcus's locked dressing room via the ventilation shaft..."
 }</code></pre>
       <p>
-        5つのグループが合わせて参照する実エッジ数は<strong>20</strong>（150エッジ中13%）。各グループは「これだけの種類の証拠のうちN個以上に触れていればこのグループは通過」というAND/OR混在の採点単位で、<code>weight</code>を持ち、<code>required: true</code>のグループが1つでも未達なら他がどれだけ高得点でも不合格になる。
+        5つのグループが合わせて参照する実エッジ数は<strong>20</strong>（137エッジ中約15%）。各グループは「これだけの種類の証拠のうちN個以上に触れていればこのグループは通過」というAND/OR混在の採点単位で、<code>weight</code>を持ち、<code>required: true</code>のグループが1つでも未達なら他がどれだけ高得点でも不合格になる。<strong>エッジIDはシナリオ整理のたびに振り直されるため、ここに載せた具体的なID自体を将来のリファレンスとして当てにしないこと</strong>——構造（グループ構成・weight・min_required）が本質。
       </p>
       <div class="table-wrap">
       <table>
@@ -296,7 +296,7 @@
 
       <h3>_proof_graph_subgraph(groups, nodes, edges)</h3>
       <p>
-        <code>proof_graph.groups[].edge_ids</code>の和集合（20エッジ）と、その両端のノードだけを取り出す。理由文抽出（§4）にはこの絞り込んだサブグラフだけが渡され、シナリオ全体（150エッジ・77ノード）は渡さない。
+        <code>proof_graph.groups[].edge_ids</code>の和集合（20エッジ）と、その両端のノードだけを取り出す。理由文抽出（§4）にはこの絞り込んだサブグラフだけが渡され、シナリオ全体（137エッジ・77ノード）は渡さない。
       </p>
 
       <h3>evaluate_indictment(accused_node_id, reason_text, loader)</h3>

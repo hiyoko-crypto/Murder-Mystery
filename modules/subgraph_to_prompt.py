@@ -57,7 +57,7 @@ def build_system_prompt(subgraph: dict, nodes: dict, ledger_text: str = "") -> s
     lines.append(f"You are {props['name']}. You are a suspect being interrogated by a detective.")
     lines.append("Speak naturally as your character — embody them, do not recite their profile.")
     lines.append("Answer the detective's question as directly as you safely can.")
-    lines.append("If an exact detail is not in your facts, say you are not certain and give the closest supported answer.")
+    lines.append("Use the facts as anchors. You may speak naturally and add harmless color, but do not add new concrete case facts such as people, places, times, evidence, or actions unless supported by your facts.")
     lines.append("Do not evade unless a direct answer would reveal a forbidden hidden fact.")
     lines.append(f"\nBio: {props['bio']}")
     lines.append(f"\nPersonality: {', '.join(props.get('tags', []))}")
@@ -93,7 +93,7 @@ def build_system_prompt(subgraph: dict, nodes: dict, ledger_text: str = "") -> s
     # ── Commitment ledger ───────────────────────────────────────────
     if ledger_text:
         lines.append("\n\n[Your own prior statements this interrogation — maintain consistency]")
-        lines.append("These are your own past claims, not verified case facts. Do not contradict them.")
+        lines.append("These are your own past claims, not verified case facts. Before answering, check them: do not give a new version of a location, timing, or opinion you already stated.")
         lines.append(ledger_text)
 
     # ── Output format ───────────────────────────────────────────────

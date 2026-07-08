@@ -851,16 +851,6 @@
       },
       {
         "id": "e3",
-        "from": "n_candlestick",
-        "rel": "KILLED",
-        "to": "n_marcus",
-        "properties": {
-          "known_by": "all",
-          "provenance": "public_report"
-        }
-      },
-      {
-        "id": "e4",
         "from": "n_torn_letter",
         "rel": "FOUND_IN",
         "to": "n_dressing_room",
@@ -874,7 +864,7 @@
         }
       },
       {
-        "id": "e5",
+        "id": "e4",
         "from": "n_vent_grate",
         "rel": "FOUND_IN",
         "to": "n_dressing_room",
@@ -888,7 +878,7 @@
         }
       },
       {
-        "id": "e6",
+        "id": "e5",
         "from": "n_locked_door",
         "rel": "FOUND_IN",
         "to": "n_dressing_room",
@@ -902,7 +892,7 @@
         }
       },
       {
-        "id": "e7",
+        "id": "e6",
         "from": "n_silver_compact",
         "rel": "FOUND_IN",
         "to": "n_vent_shaft",
@@ -916,7 +906,7 @@
         }
       },
       {
-        "id": "e8",
+        "id": "e7",
         "from": "n_vent_shaft",
         "rel": "CONNECTS_TO",
         "to": "n_dressing_room",
@@ -930,7 +920,7 @@
         }
       },
       {
-        "id": "e9",
+        "id": "e8",
         "from": "n_vent_shaft",
         "rel": "CONNECTS_TO",
         "to": "n_elena_room",
@@ -944,7 +934,7 @@
         }
       },
       {
-        "id": "e10",
+        "id": "e9",
         "from": "n_elena",
         "rel": "HAS_MOTIVE",
         "to": "n_marcus",
@@ -954,7 +944,7 @@
         }
       },
       {
-        "id": "e11",
+        "id": "e10",
         "from": "n_julian",
         "rel": "HAS_MOTIVE",
         "to": "n_marcus",
@@ -964,7 +954,7 @@
         }
       },
       {
-        "id": "e12",
+        "id": "e11",
         "from": "n_leo",
         "rel": "HAS_MOTIVE",
         "to": "n_marcus",
@@ -974,21 +964,7 @@
         }
       },
       {
-        "id": "e13",
-        "from": "n_elena",
-        "rel": "VISITED",
-        "to": "n_dressing_room",
-        "properties": {
-          "time": "7:00 PM",
-          "known_by": [
-            "n_elena",
-            "n_julian"
-          ],
-          "provenance": "direct_observation"
-        }
-      },
-      {
-        "id": "e14",
+        "id": "e12",
         "from": "n_elena",
         "rel": "STRUCK",
         "to": "n_marcus",
@@ -1002,46 +978,7 @@
         }
       },
       {
-        "id": "e15",
-        "from": "n_elena",
-        "rel": "PERFORMED_ON",
-        "to": "n_stage",
-        "properties": {
-          "time": "7:15 PM - 9:00 PM",
-          "known_by": "all",
-          "provenance": "public_report"
-        }
-      },
-      {
-        "id": "e16",
-        "from": "n_elena",
-        "rel": "CRAWLED_THROUGH",
-        "to": "n_vent_shaft",
-        "properties": {
-          "time": "9:00 PM",
-          "hidden_from_detective": true,
-          "known_by": [
-            "n_elena"
-          ],
-          "provenance": "self_knowledge"
-        }
-      },
-      {
-        "id": "e17",
-        "from": "n_elena",
-        "rel": "DROPPED",
-        "to": "n_silver_compact",
-        "properties": {
-          "time": "9:08 PM",
-          "hidden_from_detective": true,
-          "known_by": [
-            "n_elena"
-          ],
-          "provenance": "self_knowledge"
-        }
-      },
-      {
-        "id": "e18",
+        "id": "e13",
         "from": "n_elena",
         "rel": "OWNS",
         "to": "n_silver_compact",
@@ -1057,7 +994,7 @@
         }
       },
       {
-        "id": "e19",
+        "id": "e14",
         "from": "n_elena",
         "rel": "WAS_IN",
         "to": "n_elena_room",
@@ -1070,34 +1007,7 @@
         }
       },
       {
-        "id": "e20",
-        "from": "n_julian",
-        "rel": "VISITED",
-        "to": "n_dressing_room",
-        "properties": {
-          "time": "6:45 PM",
-          "known_by": [
-            "n_julian",
-            "n_elena"
-          ],
-          "provenance": "direct_observation"
-        }
-      },
-      {
-        "id": "e21",
-        "from": "n_julian",
-        "rel": "WROTE",
-        "to": "n_torn_letter",
-        "properties": {
-          "time": "7:00 PM",
-          "known_by": [
-            "n_julian"
-          ],
-          "provenance": "self_knowledge"
-        }
-      },
-      {
-        "id": "e22",
+        "id": "e15",
         "from": "n_torn_letter",
         "rel": "WRITTEN_BY",
         "to": "n_julian",
@@ -1111,38 +1021,7 @@
         }
       },
       {
-        "id": "e23",
-        "from": "n_julian",
-        "rel": "SAW",
-        "to": "n_elena",
-        "properties": {
-          "time": "7:05 PM",
-          "known_by": [
-            "n_julian",
-            "n_elena"
-          ],
-          "provenance": "direct_observation"
-        }
-      },
-      {
-        "id": "e24",
-        "from": "n_julian",
-        "rel": "WAS_IN",
-        "to": "n_lobby",
-        "properties": {
-          "time": "9:00 PM - 9:30 PM",
-          "known_by": [
-            "n_julian"
-          ],
-          "provenance": "self_knowledge",
-          "player_discovery": {
-            "method": "examine_location",
-            "target": "n_lobby"
-          }
-        }
-      },
-      {
-        "id": "e25",
+        "id": "e16",
         "from": "n_leo",
         "rel": "FIRED_BY",
         "to": "n_marcus",
@@ -1155,68 +1034,7 @@
         }
       },
       {
-        "id": "e26",
-        "from": "n_leo",
-        "rel": "WAS_IN",
-        "to": "n_bar",
-        "properties": {
-          "time": "8:00 PM - 10:00 PM",
-          "known_by": [
-            "n_leo"
-          ],
-          "provenance": "self_knowledge",
-          "player_discovery": {
-            "method": "examine_location",
-            "target": "n_bar"
-          }
-        }
-      },
-      {
-        "id": "e27",
-        "from": "n_leo",
-        "rel": "CANNOT_ACCESS",
-        "to": "n_dressing_room",
-        "properties": {
-          "time": "8:00 PM",
-          "known_by": [
-            "n_leo"
-          ],
-          "provenance": "self_knowledge",
-          "player_discovery": {
-            "method": "examine_location",
-            "target": "n_bar"
-          }
-        }
-      },
-      {
-        "id": "e28",
-        "from": "n_elena",
-        "rel": "RETURNED_THROUGH",
-        "to": "n_vent_shaft",
-        "properties": {
-          "time": "9:08 PM",
-          "hidden_from_detective": true,
-          "known_by": [
-            "n_elena"
-          ],
-          "provenance": "self_knowledge"
-        }
-      },
-      {
-        "id": "e29",
-        "from": "n_julian",
-        "rel": "WAS_IN",
-        "to": "n_stalls",
-        "properties": {
-          "time": "7:30 PM - 9:00 PM",
-          "known_by": [
-            "n_julian"
-          ],
-          "provenance": "self_knowledge"
-        }
-      },
-      {
-        "id": "e30",
+        "id": "e17",
         "from": "n_meridian_theatre",
         "rel": "HOSTED",
         "to": "n_opening_night",
@@ -1226,7 +1044,7 @@
         }
       },
       {
-        "id": "e31",
+        "id": "e18",
         "from": "n_opening_night",
         "rel": "FEATURED_PLAY",
         "to": "n_shadows_of_guilt",
@@ -1236,7 +1054,7 @@
         }
       },
       {
-        "id": "e32",
+        "id": "e19",
         "from": "n_stage",
         "rel": "PART_OF",
         "to": "n_meridian_theatre",
@@ -1246,7 +1064,7 @@
         }
       },
       {
-        "id": "e33",
+        "id": "e20",
         "from": "n_lobby",
         "rel": "PART_OF",
         "to": "n_meridian_theatre",
@@ -1256,7 +1074,7 @@
         }
       },
       {
-        "id": "e34",
+        "id": "e21",
         "from": "n_bar",
         "rel": "PART_OF",
         "to": "n_meridian_theatre",
@@ -1266,7 +1084,7 @@
         }
       },
       {
-        "id": "e35",
+        "id": "e22",
         "from": "n_backstage",
         "rel": "PART_OF",
         "to": "n_meridian_theatre",
@@ -1276,7 +1094,7 @@
         }
       },
       {
-        "id": "e36",
+        "id": "e23",
         "from": "n_dressing_room",
         "rel": "PART_OF",
         "to": "n_backstage",
@@ -1286,7 +1104,7 @@
         }
       },
       {
-        "id": "e37",
+        "id": "e24",
         "from": "n_elena_room",
         "rel": "PART_OF",
         "to": "n_backstage",
@@ -1296,7 +1114,7 @@
         }
       },
       {
-        "id": "e38",
+        "id": "e25",
         "from": "n_corridor",
         "rel": "CONNECTS_AREA",
         "to": "n_backstage",
@@ -1306,7 +1124,7 @@
         }
       },
       {
-        "id": "e39",
+        "id": "e26",
         "from": "n_marcus",
         "rel": "VICTIM_OF",
         "to": "ev_murder",
@@ -1316,7 +1134,7 @@
         }
       },
       {
-        "id": "e40",
+        "id": "e27",
         "from": "ev_murder",
         "rel": "OCCURRED_AT",
         "to": "n_dressing_room",
@@ -1326,7 +1144,7 @@
         }
       },
       {
-        "id": "e41",
+        "id": "e28",
         "from": "ev_murder",
         "rel": "USED_WEAPON",
         "to": "n_candlestick",
@@ -1336,7 +1154,7 @@
         }
       },
       {
-        "id": "e42",
+        "id": "e29",
         "from": "ev_murder",
         "rel": "OCCURRED_DURING",
         "to": "n_intermission",
@@ -1346,7 +1164,7 @@
         }
       },
       {
-        "id": "e43",
+        "id": "e30",
         "from": "ev_body_discovery",
         "rel": "DISCOVERED",
         "to": "n_body",
@@ -1356,7 +1174,7 @@
         }
       },
       {
-        "id": "e44",
+        "id": "e31",
         "from": "ev_body_discovery",
         "rel": "OCCURRED_AT",
         "to": "n_dressing_room",
@@ -1366,7 +1184,7 @@
         }
       },
       {
-        "id": "e45",
+        "id": "e32",
         "from": "ev_body_discovery",
         "rel": "AFTER",
         "to": "ev_murder",
@@ -1376,7 +1194,7 @@
         }
       },
       {
-        "id": "e46",
+        "id": "e33",
         "from": "n_body",
         "rel": "IDENTIFIED_AS",
         "to": "n_marcus",
@@ -1386,7 +1204,7 @@
         }
       },
       {
-        "id": "e47",
+        "id": "e34",
         "from": "n_candlestick",
         "rel": "ORIGINATED_FROM",
         "to": "n_desk",
@@ -1396,7 +1214,7 @@
         }
       },
       {
-        "id": "e48",
+        "id": "e35",
         "from": "n_candlestick",
         "rel": "HAS_PART",
         "to": "n_bloodied_end",
@@ -1406,7 +1224,7 @@
         }
       },
       {
-        "id": "e49",
+        "id": "e36",
         "from": "n_bloodied_end",
         "rel": "FACED",
         "to": "n_desk",
@@ -1416,7 +1234,7 @@
         }
       },
       {
-        "id": "e50",
+        "id": "e37",
         "from": "n_locked_door",
         "rel": "LOCKED_FROM",
         "to": "n_dressing_room",
@@ -1430,7 +1248,7 @@
         }
       },
       {
-        "id": "e51",
+        "id": "e38",
         "from": "n_deadbolt",
         "rel": "LOCKED",
         "to": "n_locked_door",
@@ -1444,7 +1262,7 @@
         }
       },
       {
-        "id": "e52",
+        "id": "e39",
         "from": "n_key",
         "rel": "FOUND_IN",
         "to": "n_jacket_pocket",
@@ -1458,7 +1276,7 @@
         }
       },
       {
-        "id": "e53",
+        "id": "e40",
         "from": "n_jacket_pocket",
         "rel": "BELONGED_TO",
         "to": "n_marcus",
@@ -1472,7 +1290,7 @@
         }
       },
       {
-        "id": "e54",
+        "id": "e41",
         "from": "n_locked_door",
         "rel": "HAD_NO_SIGN_OF",
         "to": "n_forced_entry",
@@ -1486,7 +1304,7 @@
         }
       },
       {
-        "id": "e55",
+        "id": "e42",
         "from": "n_vent_shaft",
         "rel": "ONLY_POSSIBLE_ENTRY_TO",
         "to": "n_dressing_room",
@@ -1500,7 +1318,7 @@
         }
       },
       {
-        "id": "e56",
+        "id": "e43",
         "from": "n_vent_grate",
         "rel": "COVERED",
         "to": "n_vent_entrance_marcus",
@@ -1514,7 +1332,7 @@
         }
       },
       {
-        "id": "e57",
+        "id": "e44",
         "from": "n_vent_entrance_marcus",
         "rel": "OPENED_INTO",
         "to": "n_dressing_room",
@@ -1528,7 +1346,7 @@
         }
       },
       {
-        "id": "e58",
+        "id": "e45",
         "from": "n_vent_entrance_elena",
         "rel": "OPENED_INTO",
         "to": "n_elena_room",
@@ -1542,7 +1360,7 @@
         }
       },
       {
-        "id": "e59",
+        "id": "e46",
         "from": "n_vent_shaft",
         "rel": "RAN_BEHIND",
         "to": "n_backstage",
@@ -1556,7 +1374,7 @@
         }
       },
       {
-        "id": "e60",
+        "id": "e47",
         "from": "n_vent_grate",
         "rel": "FOUND_UNSCREWED_IN",
         "to": "n_dressing_room",
@@ -1570,7 +1388,7 @@
         }
       },
       {
-        "id": "e61",
+        "id": "e48",
         "from": "n_vent_grate",
         "rel": "LEANED_AGAINST",
         "to": "n_wall",
@@ -1584,7 +1402,7 @@
         }
       },
       {
-        "id": "e62",
+        "id": "e49",
         "from": "n_vent_grate",
         "rel": "HAD_MARKS",
         "to": "n_screwdriver_marks",
@@ -1598,7 +1416,7 @@
         }
       },
       {
-        "id": "e63",
+        "id": "e50",
         "from": "n_screwdriver_marks",
         "rel": "HAD_AGE",
         "to": "n_age_old",
@@ -1612,7 +1430,7 @@
         }
       },
       {
-        "id": "e64",
+        "id": "e51",
         "from": "ev_vent_grate_tampering",
         "rel": "AFFECTED",
         "to": "n_vent_grate",
@@ -1626,7 +1444,7 @@
         }
       },
       {
-        "id": "e65",
+        "id": "e52",
         "from": "ev_vent_grate_tampering",
         "rel": "OCCURRED_BEFORE",
         "to": "ev_murder",
@@ -1640,7 +1458,7 @@
         }
       },
       {
-        "id": "e66",
+        "id": "e53",
         "from": "n_vent_shaft",
         "rel": "HAD_TRACE",
         "to": "n_dust_trail",
@@ -1654,7 +1472,7 @@
         }
       },
       {
-        "id": "e67",
+        "id": "e54",
         "from": "n_dust_trail",
         "rel": "SUGGESTS_ACTION",
         "to": "n_recent_crawl_action",
@@ -1668,7 +1486,7 @@
         }
       },
       {
-        "id": "e68",
+        "id": "e55",
         "from": "n_silver_compact",
         "rel": "ENGRAVED_WITH",
         "to": "n_initials_er",
@@ -1682,7 +1500,7 @@
         }
       },
       {
-        "id": "e69",
+        "id": "e56",
         "from": "n_silver_compact",
         "rel": "FOUND_BETWEEN",
         "to": "n_elena_room",
@@ -1696,7 +1514,7 @@
         }
       },
       {
-        "id": "e70",
+        "id": "e57",
         "from": "n_silver_compact",
         "rel": "FOUND_BETWEEN",
         "to": "n_dressing_room",
@@ -1710,7 +1528,7 @@
         }
       },
       {
-        "id": "e71",
+        "id": "e58",
         "from": "n_marcus",
         "rel": "CONTROLLED",
         "to": "n_debt_contracts",
@@ -1720,7 +1538,7 @@
         }
       },
       {
-        "id": "e72",
+        "id": "e59",
         "from": "n_debt_contracts",
         "rel": "BOUND",
         "to": "n_elena",
@@ -1730,7 +1548,7 @@
         }
       },
       {
-        "id": "e73",
+        "id": "e60",
         "from": "n_marcus",
         "rel": "CONTROLLED_CAREER_OF",
         "to": "n_elena",
@@ -1740,7 +1558,7 @@
         }
       },
       {
-        "id": "e74",
+        "id": "e61",
         "from": "n_julian",
         "rel": "HELD",
         "to": "n_fake_credentials",
@@ -1750,7 +1568,7 @@
         }
       },
       {
-        "id": "e75",
+        "id": "e62",
         "from": "n_fake_credentials",
         "rel": "RELATED_TO",
         "to": "n_fraudulent_licence",
@@ -1760,7 +1578,7 @@
         }
       },
       {
-        "id": "e76",
+        "id": "e63",
         "from": "n_marcus",
         "rel": "BLACKMAILED",
         "to": "n_julian",
@@ -1770,7 +1588,7 @@
         }
       },
       {
-        "id": "e77",
+        "id": "e64",
         "from": "n_blackmail",
         "rel": "TARGETED",
         "to": "n_julian",
@@ -1780,7 +1598,7 @@
         }
       },
       {
-        "id": "e78",
+        "id": "e65",
         "from": "n_blackmail",
         "rel": "DEMANDED",
         "to": "n_cash_payments",
@@ -1790,7 +1608,7 @@
         }
       },
       {
-        "id": "e79",
+        "id": "e66",
         "from": "n_marcus",
         "rel": "FIRED",
         "to": "n_leo",
@@ -1801,7 +1619,7 @@
         }
       },
       {
-        "id": "e80",
+        "id": "e67",
         "from": "ev_leo_firing",
         "rel": "OCCURRED_DUE_TO",
         "to": "n_prop_placement_error",
@@ -1813,7 +1631,7 @@
         }
       },
       {
-        "id": "e81",
+        "id": "e68",
         "from": "ev_leo_firing",
         "rel": "WITNESSED_BY",
         "to": "n_theatre_crew",
@@ -1825,7 +1643,7 @@
         }
       },
       {
-        "id": "e82",
+        "id": "e69",
         "from": "ev_leo_firing",
         "rel": "CAUSED",
         "to": "n_wrongful_termination",
@@ -1835,7 +1653,7 @@
         }
       },
       {
-        "id": "e83",
+        "id": "e70",
         "from": "n_elena",
         "rel": "PARTICIPATED_IN",
         "to": "ev_elena_stage_performance",
@@ -1845,7 +1663,7 @@
         }
       },
       {
-        "id": "e84",
+        "id": "e71",
         "from": "ev_elena_stage_performance",
         "rel": "OCCURRED_AT",
         "to": "n_stage",
@@ -1855,7 +1673,7 @@
         }
       },
       {
-        "id": "e85",
+        "id": "e72",
         "from": "ev_elena_stage_performance",
         "rel": "DURING",
         "to": "n_act1",
@@ -1865,7 +1683,7 @@
         }
       },
       {
-        "id": "e86",
+        "id": "e73",
         "from": "n_audience_members",
         "rel": "SAW",
         "to": "n_elena",
@@ -1876,7 +1694,7 @@
         }
       },
       {
-        "id": "e87",
+        "id": "e74",
         "from": "n_elena",
         "rel": "PARTICIPATED_IN",
         "to": "ev_elena_visit_marcus",
@@ -1890,7 +1708,7 @@
         }
       },
       {
-        "id": "e88",
+        "id": "e75",
         "from": "ev_elena_visit_marcus",
         "rel": "OCCURRED_AT",
         "to": "n_dressing_room",
@@ -1903,7 +1721,7 @@
         }
       },
       {
-        "id": "e89",
+        "id": "e76",
         "from": "ev_elena_visit_marcus",
         "rel": "CLAIMED_TOPIC",
         "to": "n_blocking_notes",
@@ -1916,7 +1734,7 @@
         }
       },
       {
-        "id": "e90",
+        "id": "e77",
         "from": "n_julian",
         "rel": "SAW_EVENT",
         "to": "ev_elena_visit_marcus",
@@ -1929,7 +1747,7 @@
         }
       },
       {
-        "id": "e91",
+        "id": "e78",
         "from": "n_elena",
         "rel": "PARTICIPATED_IN",
         "to": "ev_elena_vent_entry",
@@ -1943,7 +1761,7 @@
         }
       },
       {
-        "id": "e92",
+        "id": "e79",
         "from": "ev_elena_vent_entry",
         "rel": "USED",
         "to": "n_intermission_blackout",
@@ -1956,7 +1774,7 @@
         }
       },
       {
-        "id": "e93",
+        "id": "e80",
         "from": "ev_elena_vent_entry",
         "rel": "STARTED_AT",
         "to": "n_elena_room",
@@ -1969,7 +1787,7 @@
         }
       },
       {
-        "id": "e94",
+        "id": "e81",
         "from": "ev_elena_vent_entry",
         "rel": "ENTERED",
         "to": "n_vent_shaft",
@@ -1982,7 +1800,7 @@
         }
       },
       {
-        "id": "e95",
+        "id": "e82",
         "from": "n_elena",
         "rel": "PERPETRATED",
         "to": "ev_murder",
@@ -1996,7 +1814,7 @@
         }
       },
       {
-        "id": "e96",
+        "id": "e83",
         "from": "ev_murder",
         "rel": "AFTER",
         "to": "ev_elena_vent_entry",
@@ -2009,7 +1827,7 @@
         }
       },
       {
-        "id": "e97",
+        "id": "e84",
         "from": "n_elena",
         "rel": "PARTICIPATED_IN",
         "to": "ev_elena_vent_return",
@@ -2023,7 +1841,7 @@
         }
       },
       {
-        "id": "e98",
+        "id": "e85",
         "from": "ev_elena_vent_return",
         "rel": "RETURNED_THROUGH",
         "to": "n_vent_shaft",
@@ -2036,7 +1854,7 @@
         }
       },
       {
-        "id": "e99",
+        "id": "e86",
         "from": "ev_elena_vent_return",
         "rel": "ENDED_AT",
         "to": "n_elena_room",
@@ -2049,7 +1867,7 @@
         }
       },
       {
-        "id": "e100",
+        "id": "e87",
         "from": "ev_elena_vent_return",
         "rel": "AFTER",
         "to": "ev_murder",
@@ -2062,7 +1880,7 @@
         }
       },
       {
-        "id": "e101",
+        "id": "e88",
         "from": "n_elena",
         "rel": "PARTICIPATED_IN",
         "to": "ev_elena_compact_drop",
@@ -2076,7 +1894,7 @@
         }
       },
       {
-        "id": "e102",
+        "id": "e89",
         "from": "ev_elena_compact_drop",
         "rel": "DROPPED",
         "to": "n_silver_compact",
@@ -2089,7 +1907,7 @@
         }
       },
       {
-        "id": "e103",
+        "id": "e90",
         "from": "ev_elena_compact_drop",
         "rel": "OCCURRED_IN",
         "to": "n_vent_shaft",
@@ -2102,7 +1920,7 @@
         }
       },
       {
-        "id": "e104",
+        "id": "e91",
         "from": "ev_elena_compact_drop",
         "rel": "WAS_ACCIDENTAL",
         "to": "n_truth_value_true",
@@ -2115,7 +1933,7 @@
         }
       },
       {
-        "id": "e110",
+        "id": "e92",
         "from": "n_julian",
         "rel": "PARTICIPATED_IN",
         "to": "ev_julian_visit_marcus",
@@ -2129,7 +1947,7 @@
         }
       },
       {
-        "id": "e111",
+        "id": "e93",
         "from": "ev_julian_visit_marcus",
         "rel": "OCCURRED_AT",
         "to": "n_dressing_room",
@@ -2142,7 +1960,7 @@
         }
       },
       {
-        "id": "e112",
+        "id": "e94",
         "from": "ev_julian_visit_marcus",
         "rel": "CONFRONTED",
         "to": "n_marcus",
@@ -2155,7 +1973,7 @@
         }
       },
       {
-        "id": "e113",
+        "id": "e95",
         "from": "ev_julian_visit_marcus",
         "rel": "ABOUT",
         "to": "n_blackmail",
@@ -2168,7 +1986,7 @@
         }
       },
       {
-        "id": "e114",
+        "id": "e96",
         "from": "n_julian",
         "rel": "PARTICIPATED_IN",
         "to": "ev_julian_letter",
@@ -2181,7 +1999,7 @@
         }
       },
       {
-        "id": "e115",
+        "id": "e97",
         "from": "ev_julian_letter",
         "rel": "PRODUCED",
         "to": "n_torn_letter",
@@ -2193,7 +2011,7 @@
         }
       },
       {
-        "id": "e116",
+        "id": "e98",
         "from": "ev_julian_letter",
         "rel": "THREATENED_TO_EXPOSE",
         "to": "n_blackmail",
@@ -2205,7 +2023,7 @@
         }
       },
       {
-        "id": "e117",
+        "id": "e99",
         "from": "ev_julian_letter",
         "rel": "REFERENCED",
         "to": "n_fraudulent_licence",
@@ -2217,7 +2035,7 @@
         }
       },
       {
-        "id": "e118",
+        "id": "e100",
         "from": "n_torn_letter",
         "rel": "SIGNED_WITH_INITIALS",
         "to": "n_initials_jw",
@@ -2231,7 +2049,7 @@
         }
       },
       {
-        "id": "e119",
+        "id": "e101",
         "from": "n_torn_letter",
         "rel": "FOUND_IN",
         "to": "n_bin",
@@ -2245,7 +2063,7 @@
         }
       },
       {
-        "id": "e120",
+        "id": "e102",
         "from": "n_bin",
         "rel": "LOCATED_IN",
         "to": "n_dressing_room",
@@ -2259,7 +2077,7 @@
         }
       },
       {
-        "id": "e121",
+        "id": "e103",
         "from": "n_torn_letter",
         "rel": "REFERENCED",
         "to": "n_fraudulent_licence",
@@ -2273,7 +2091,7 @@
         }
       },
       {
-        "id": "e122",
+        "id": "e104",
         "from": "n_julian",
         "rel": "PARTICIPATED_IN",
         "to": "ev_julian_saw_elena",
@@ -2287,7 +2105,7 @@
         }
       },
       {
-        "id": "e123",
+        "id": "e105",
         "from": "ev_julian_saw_elena",
         "rel": "OBSERVED",
         "to": "n_elena",
@@ -2300,7 +2118,7 @@
         }
       },
       {
-        "id": "e124",
+        "id": "e106",
         "from": "ev_julian_saw_elena",
         "rel": "OCCURRED_AT",
         "to": "n_corridor",
@@ -2313,7 +2131,7 @@
         }
       },
       {
-        "id": "e125",
+        "id": "e107",
         "from": "ev_julian_saw_elena",
         "rel": "NEAR",
         "to": "n_dressing_room",
@@ -2326,7 +2144,7 @@
         }
       },
       {
-        "id": "e126",
+        "id": "e108",
         "from": "n_julian",
         "rel": "PARTICIPATED_IN",
         "to": "ev_julian_act1_stalls",
@@ -2339,7 +2157,7 @@
         }
       },
       {
-        "id": "e127",
+        "id": "e109",
         "from": "ev_julian_act1_stalls",
         "rel": "OCCURRED_AT",
         "to": "n_stalls",
@@ -2351,7 +2169,7 @@
         }
       },
       {
-        "id": "e128",
+        "id": "e110",
         "from": "n_audience_members",
         "rel": "SAW",
         "to": "n_julian",
@@ -2364,7 +2182,7 @@
         }
       },
       {
-        "id": "e129",
+        "id": "e111",
         "from": "n_julian",
         "rel": "PARTICIPATED_IN",
         "to": "ev_julian_lobby_presence",
@@ -2377,7 +2195,7 @@
         }
       },
       {
-        "id": "e130",
+        "id": "e112",
         "from": "ev_julian_lobby_presence",
         "rel": "OCCURRED_AT",
         "to": "n_lobby",
@@ -2389,7 +2207,7 @@
         }
       },
       {
-        "id": "e131",
+        "id": "e113",
         "from": "n_julian",
         "rel": "WAS_WITH",
         "to": "n_barton",
@@ -2402,7 +2220,7 @@
         }
       },
       {
-        "id": "e132",
+        "id": "e114",
         "from": "n_julian",
         "rel": "WAS_WITH",
         "to": "n_finch",
@@ -2415,7 +2233,7 @@
         }
       },
       {
-        "id": "e133",
+        "id": "e115",
         "from": "n_barton",
         "rel": "WITNESSED",
         "to": "ev_julian_lobby_presence",
@@ -2429,7 +2247,7 @@
         }
       },
       {
-        "id": "e134",
+        "id": "e116",
         "from": "n_finch",
         "rel": "WITNESSED",
         "to": "ev_julian_lobby_presence",
@@ -2443,7 +2261,7 @@
         }
       },
       {
-        "id": "e135",
+        "id": "e117",
         "from": "n_staff_guests",
         "rel": "CONFIRMED",
         "to": "ev_julian_lobby_presence",
@@ -2457,7 +2275,7 @@
         }
       },
       {
-        "id": "e136",
+        "id": "e118",
         "from": "n_julian",
         "rel": "DISCUSSED",
         "to": "n_investment_discussion",
@@ -2470,7 +2288,7 @@
         }
       },
       {
-        "id": "e137",
+        "id": "e119",
         "from": "ev_julian_lobby_presence",
         "rel": "OVERLAPPED_WITH",
         "to": "ev_murder",
@@ -2482,7 +2300,7 @@
         }
       },
       {
-        "id": "e138",
+        "id": "e120",
         "from": "n_julian",
         "rel": "DID_NOT_LEAVE",
         "to": "n_lobby",
@@ -2497,7 +2315,7 @@
         }
       },
       {
-        "id": "e139",
+        "id": "e121",
         "from": "n_leo",
         "rel": "PARTICIPATED_IN",
         "to": "ev_leo_firing",
@@ -2510,7 +2328,7 @@
         }
       },
       {
-        "id": "e140",
+        "id": "e122",
         "from": "ev_leo_firing",
         "rel": "FIRED_BY",
         "to": "n_marcus",
@@ -2522,7 +2340,7 @@
         }
       },
       {
-        "id": "e141",
+        "id": "e123",
         "from": "n_leo",
         "rel": "PARTICIPATED_IN",
         "to": "ev_leo_bar_presence",
@@ -2535,7 +2353,7 @@
         }
       },
       {
-        "id": "e142",
+        "id": "e124",
         "from": "ev_leo_bar_presence",
         "rel": "OCCURRED_AT",
         "to": "n_bar",
@@ -2547,7 +2365,7 @@
         }
       },
       {
-        "id": "e143",
+        "id": "e125",
         "from": "n_leo",
         "rel": "SPOKE_WITH",
         "to": "n_tommy",
@@ -2560,7 +2378,7 @@
         }
       },
       {
-        "id": "e144",
+        "id": "e126",
         "from": "n_tommy",
         "rel": "WITNESSED",
         "to": "ev_leo_bar_presence",
@@ -2574,7 +2392,7 @@
         }
       },
       {
-        "id": "e145",
+        "id": "e127",
         "from": "n_tommy",
         "rel": "CONFIRMED",
         "to": "ev_leo_bar_presence",
@@ -2588,7 +2406,7 @@
         }
       },
       {
-        "id": "e146",
+        "id": "e128",
         "from": "n_leo",
         "rel": "BOUGHT",
         "to": "n_three_rounds",
@@ -2601,7 +2419,7 @@
         }
       },
       {
-        "id": "e147",
+        "id": "e129",
         "from": "n_three_rounds",
         "rel": "PAID_WITH",
         "to": "n_cash",
@@ -2615,7 +2433,7 @@
         }
       },
       {
-        "id": "e148",
+        "id": "e130",
         "from": "n_leo",
         "rel": "DID_NOT_LEAVE",
         "to": "n_bar",
@@ -2630,7 +2448,7 @@
         }
       },
       {
-        "id": "e149",
+        "id": "e131",
         "from": "n_leo",
         "rel": "PARTICIPATED_IN",
         "to": "ev_backstage_pass_revoked",
@@ -2643,7 +2461,7 @@
         }
       },
       {
-        "id": "e150",
+        "id": "e132",
         "from": "ev_backstage_pass_revoked",
         "rel": "REVOKED",
         "to": "n_backstage_pass",
@@ -2655,7 +2473,7 @@
         }
       },
       {
-        "id": "e151",
+        "id": "e133",
         "from": "n_backstage_pass",
         "rel": "GRANTED_ACCESS_TO",
         "to": "n_backstage",
@@ -2667,7 +2485,7 @@
         }
       },
       {
-        "id": "e152",
+        "id": "e134",
         "from": "ev_backstage_pass_revoked",
         "rel": "PREVENTED_ACCESS_TO",
         "to": "n_dressing_room",
@@ -2679,7 +2497,7 @@
         }
       },
       {
-        "id": "e153",
+        "id": "e135",
         "from": "ev_leo_bar_presence",
         "rel": "OVERLAPPED_WITH",
         "to": "ev_murder",
@@ -2691,7 +2509,7 @@
         }
       },
       {
-        "id": "e154",
+        "id": "e136",
         "from": "n_candlestick",
         "rel": "FOUND_ON",
         "to": "n_floor",
@@ -2701,7 +2519,7 @@
         }
       },
       {
-        "id": "e155",
+        "id": "e137",
         "from": "n_candlestick",
         "rel": "FOUND_BESIDE",
         "to": "n_body",
@@ -2785,18 +2603,15 @@
   "solution": {
     "killer_node": "n_elena",
     "key_evidence_edges": [
-      "e14",
-      "e16",
-      "e17",
-      "e18",
-      "e95",
-      "e98",
-      "e102"
+      "e12",
+      "e13",
+      "e82",
+      "e85",
+      "e89"
     ],
     "red_herring_edges": [
-      "e21",
-      "e22",
-      "e12"
+      "e15",
+      "e11"
     ],
     "proof_graph": {
       "minimum_score": 5,
@@ -2804,9 +2619,9 @@
         {
           "id": "compact_link",
           "edge_ids": [
-            "e7",
-            "e18",
-            "e68"
+            "e6",
+            "e13",
+            "e55"
           ],
           "min_required": 2,
           "weight": 4,
@@ -2816,9 +2631,9 @@
         {
           "id": "vent_route",
           "edge_ids": [
+            "e7",
             "e8",
-            "e9",
-            "e55"
+            "e42"
           ],
           "min_required": 2,
           "weight": 2,
@@ -2828,9 +2643,9 @@
         {
           "id": "locked_room",
           "edge_ids": [
-            "e6",
-            "e50",
-            "e54"
+            "e5",
+            "e37",
+            "e41"
           ],
           "min_required": 1,
           "weight": 1,
@@ -2840,11 +2655,11 @@
         {
           "id": "julian_presence_clears",
           "edge_ids": [
-            "e24",
-            "e129",
-            "e133",
-            "e134",
-            "e138"
+            "e112",
+            "e111",
+            "e115",
+            "e116",
+            "e120"
           ],
           "min_required": 1,
           "weight": 1,
@@ -2854,12 +2669,11 @@
         {
           "id": "leo_cleared",
           "edge_ids": [
-            "e26",
-            "e27",
-            "e141",
-            "e144",
-            "e148",
-            "e152"
+            "e124",
+            "e134",
+            "e123",
+            "e126",
+            "e130"
           ],
           "min_required": 1,
           "weight": 1,

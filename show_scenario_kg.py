@@ -336,6 +336,7 @@ def _build_html(
     margin-bottom: 6px;
     font-size: 0.78rem;
   }}
+  .nd-edge .eid {{ font-family: ui-monospace, "SF Mono", Menlo, monospace; color: #94a3b8; font-size: 0.68rem; margin-right: 4px; }}
   .nd-edge .rel {{ color: #b45309; font-weight: 600; font-size: 0.7rem; }}
   .nd-edge .node {{ color: #1d4ed8; font-weight: 500; }}
   .nd-edge .meta {{ color: #94a3b8; font-size: 0.7rem; margin-top: 2px; }}
@@ -406,7 +407,7 @@ let allEdges = KG_EDGES.map(e => ({{
   id: e.id,
   from: e.from,
   to: e.to,
-  label: e.rel,
+  label: e.id + ": " + e.rel,
   color: {{ color: e.color, highlight: "#0f172a" }},
   font: {{ color: e.color, size: 10, strokeWidth: 4, strokeColor: "#ffffff", align: "middle" }},
   arrows: {{ to: {{ enabled: true, scaleFactor: 0.6 }} }},
@@ -525,7 +526,7 @@ network.on("click", function(params) {{
       .filter(([k]) => k !== "time")
       .map(([k, v]) => `<div class="meta">${{k}}: ${{fmtValue(v)}}</div>`)
       .join("");
-    return `<div class="nd-edge"><span class="rel">${{e.rel}}</span> ${{arrow}} <span class="node">${{other ? other.name : (outgoing ? e.to : e.from)}}</span>${{metaStr}}${{extra}}${{hiddenStr}}</div>`;
+    return `<div class="nd-edge"><span class="eid">${{e.id}}</span> <span class="rel">${{e.rel}}</span> ${{arrow}} <span class="node">${{other ? other.name : (outgoing ? e.to : e.from)}}</span>${{metaStr}}${{extra}}${{hiddenStr}}</div>`;
   }}).join("");
 
   sidebar.innerHTML = `
