@@ -20,6 +20,7 @@ from suspect_agents.validator_kg import validate_response
 MAX_RETRIES = 3
 SAFE_FALLBACK_RESPONSE = "I need a moment to collect myself. Ask me again, Detective."
 DEBUG_VALIDATION = True
+ENABLE_SEMANTIC_VALIDATOR = False
 
 
 class SuspectAgentKG:
@@ -58,7 +59,7 @@ class SuspectAgentKG:
                 display_names=display_names_ja,
             )
 
-        ledger_text    = self.ledger.get_ledger_text(self.node_id)
+        ledger_text    = self.ledger.get_self_graph_text(self.node_id)
         system_content = build_system_prompt(self.subgraph, self.loader.nodes, ledger_text)
 
         system_msg = {"role": "system", "content": system_content}
@@ -72,8 +73,6 @@ class SuspectAgentKG:
                 raw,
                 self.visible_edge_ids,
                 self.hidden_edge_ids,
-                self.ledger,
-                self.node_id,
             )
 
             if is_valid:
@@ -81,27 +80,28 @@ class SuspectAgentKG:
                 used_edge_ids    = parsed.get("used_edge_ids", [])
                 asserted_triples = parsed.get("asserted_triples", [])
 
-                sem_ok, sem_result, sem_error = semantic_validate_response(
-                    suspect_name=self.suspect_name,
-                    question=question_for_llm,
-                    response_text=response_text,
-                    visible_edges=self.subgraph["visible_edges"],
-                    hidden_edges=self.subgraph["hidden_edges"],
-                    nodes=self.loader.nodes,
-                    ledger_text=ledger_text,
-                    asserted_triples=asserted_triples,
-                    is_guilty=self.guilty,
-                )
-                if not sem_ok:
-                    last_error = sem_error
-                    retry_hint = "Regenerate the answer so it stays consistent with public facts and prior statements."
-                    if sem_result:
-                        retry_hint = sem_result.get("safe_retry_hint", retry_hint)
-                    hint = f"\n\n[Previous output was invalid: {retry_hint}]"
-                    user_msg = {"role": "user", "content": f"Detective: {question_for_llm}{hint}"}
-                    if DEBUG_VALIDATION:
-                        print(f"[SemanticValidator] Attempt {attempt + 1} failed: {sem_error}")
-                    continue
+                if ENABLE_SEMANTIC_VALIDATOR:
+                    sem_ok, sem_result, sem_error = semantic_validate_response(
+                        suspect_name=self.suspect_name,
+                        question=question_for_llm,
+                        response_text=response_text,
+                        visible_edges=self.subgraph["visible_edges"],
+                        hidden_edges=self.subgraph["hidden_edges"],
+                        nodes=self.loader.nodes,
+                        ledger_text=ledger_text,
+                        asserted_triples=asserted_triples,
+                        is_guilty=self.guilty,
+                    )
+                    if not sem_ok:
+                        last_error = sem_error
+                        retry_hint = "Regenerate the answer so it stays consistent with public facts and prior statements."
+                        if sem_result:
+                            retry_hint = sem_result.get("safe_retry_hint", retry_hint)
+                        hint = f"\n\n[Previous output was invalid: {retry_hint}]"
+                        user_msg = {"role": "user", "content": f"Detective: {question_for_llm}{hint}"}
+                        if DEBUG_VALIDATION:
+                            print(f"[SemanticValidator] Attempt {attempt + 1} failed: {sem_error}")
+                        continue
 
                 self.last_used_edge_ids = used_edge_ids  # expose for LocationTracker
 

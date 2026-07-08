@@ -7,12 +7,10 @@ Checks:
   3. used_edge_ids type and visible-edge subset
   4. hidden_edges not leaked in used_edge_ids
   5. asserted_triples type
-  6. Commitment ledger contradiction
 """
 
 import json
 from typing import Optional
-from suspect_agents.commitment_ledger import CommitmentLedger
 
 
 def _extract_json(text: str) -> str:
@@ -29,8 +27,6 @@ def validate_response(
     raw_output: str,
     visible_edge_ids: set,
     hidden_edge_ids: set,
-    ledger: CommitmentLedger,
-    node_id: str,
 ) -> tuple[bool, Optional[dict], Optional[str]]:
     """
     Validate a raw LLM output string.
@@ -83,12 +79,5 @@ def validate_response(
             return False, None, "'asserted_triples' の各要素は長さ3の配列である必要があります"
         if not all(isinstance(part, str) for part in triple):
             return False, None, "'asserted_triples' の各要素は文字列である必要があります"
-
-    # 5. Ledger contradiction
-    contradicted, reason = ledger.check_contradiction(
-        node_id, asserted_triples
-    )
-    if contradicted:
-        return False, None, f"Ledger矛盾: {reason}"
 
     return True, parsed, None
