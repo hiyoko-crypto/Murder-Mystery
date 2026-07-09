@@ -4,11 +4,11 @@ import { useGame } from '../contexts/GameContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
 import { useCaseNotes } from '../contexts/CaseNotesContext'
-import { emotionLabel } from '../utils/emotion'
 import { sendChat } from '../api/chat'
 import { callIndict } from '../api/examine'
+import { suspectAvatarEmoji } from '../utils/avatar'
 import NotebookLauncher from '../components/notebook/NotebookLauncher'
-import type { Message, Emotion } from '../types'
+import type { Message } from '../types'
 import './InterrogationPage.css'
 
 export default function InterrogationPage() {
@@ -35,7 +35,6 @@ export default function InterrogationPage() {
   }
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const [currentEmotion, setCurrentEmotion] = useState<Emotion>('neutral')
   const [showEvidencePanel, setShowEvidencePanel] = useState(false)
   const [showLog, setShowLog] = useState(false)
   const [selectedEvidence, setSelectedEvidence] = useState<typeof items[0] | null>(null)
@@ -47,11 +46,12 @@ export default function InterrogationPage() {
   const [unlockNotice, setUnlockNotice] = useState<string | null>(null)
   const [interrogating, setInterrogating] = useState(false)
   const [showIndictFlash, setShowIndictFlash] = useState(false)
-  const [checkingVerdict, setCheckingVerdict] = useState(false)
   const [indictResult, setIndictResult] = useState<{ message: string } | null>(null)
 
   const logEndRef = useRef<HTMLDivElement>(null)
+  const dialogueScrollRef = useRef<HTMLDivElement>(null)
   const typingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const typingCompleteRef = useRef<(() => void) | null>(null)
   const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Bumped on every send and on cancel — fetchReply checks this after its
   // await to tell whether the player bailed out while waiting, since the
@@ -72,22 +72,26 @@ export default function InterrogationPage() {
   const suspect = suspects.find((s) => s.id === id)
 
   useEffect(() => {
-    if (suspect) setCurrentEmotion(suspect.emotion)
-  }, [suspect])
-
-  useEffect(() => {
     if (showLog) logEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, showLog])
+
+  // Keeps the newest line in view as the suspect's reply streams in — long
+  // replies no longer get clipped by the dialogue box's fixed height, they
+  // scroll instead.
+  useEffect(() => {
+    const el = dialogueScrollRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [displayedText, lastPlayerText, loading, currentSuspectMsg])
 
   useEffect(() => {
     return () => { if (flashTimerRef.current) clearTimeout(flashTimerRef.current) }
   }, [])
 
-  const startTyping = useCallback((msg: Message) => {
+  const startTyping = useCallback((msg: Message, onComplete?: () => void) => {
     setCurrentSuspectMsg(msg)
-    setCurrentEmotion(msg.emotion ?? 'neutral')
     setDisplayedText('')
     setIsTyping(true)
+    typingCompleteRef.current = onComplete ?? null
     let i = 0
     typingTimerRef.current = setInterval(() => {
       i++
@@ -95,6 +99,9 @@ export default function InterrogationPage() {
       if (i >= msg.text.length) {
         if (typingTimerRef.current) clearInterval(typingTimerRef.current)
         setIsTyping(false)
+        const cb = typingCompleteRef.current
+        typingCompleteRef.current = null
+        cb?.()
       }
     }, 45)
   }, [])
@@ -104,6 +111,9 @@ export default function InterrogationPage() {
     if (typingTimerRef.current) clearInterval(typingTimerRef.current)
     setDisplayedText(currentSuspectMsg.text)
     setIsTyping(false)
+    const cb = typingCompleteRef.current
+    typingCompleteRef.current = null
+    cb?.()
   }
 
   if (!suspect) return <div>{t('not.found')}</div>
@@ -124,17 +134,16 @@ export default function InterrogationPage() {
 
   const foundEvidenceItems = items.filter((item) => foundItems.includes(item.id))
 
-  const deliverReply = (msg: Message) => {
+  const deliverReply = (msg: Message, onComplete?: () => void) => {
     setMessages((prev) => [...prev, msg])
-    startTyping(msg)
+    startTyping(msg, onComplete)
     setLoading(false)
   }
 
-  const getErrorReply = (): Message => ({
-    role: 'suspect',
-    text: tt('…（通信エラー。バックエンドを確認してください）', '…(Connection error. Please check the backend.)'),
-    emotion: 'neutral',
-  })
+  const suspectLine = (ja: string, en: string): Message => ({ role: 'suspect', text: tt(ja, en) })
+
+  const getErrorReply = (): Message =>
+    suspectLine('…（通信エラー。バックエンドを確認してください）', '…(Connection error. Please check the backend.)')
 
   const fetchReply = async (messageText: string, requestId: number) => {
     try {
@@ -143,7 +152,7 @@ export default function InterrogationPage() {
       // processed it by now regardless, but there's nothing left to show for
       // it: skip displaying the reply and skip recording it as a statement.
       if (requestIdRef.current !== requestId) return
-      deliverReply({ role: 'suspect', text: res.text, emotion: res.emotion as Emotion })
+
       const truncated = messageText.length > 40 ? `${messageText.slice(0, 40)}…` : messageText
       appendHistory({
         type: 'chat',
@@ -163,7 +172,43 @@ export default function InterrogationPage() {
           summary: tt(`${suspect.name}との会話で${locName}が解放された`, `Talking to ${suspect.name} unlocked ${locName}`),
         })
       }
-      if (interrogating) accusationRef.current.push(messageText)
+
+      // The verdict check's network latency overlaps with the reply's
+      // typing animation, but the game only ever ends once BOTH have
+      // settled — otherwise the ending could cut the suspect's
+      // in-character reply off mid-sentence. res.message is the scenario's
+      // own case-solution explanation (third-person, written for the
+      // ending screen) — not something the suspect would say, so a fixed
+      // confession line plays as dialogue first and the explanation stays
+      // reserved for the ending screen.
+      const typingDone = new Promise<void>(resolve => {
+        deliverReply({ role: 'suspect', text: res.text }, resolve)
+      })
+      const verdict = interrogating
+        ? (() => {
+            accusationRef.current.push(messageText)
+            const reason = accusationRef.current.join('\n')
+            return callIndict(suspect.id, reason, lang)
+              .then(indictRes => (indictRes.won ? { message: indictRes.message } : null))
+              .catch(() => null) // background check — just try again next turn
+          })()
+        : Promise.resolve(null)
+
+      const [, win] = await Promise.all([typingDone, verdict])
+      if (win) {
+        appendHistory({
+          type: 'indict',
+          suspectId: suspect.id,
+          summary: tt(`${suspect.name}を追及の末、自白させた`, `Pressed ${suspect.name} into a confession`),
+        })
+        const confessionLine = suspectLine(
+          '……もう、ごまかせないみたいですね。……私が、やりました。',
+          "……There's no point pretending anymore. …I did it.",
+        )
+        deliverReply(confessionLine, () => {
+          setTimeout(() => setIndictResult({ message: win.message }), 1200)
+        })
+      }
     } catch (err) {
       if (requestIdRef.current !== requestId) return
       console.warn('API unavailable:', err)
@@ -173,8 +218,8 @@ export default function InterrogationPage() {
 
   // 追及モードに入る瞬間だけ一瞬「起訴！」のスタンプを出し、決まり文句の
   // 「犯人はあなただ！」→「なぜそう思うんですか？」を静的に（API を呼ばず）
-  // 差し込んで追及の空気を作る。会話はそのまま続けられて、いつでもバナーの
-  // 「起訴する」で本当の判定を出せる。
+  // 差し込んで追及の空気を作る。会話はそのまま続けられて、以降は毎ターンの
+  // 返信のたびに裏で自動的に判定が走る（fetchReply参照）。
   const startInterrogating = () => {
     setInterrogating(true)
     accusationRef.current = []
@@ -184,11 +229,7 @@ export default function InterrogationPage() {
     flashTimerRef.current = setTimeout(() => setShowIndictFlash(false), 1100)
 
     const openingLine = tt('犯人はあなただ！', `You're the culprit!`)
-    const openingReply: Message = {
-      role: 'suspect',
-      text: tt('……なぜそう思うんですか？', '…Why would you think that?'),
-      emotion: 'nervous',
-    }
+    const openingReply = suspectLine('……なぜそう思うんですか？', '…Why would you think that?')
     setLastPlayerText(openingLine)
     setMessages(prev => [...prev, { role: 'player', text: openingLine }, openingReply])
     startTyping(openingReply)
@@ -197,37 +238,6 @@ export default function InterrogationPage() {
   const stopInterrogating = () => {
     setInterrogating(false)
     accusationRef.current = []
-  }
-
-  const handleIndictSubmit = async () => {
-    if (checkingVerdict) return
-    const reason = accusationRef.current.join('\n')
-    if (!reason.trim()) return
-
-    setCheckingVerdict(true)
-    try {
-      const res = await callIndict(suspect.id, reason, lang)
-      if (res.won) {
-        setIndictResult({ message: res.message })
-        appendHistory({
-          type: 'indict',
-          suspectId: suspect.id,
-          summary: tt(`${suspect.name}を追及の末、自白させた`, `Pressed ${suspect.name} into a confession`),
-        })
-      } else {
-        setMessages(prev => [...prev, {
-          role: 'system',
-          text: res.message || tt('まだ決定的な一手には足りないようだ…', "That's not quite enough to make it stick yet…"),
-        }])
-      }
-    } catch {
-      setMessages(prev => [...prev, {
-        role: 'system',
-        text: tt('通信エラーが発生しました。もう一度試してください。', 'A connection error occurred. Please try again.'),
-      }])
-    } finally {
-      setCheckingVerdict(false)
-    }
   }
 
   const handleSend = () => {
@@ -318,7 +328,7 @@ export default function InterrogationPage() {
 
       <div className="character-area">
         <div className="character-badge">
-          <div className="character-emotion-display">{emotionLabel(currentEmotion, lang)}</div>
+          <div className="character-avatar-display">{suspectAvatarEmoji(suspect.bio, suspect.id)}</div>
           <div className="character-name-display">{suspect.name}</div>
         </div>
       </div>
@@ -327,31 +337,33 @@ export default function InterrogationPage() {
         className={`dialogue-box${isTyping ? ' typing' : ''}${isEmpty ? ' empty' : ''}`}
         onClick={skipTyping}
       >
-        {lastPlayerText && (
-          <div className="player-line">
-            {t('interro.detective')}：「{lastPlayerText}」
-          </div>
-        )}
-        {isEmpty && <p className="dialogue-hint">{t('interro.hint')}</p>}
-        {loading && !isTyping && (
-          <div className="dialogue-loading-row">
-            <p className="dialogue-typing-indicator">{t('interro.typing')}</p>
-            <button
-              className="dialogue-cancel-btn"
-              onClick={(e) => { e.stopPropagation(); cancelSend() }}
-              title={tt('送信を取り消す', 'Cancel this question')}
-            >
-              ✕ {tt('取り消す', 'Cancel')}
-            </button>
-          </div>
-        )}
-        {currentSuspectMsg && (
-          <p className="dialogue-text">
-            「{displayedText}
-            {isTyping && <span className="cursor">|</span>}
-            」
-          </p>
-        )}
+        <div className="dialogue-box-scroll" ref={dialogueScrollRef}>
+          {lastPlayerText && (
+            <div className="player-line">
+              {t('interro.detective')}：「{lastPlayerText}」
+            </div>
+          )}
+          {isEmpty && <p className="dialogue-hint">{t('interro.hint')}</p>}
+          {loading && !isTyping && (
+            <div className="dialogue-loading-row">
+              <p className="dialogue-typing-indicator">{t('interro.typing')}</p>
+              <button
+                className="dialogue-cancel-btn"
+                onClick={(e) => { e.stopPropagation(); cancelSend() }}
+                title={tt('送信を取り消す', 'Cancel this question')}
+              >
+                ✕ {tt('取り消す', 'Cancel')}
+              </button>
+            </div>
+          )}
+          {currentSuspectMsg && (
+            <p className="dialogue-text">
+              「{displayedText}
+              {isTyping && <span className="cursor">|</span>}
+              」
+            </p>
+          )}
+        </div>
         {isTyping && (
           <span className="skip-hint">{t('interro.skip')}</span>
         )}
@@ -410,7 +422,6 @@ export default function InterrogationPage() {
                   <div key={i} className={`log-entry ${msg.role}`}>
                     <span className="log-role">
                       {msg.role === 'player' ? t('interro.detective') : suspect.name}
-                      {msg.emotion ? `　${emotionLabel(msg.emotion, lang)}` : ''}
                     </span>
                     <p className="log-text">
                       {msg.presentedItemId ? `${t('interro.present.fmt')}${msg.text}` : msg.text}
@@ -425,35 +436,12 @@ export default function InterrogationPage() {
       )}
 
       {interrogating ? (
-        <div className="indict-banner">
-          <span className="indict-banner-text">
-            🔎 {tt(
-              `${suspect.name}を追及中… 会話と証拠で問い詰めよう`,
-              `Pressing ${suspect.name}… back your questions with evidence`,
-            )}
-            <br />
-            <span className="indict-banner-subtext">
-              {tt(
-                '十分に問い詰めたら「起訴する」で実際に判定されます',
-                'Once you’ve pressed enough, hit "Indict" for the real verdict',
-              )}
-            </span>
-          </span>
-          <div className="indict-banner-actions">
-            <button
-              className="indict-banner-submit"
-              disabled={checkingVerdict}
-              onClick={handleIndictSubmit}
-            >
-              {checkingVerdict ? tt('審議中…', 'Deliberating…') : tt('⚖️ 起訴する', '⚖️ Indict')}
-            </button>
-            <button
-              className="icon-btn-close sm"
-              onClick={stopInterrogating}
-              title={tt('追及をやめる', 'Stop pressing')}
-            >✕</button>
-          </div>
-        </div>
+        <button
+          className="interro-accuse-btn return"
+          onClick={stopInterrogating}
+        >
+          🔎 {tt('尋問に戻る', 'Back to questioning')}
+        </button>
       ) : (
         <button
           className="interro-accuse-btn"

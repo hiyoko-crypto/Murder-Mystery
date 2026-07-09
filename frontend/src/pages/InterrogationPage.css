@@ -116,15 +116,22 @@
   gap: 0.3rem;
 }
 
-.character-emotion-display {
-  font-size: 2.5rem;
+.character-avatar-display {
+  width: 5.2rem;
+  height: 5.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.8rem;
   line-height: 1;
-  color: #f0e8d8;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+  background: rgba(248, 240, 220, 0.9);
+  border: 3px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .character-name-display {
-  font-size: 1.2rem;
+  font-size: 1.6rem;
   letter-spacing: 0.08em;
 }
 
@@ -150,10 +157,23 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  gap: 0.8rem;
   cursor: default;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(43, 32, 19, 0.15);
+}
+
+/* 長い台詞ではみ出た分はここでスクロールする（外側の高さは変えない） */
+.dialogue-box-scroll {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: flex-end はここでは使わない — overflowしたスクロール
+     コンテナに対して指定すると「unsafe alignment」になり、はみ出た分に
+     scrollHeightが追従せずスクロールできなくなる。下寄せの見た目は
+     JS側の自動スクロール（dialogueScrollRef）で実現している */
+  gap: 0.8rem;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .dialogue-box.typing {
@@ -581,63 +601,18 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* 追及モードバナー（チャット入力の上）：チャットは続けたまま、
-   いつでもここから本当の起訴判定を出せる */
-.indict-banner {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem;
-  margin: 0 1.2rem 0.4rem;
-  background: rgba(251, 236, 235, 0.95);
-  border: 1px solid var(--danger);
-  border-radius: 8px;
-  padding: 10px 14px;
-}
-
-.indict-banner-text {
-  color: var(--danger-text);
-  font-size: 0.85rem;
-  font-weight: bold;
-  line-height: 1.4;
-}
-
-.indict-banner-subtext {
+/* 追及モードを抜けて通常の尋問に戻るボタン。追及ボタン（危険色）と同じ
+   形だが、危険なアクションではないので落ち着いた色に上書きする */
+.interro-accuse-btn.return {
+  background: var(--paper-white);
+  border-color: var(--border-strong);
   color: var(--ink-soft);
-  font-size: 0.74rem;
-  font-weight: normal;
 }
 
-.indict-banner-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-
-.indict-banner-submit {
-  background: var(--danger);
-  border: 1px solid var(--danger-text);
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: bold;
-  font-family: inherit;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.15s;
-}
-
-.indict-banner-submit:hover:not(:disabled) {
-  background: var(--danger-text);
-}
-
-.indict-banner-submit:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.interro-accuse-btn.return:hover {
+  background: var(--paper-panel);
+  border-color: var(--gold);
+  color: var(--ink);
 }
 
 /* 起訴結果（自白）画面 */
