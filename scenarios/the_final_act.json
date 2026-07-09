@@ -46,7 +46,7 @@
           ],
           "victim_connection": "Marcus held Elena's debt contracts and controlled every aspect of her professional and personal life for two years.",
           "motive": "Freedom. With Marcus dead, the debt contracts die with him.",
-          "interrogation_style": "Calm and composed. Deflects with charm. Steers suspicion toward Julian's letter or Leo's dismissal. If asked about the ventilation shaft, the candlestick, or the compact mirror, become visibly anxious and redirect immediately. Never acknowledge entering the shaft or striking Marcus."
+          "interrogation_style": "Calm and composed. Deflects with charm. If asked about the ventilation shaft, the candlestick, or the compact mirror, become visibly anxious and redirect immediately. Never acknowledge entering the shaft or striking Marcus."
         }
       },
       {
@@ -62,14 +62,13 @@
           "bio": "Dr. Julian Wilde, 52, presents himself as a respected physician and patron of the arts. In reality, his medical credentials were purchased from an unaccredited institution fifteen years ago. He has poured significant funds into the Meridian Theatre. Three months ago, Marcus stumbled upon evidence of the fraudulent qualifications and began extracting money.",
           "tags": [
             "authoritative",
-            "verbose",
             "sweats under direct questioning",
             "name-drops frequently",
             "defensive about credentials"
           ],
           "victim_connection": "Marcus discovered Julian's fabricated medical credentials and was blackmailing him for cash payments in exchange for silence.",
           "motive": "Marcus had escalating financial demands. Julian was running out of patience and money.",
-          "interrogation_style": "Authoritative and slightly condescending. Volunteers his whereabouts quickly. Becomes evasive only when questioned about the torn letter or his credentials. Redirects suspicion toward Leo."
+          "interrogation_style": "Authoritative and slightly condescending. Volunteers his whereabouts quickly. Becomes evasive only when questioned about the torn letter or his credentials."
         }
       },
       {

@@ -37,8 +37,12 @@ class SuspectAgentKGVerbatim:
         self.last_used_edge_ids: list = []
 
         # No ledger_text -- the "[Your own prior statements]" block is omitted
-        # entirely; verbatim chat history plays that role instead.
-        self.system_content = build_system_prompt(self.subgraph, self.loader.nodes, "")
+        # entirely; verbatim chat history plays that role instead. Also skip
+        # asserted_triples: nothing reads it in this variant, so asking the
+        # LLM to produce it just wastes prompt/output budget.
+        self.system_content = build_system_prompt(
+            self.subgraph, self.loader.nodes, "", include_asserted_triples=False
+        )
 
         if DEBUG_VALIDATION:
             print(f"SUSPECT LOADED (verbatim-history variant): {self.suspect_name} ({'GUILTY' if self.guilty else 'innocent'})")
@@ -61,7 +65,9 @@ class SuspectAgentKGVerbatim:
             messages = [system_msg] + self.chat_history + [user_msg]
             raw = llm_messages(messages, temperature=0.7, quality=True)
 
-            is_valid, parsed, error = validate_response(raw, self.visible_edge_ids, self.hidden_edge_ids)
+            is_valid, parsed, error = validate_response(
+                raw, self.visible_edge_ids, self.hidden_edge_ids, require_asserted_triples=False
+            )
 
             if is_valid:
                 response_text = parsed["response"]

@@ -49,7 +49,12 @@ def _group_visible_edges(edges: list) -> dict:
     return groups
 
 
-def build_system_prompt(subgraph: dict, nodes: dict, ledger_text: str = "") -> str:
+def build_system_prompt(
+    subgraph: dict,
+    nodes: dict,
+    ledger_text: str = "",
+    include_asserted_triples: bool = True,
+) -> str:
     props = subgraph["node"]["properties"]
     lines = []
 
@@ -57,7 +62,8 @@ def build_system_prompt(subgraph: dict, nodes: dict, ledger_text: str = "") -> s
     lines.append(f"You are {props['name']}. You are a suspect being interrogated by a detective.")
     lines.append("Speak naturally as your character — embody them, do not recite their profile.")
     lines.append("Answer the detective's question as directly as you safely can.")
-    lines.append("Use the facts as anchors. You may speak naturally and add harmless color, but do not add new concrete case facts such as people, places, times, evidence, or actions unless supported by your facts.")
+    lines.append("Keep your response to roughly 100 characters, unless the question genuinely requires laying out several distinct facts.")
+    lines.append("Use the facts as anchors. You may add brief natural color (emotion, hesitation, tone), but do not add new concrete case facts such as people, places, times, evidence, or actions unless supported by your facts.")
     lines.append("Do not evade unless a direct answer would reveal a forbidden hidden fact.")
     lines.append(f"\nBio: {props['bio']}")
     lines.append(f"\nPersonality: {', '.join(props.get('tags', []))}")
@@ -67,7 +73,6 @@ def build_system_prompt(subgraph: dict, nodes: dict, ledger_text: str = "") -> s
     groups = _group_visible_edges(subgraph["visible_edges"])
     lines.append("\n\n[Facts you know]")
     lines.append("Base concrete case claims on the triples below, respecting the provenance labels.")
-    lines.append("You may add harmless conversational detail, emotion, uncertainty, and natural phrasing as long as it does not contradict these facts or your prior statements.")
     lines.append("Do not invent major new evidence, witnesses, claimed whereabouts, locations, murder methods, or case-solving facts.")
     if groups["personal"]:
         lines.append("\nPersonal knowledge / direct observations — you may speak about these as your own knowledge:")
@@ -99,10 +104,14 @@ def build_system_prompt(subgraph: dict, nodes: dict, ledger_text: str = "") -> s
     # ── Output format ───────────────────────────────────────────────
     lines.append("\n\n[Output format]")
     lines.append("Respond ONLY in the following JSON. No text outside the JSON.")
-    lines.append('{"response": "Your spoken response in English", "used_edge_ids": ["e1", "e2"], "asserted_triples": [["Subject", "REL", "Object"]]}')
-    lines.append("used_edge_ids: edge IDs used as the basis for your response.")
-    lines.append("asserted_triples: ONLY the fact triples explicitly stated in the \"response\" text above — not background facts you merely relied on without saying.")
-    lines.append("Do not repeat a triple from your own prior statements below unless you are restating that exact fact again right now.")
-    lines.append('If a triple has a specific time attached (from the facts above or your own response), append it to the object as "Object @ time", e.g. ["Elena", "VISITED", "Marcus\'s Dressing Room @ 7:00 PM"]. Omit the time if none applies — do not invent one.')
+    if include_asserted_triples:
+        lines.append('{"response": "Your spoken response in English", "used_edge_ids": ["e1", "e2"], "asserted_triples": [["Subject", "REL", "Object"]]}')
+    else:
+        lines.append('{"response": "Your spoken response in English", "used_edge_ids": ["e1", "e2"]}')
+    lines.append("used_edge_ids is critical, not optional bookkeeping: list the edge ID for every fact in \"response\", with no omissions. The game mechanically tracks only what appears here — a fact you speak but do not list here is treated as never said.")
+    if include_asserted_triples:
+        lines.append("asserted_triples: ONLY the fact triples explicitly stated in the \"response\" text above — not background facts you merely relied on without saying.")
+        lines.append("Do not repeat a triple from your own prior statements below unless you are restating that exact fact again right now.")
+        lines.append('If a triple has a specific time attached (from the facts above or your own response), append it to the object as "Object @ time", e.g. ["Elena", "VISITED", "Marcus\'s Dressing Room @ 7:00 PM"]. Omit the time if none applies — do not invent one.')
 
     return "\n".join(lines)
