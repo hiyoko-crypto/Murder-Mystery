@@ -27,9 +27,13 @@ def validate_response(
     raw_output: str,
     visible_edge_ids: set,
     hidden_edge_ids: set,
+    require_asserted_triples: bool = True,
 ) -> tuple[bool, Optional[dict], Optional[str]]:
     """
     Validate a raw LLM output string.
+
+    require_asserted_triples: set to False for agents that no longer ask the
+    LLM to produce 'asserted_triples' (e.g. the verbatim-history variant).
 
     Returns:
         (is_valid, parsed_dict, error_message)
@@ -51,7 +55,7 @@ def validate_response(
         return False, None, "'response' フィールドが存在しないか無効です"
     if "used_edge_ids" not in parsed:
         return False, None, "'used_edge_ids' フィールドが存在しません"
-    if "asserted_triples" not in parsed:
+    if require_asserted_triples and "asserted_triples" not in parsed:
         return False, None, "'asserted_triples' フィールドが存在しません"
 
     # 3. used_edge_ids type and allowed range
@@ -71,13 +75,14 @@ def validate_response(
         return False, None, f"使用できないedge IDが含まれています: {sorted(unsupported_edges)}"
 
     # 4. asserted_triples type
-    asserted_triples = parsed["asserted_triples"]
-    if not isinstance(asserted_triples, list):
-        return False, None, "'asserted_triples' は配列である必要があります"
-    for triple in asserted_triples:
-        if not isinstance(triple, list) or len(triple) != 3:
-            return False, None, "'asserted_triples' の各要素は長さ3の配列である必要があります"
-        if not all(isinstance(part, str) for part in triple):
-            return False, None, "'asserted_triples' の各要素は文字列である必要があります"
+    if require_asserted_triples:
+        asserted_triples = parsed["asserted_triples"]
+        if not isinstance(asserted_triples, list):
+            return False, None, "'asserted_triples' は配列である必要があります"
+        for triple in asserted_triples:
+            if not isinstance(triple, list) or len(triple) != 3:
+                return False, None, "'asserted_triples' の各要素は長さ3の配列である必要があります"
+            if not all(isinstance(part, str) for part in triple):
+                return False, None, "'asserted_triples' の各要素は文字列である必要があります"
 
     return True, parsed, None
