@@ -13,8 +13,7 @@ from modules.indictment_evaluator import evaluate_indictment
 from modules.scenario_loader import ScenarioLoader
 from modules.location_tracker import LocationTracker
 from modules.translator import translate_display_text
-from suspect_agents.commitment_ledger import CommitmentLedger
-from suspect_agents.suspect_agent_kg import SuspectAgentKG
+from suspect_agents.suspect_agent_kg_verbatim import SuspectAgentKGVerbatim
 
 
 # ── Data shapes returned to the caller ───────────────────────────────
@@ -31,6 +30,7 @@ class LocationInfo:
     name:     str
     examined: bool
     is_new:   bool          # True on first unlock
+    item_ids: list[str]     # full item catalog for this location
 
 
 @dataclass
@@ -83,11 +83,10 @@ class GameSession:
         self.language = language
 
         self.loader  = ScenarioLoader(scenario_path)
-        self.ledger  = CommitmentLedger()
         self.tracker = LocationTracker(self.loader)
 
-        self.agents: dict[str, SuspectAgentKG] = {
-            node_id: SuspectAgentKG(self.loader, node_id, self.ledger)
+        self.agents: dict[str, SuspectAgentKGVerbatim] = {
+            node_id: SuspectAgentKGVerbatim(self.loader, node_id)
             for node_id in self.loader.get_all_suspect_node_ids()
         }
 
@@ -154,6 +153,7 @@ class GameSession:
                 name=self._display_node_name(loc_id),
                 examined=self.tracker.is_examined(loc_id),
                 is_new=loc_id in self._new_location_ids,
+                item_ids=self.tracker.get_catalog_items(loc_id),
             )
             for loc_id in self.tracker.get_available_locations()
         ]
@@ -237,13 +237,13 @@ class GameSession:
 
     # ── Internal helpers ──────────────────────────────────────────────
 
-    def _current_agent(self) -> SuspectAgentKG:
+    def _current_agent(self) -> SuspectAgentKGVerbatim:
         if self.current_suspect_id is None:
             raise RuntimeError("No suspect selected. Call switch_suspect() first.")
         return self.agents[self.current_suspect_id]
 
-    def _unlock_locations(self, agent: SuspectAgentKG) -> list:
-        return self.tracker.unlock_from_testimony(agent.last_used_edge_ids)
+    def _unlock_locations(self, agent: SuspectAgentKGVerbatim) -> list:
+        return self.tracker.unlock_from_testimony(agent.last_used_edge_ids, agent.node_id)
 
     def _suspect_info(self, node_id: str) -> SuspectInfo:
         return SuspectInfo(

@@ -1,0 +1,234 @@
+:root {
+  /* 紙・パネル（明るい万年通紙テーマ。真っ白すぎないよう少し深めのクリーム系に） */
+  --paper: #ecdfc0;
+  --paper-panel: #f3e8cf;
+  --paper-white: #f8f0dc;
+
+  /* 文字色（薄すぎて読みにくいという指摘を受けて、通常よりくっきり濃めに） */
+  --ink: #000000;
+  --ink-soft: #2e2618;
+  --ink-faint: #5c5140;
+
+  /* アクセント（ゴールド） */
+  --gold: #9c6b1f;
+  --gold-dark: #7a5316;
+  --gold-soft: rgba(156, 107, 31, 0.14);
+  --gold-soft-strong: rgba(156, 107, 31, 0.28);
+
+  /* 枠線 */
+  --border: #d8c6a0;
+  --border-strong: #b89b66;
+
+  /* ニュートラル（写真の上に浮かせるパネル用。暖色に寄せすぎないグレー系） */
+  --border-neutral: #d4d2c7;
+  --border-neutral-strong: #a8a59a;
+  --glass-panel-neutral: #eeeeea;
+  --glass-white-neutral: #f5f5f1;
+
+  /* 状態色 */
+  --danger: #a8342f;
+  --danger-soft: rgba(168, 52, 47, 0.12);
+  --danger-text: #7a2420;
+  --success: #2f7a3d;
+  --success-soft: rgba(47, 122, 61, 0.14);
+  --info: #35608c;
+  --info-soft: rgba(53, 96, 140, 0.14);
+
+  /* モーダル背景・写真の上の暗いスクリム（写真上の白文字を読みやすくするためのもの） */
+  --overlay-strong: rgba(20, 15, 8, 0.75);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.back-btn {
+  background: var(--paper-panel);
+  border: 1px solid var(--border-strong);
+  color: var(--ink-soft);
+  padding: 12px 22px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.15s;
+}
+
+.back-btn:hover {
+  border-color: var(--gold);
+  color: var(--ink);
+}
+
+.empty {
+  color: var(--ink-faint);
+  font-style: italic;
+  padding: 12px 0;
+}
+
+/* ── アイテム入手済みバッジ（ItemDetailPage / LocationPage 共通） ── */
+.evidence-added-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: bold;
+  color: #fff;
+  border: none;
+  background: var(--success);
+  padding: 6px 16px;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+  box-shadow: 0 2px 8px rgba(47, 122, 61, 0.35);
+}
+
+.evidence-added-badge-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  font-size: 0.68rem;
+}
+
+/* ── 共通確認ダイアログ ── */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-strong);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.confirm-dialog {
+  background: var(--paper-panel);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--gold);
+  border-radius: 6px;
+  padding: 2rem 2rem 1.6rem;
+  max-width: 360px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  box-shadow: 0 12px 32px rgba(43, 32, 19, 0.25);
+}
+
+.confirm-dialog p {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  line-height: 1.7;
+  text-align: center;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+}
+
+.confirm-cancel-btn {
+  background: none;
+  border: 1px solid var(--border-strong);
+  color: var(--ink-soft);
+  padding: 9px 20px;
+  border-radius: 4px;
+  font-size: 0.88rem;
+  transition: all 0.15s;
+}
+
+.confirm-cancel-btn:hover {
+  border-color: var(--ink-soft);
+  color: var(--ink);
+}
+
+.confirm-ok-btn {
+  background: var(--paper-white);
+  border: 1px solid var(--gold);
+  color: var(--gold-dark);
+  padding: 9px 20px;
+  border-radius: 4px;
+  font-size: 0.88rem;
+  font-weight: bold;
+  transition: all 0.15s;
+}
+
+.confirm-ok-btn:hover {
+  background: var(--gold);
+  color: var(--paper-white);
+}
+
+.confirm-ok-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── 共通アイコンボタン（丸型の閉じる／削除） ── */
+.icon-btn-close {
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
+  color: var(--danger-text);
+  font-weight: bold;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.icon-btn-close:hover {
+  background: var(--danger);
+  color: var(--paper-white);
+}
+
+.icon-btn-close.sm { width: 26px; height: 26px; font-size: 0.85rem; }
+.icon-btn-close.lg { width: 38px; height: 38px; font-size: 1.2rem; }
+
+/* ── 共通「捜査ノート」ボタン ── */
+.notebook-btn {
+  background: var(--gold-soft);
+  border: 1px solid var(--gold);
+  color: var(--gold-dark);
+  font-size: 0.9rem;
+  font-weight: bold;
+  font-family: inherit;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.notebook-btn:hover {
+  background: var(--gold);
+  color: var(--paper-white);
+}

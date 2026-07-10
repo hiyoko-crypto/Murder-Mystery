@@ -1,26 +1,45 @@
-"""Local Ollama LLM client using OpenAI-compatible endpoint."""
+"""Local Ollama LLM client."""
 
+import json
 import time
-from openai import OpenAI
+import urllib.request
 
-MODEL = "qwen2.5:7b"
+MODEL = "qwen3.5:9b"
+NUM_CTX = 4096
+THINK = False
+OLLAMA_CHAT_URL = "http://localhost:11434/api/chat"
 
-client = OpenAI(
-    api_key="ollama",
-    base_url="http://localhost:11434/v1"
-)
+
+def _chat_completion(messages: list, temperature: float) -> str:
+    payload = {
+        "model": MODEL,
+        "messages": messages,
+        "stream": False,
+        "think": THINK,
+        "options": {
+            "temperature": temperature,
+            "num_ctx": NUM_CTX,
+        },
+    }
+    request = urllib.request.Request(
+        OLLAMA_CHAT_URL,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=180) as response:
+        body = json.load(response)
+    return body["message"]["content"]
 
 
 def llm(prompt: str, temperature: float = 0.7, max_retries: int = 8) -> str:
     """Single-prompt call for story/timeline generation."""
     for attempt in range(max_retries):
         try:
-            response = client.chat.completions.create(
-                model=MODEL,
+            return _chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                temperature=temperature
+                temperature=temperature,
             )
-            return response.choices[0].message.content
         except Exception as e:
             if attempt == max_retries - 1:
                 raise
@@ -33,12 +52,10 @@ def llm_messages(messages: list, temperature: float = 0.7, max_retries: int = 8,
     """Multi-turn messages call for interrogation."""
     for attempt in range(max_retries):
         try:
-            response = client.chat.completions.create(
-                model=MODEL,
+            return _chat_completion(
                 messages=messages,
-                temperature=temperature
+                temperature=temperature,
             )
-            return response.choices[0].message.content
         except Exception as e:
             if attempt == max_retries - 1:
                 raise

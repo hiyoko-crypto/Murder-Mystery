@@ -1,0 +1,272 @@
+"""
+FastAPI server connecting the React frontend to the KG-based GameSession.
+"""
+
+import os
+import json
+import glob
+import asyncio
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+from game_session import GameSession
+from modules.i18n import set_lang
+
+
+# ── Session state ─────────────────────────────────────────────────────────────
+
+_sessions: dict[str, GameSession] = {}   # lang → GameSession
+scenario_json: dict | None = None
+_current_scenario_path: str | None = None
+
+SCENARIO_GLOB = "scenarios/*.json"
+
+
+def _list_scenario_files() -> list[str]:
+    files = sorted(glob.glob(SCENARIO_GLOB))
+    return [f for f in files if "template" not in os.path.basename(f).lower()]
+
+
+def _find_scenario() -> str | None:
+    files = _list_scenario_files()
+    return files[0] if files else None
+
+
+def _load_scenario_by_path(path: str) -> None:
+    """(Re)loads the given scenario file as the active one for both languages.
+    Used at startup and whenever the frontend explicitly picks a scenario."""
+    global scenario_json, _current_scenario_path
+    with open(path, encoding="utf-8") as f:
+        scenario_json = json.load(f)
+    _current_scenario_path = path
+    _sessions.clear()
+    for lang in ("en", "ja"):
+        try:
+            _sessions[lang] = GameSession(path, language=lang)
+            print(f"[api] GameSession({lang}) loaded: {path}")
+        except Exception as e:
+            print(f"[api] GameSession({lang}) failed: {e}")
+
+
+def _get_session(lang: str = "ja") -> GameSession:
+    if lang not in _sessions:
+        raise HTTPException(503, "Session not loaded")
+    return _sessions[lang]
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    path = _find_scenario()
+    if path:
+        _load_scenario_by_path(path)
+    else:
+        print("[api] No scenario found in scenarios/")
+    yield
+
+
+# ── App ───────────────────────────────────────────────────────────────────────
+
+app = FastAPI(title="Holmes KG API", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# ── Models ────────────────────────────────────────────────────────────────────
+
+class ChatRequest(BaseModel):
+    suspect_id: str
+    message: str
+    lang: str = "ja"
+
+
+class ChatResponse(BaseModel):
+    text: str
+    emotion: str = "neutral"
+    unlocked_location: str | None = None
+
+
+class IndictRequest(BaseModel):
+    suspect_id: str
+    reason: str
+    lang: str = "ja"
+
+
+class SelectScenarioRequest(BaseModel):
+    scenario_id: str
+
+
+# ── Endpoints ─────────────────────────────────────────────────────────────────
+
+@app.get("/health")
+def health():
+    return {
+        "status": "ok",
+        "sessions": list(_sessions.keys()),
+        "scenario_loaded": scenario_json is not None,
+    }
+
+
+@app.get("/scenario")
+def get_scenario():
+    if scenario_json is None:
+        raise HTTPException(404, "No scenario JSON found in scenarios/")
+    return scenario_json
+
+
+@app.get("/scenarios")
+def list_scenarios():
+    return [
+        {
+            "id": os.path.basename(f).replace(".json", ""),
+            "path": f,
+            "active": f == _current_scenario_path,
+        }
+        for f in _list_scenario_files()
+    ]
+
+
+@app.post("/select_scenario")
+def select_scenario(req: SelectScenarioRequest):
+    match = next(
+        (f for f in _list_scenario_files() if os.path.basename(f).replace(".json", "") == req.scenario_id),
+        None,
+    )
+    if not match:
+        raise HTTPException(404, f"Scenario '{req.scenario_id}' not found")
+    # Rebuilding GameSession wipes its per-session Japanese translation cache
+    # (each field in /briefing is a separate LLM call on a cache miss) — skip
+    # the rebuild entirely when re-selecting the scenario that's already
+    # active, so re-confirming the default doesn't pay that cost again.
+    if match != _current_scenario_path:
+        _load_scenario_by_path(match)
+    return {"status": "ok", "scenario_id": req.scenario_id}
+
+
+@app.get("/briefing")
+def briefing(lang: str = "ja"):
+    gs = _get_session(lang)
+    return gs.get_briefing()
+
+
+@app.get("/state")
+def get_state(lang: str = "ja"):
+    gs = _get_session(lang)
+    state = gs.get_state()
+    return {
+        "current_suspect_id": state.current_suspect_id,
+        "suspects": [{"id": s.id, "name": s.name} for s in state.suspects],
+        "available_locations": [
+            {
+                "id": l.id,
+                "name": l.name,
+                "examined": l.examined,
+                "is_new": l.is_new,
+                "item_ids": l.item_ids,
+            }
+            for l in state.available_locations
+        ],
+        "found_items": [
+            {"id": i.id, "name": i.name, "description": i.description}
+            for i in state.found_items
+        ],
+        "turn": state.turn,
+    }
+
+
+@app.post("/chat", response_model=ChatResponse)
+async def chat(req: ChatRequest):
+    gs = _get_session(req.lang)
+    try:
+        gs.switch_suspect(req.suspect_id)
+    except ValueError as e:
+        raise HTTPException(404, str(e))
+
+    def _ask():
+        set_lang(req.lang)
+        return gs.ask(req.message)
+    response_text = await asyncio.to_thread(_ask)
+
+    new_locs = list(gs._new_location_ids)
+    return ChatResponse(
+        text=response_text,
+        emotion="neutral",
+        unlocked_location=new_locs[0] if new_locs else None,
+    )
+
+
+@app.post("/examine/location/{location_id}")
+async def examine_location(location_id: str, lang: str = "ja"):
+    gs = _get_session(lang)
+    def _examine():
+        set_lang(lang)
+        return gs.examine_location(location_id)
+    result = await asyncio.to_thread(_examine)
+    return {
+        "description": result.description,
+        "newly_found": [
+            {"id": i.id, "name": i.name, "description": i.description}
+            for i in result.newly_found
+        ],
+        "already_found": [
+            {"id": i.id, "name": i.name, "description": i.description}
+            for i in result.already_found
+        ],
+        "unlocked_location": result.unlocked_location,
+    }
+
+
+@app.get("/examine/item/{item_id}")
+async def examine_item(item_id: str, lang: str = "ja"):
+    gs = _get_session(lang)
+    def _examine_item():
+        set_lang(lang)
+        return gs.examine_item(item_id)
+    result = await asyncio.to_thread(_examine_item)
+    return {
+        "name": result.name,
+        "description": result.description,
+        "significance": result.significance,
+        "unlocked_location": result.unlocked_location,
+    }
+
+
+@app.post("/reset")
+async def reset_sessions():
+    """Reinitialise all GameSession objects — equivalent to a backend restart."""
+    path = _find_scenario()
+    if not path:
+        raise HTTPException(503, "No scenario found")
+    for lang in ("en", "ja"):
+        try:
+            _sessions[lang] = GameSession(path, language=lang)
+            print(f"[api] reset GameSession({lang})")
+        except Exception as e:
+            print(f"[api] reset GameSession({lang}) failed: {e}")
+    return {"status": "reset"}
+
+
+@app.post("/indict")
+async def indict(req: IndictRequest):
+    gs = _get_session(req.lang)
+    def _indict():
+        set_lang(req.lang)
+        return gs.indict(req.suspect_id, req.reason)
+    try:
+        result = await asyncio.to_thread(_indict)
+    except ValueError as e:
+        raise HTTPException(404, str(e))
+    return {
+        "correct": result.correct,
+        "accused_name": result.accused_name,
+        "reason_accepted": result.reason_accepted,
+        "won": result.won,
+        "message": result.message,
+    }

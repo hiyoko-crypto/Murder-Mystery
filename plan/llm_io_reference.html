@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>LLM入出力リファレンス — 容疑者応答 / 推理検証</title>
+<style>
+  :root {
+    --bg: #f3f5f7;
+    --surface: #ffffff;
+    --ink: #1a2230;
+    --muted: #5c6b7a;
+    --line: #dde3e8;
+    --accent: #35618f;
+    --accent-soft: #e4edf5;
+    --phase: #3f7d5c;
+    --phase-soft: #e3f1e9;
+    --warn: #a3620a;
+    --warn-soft: #fbf0dd;
+    --code-bg: #eef1f4;
+    --code-ink: #24303d;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181c;
+      --surface: #1b2126;
+      --ink: #e7ebee;
+      --muted: #93a1ab;
+      --line: #2c353c;
+      --accent: #8fb6d9;
+      --accent-soft: #223140;
+      --phase: #7fc9a1;
+      --phase-soft: #1c2f26;
+      --warn: #e3ac54;
+      --warn-soft: #362b16;
+      --code-bg: #20272d;
+      --code-ink: #d8dee2;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181c;
+    --surface: #1b2126;
+    --ink: #e7ebee;
+    --muted: #93a1ab;
+    --line: #2c353c;
+    --accent: #8fb6d9;
+    --accent-soft: #223140;
+    --phase: #7fc9a1;
+    --phase-soft: #1c2f26;
+    --warn: #e3ac54;
+    --warn-soft: #362b16;
+    --code-bg: #20272d;
+    --code-ink: #d8dee2;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    line-height: 1.8;
+  }
+  a { color: var(--accent); }
+  .shell { display: flex; max-width: 1160px; margin: 0 auto; align-items: flex-start; }
+
+  nav.toc {
+    position: sticky; top: 0; flex: 0 0 240px; height: 100vh; overflow-y: auto;
+    padding: 28px 18px 40px 24px; font-size: 0.8rem;
+  }
+  nav.toc .eyebrow { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--phase); font-weight: 700; margin-bottom: 10px; }
+  nav.toc a { display: block; color: var(--muted); text-decoration: none; padding: 5px 0; border-left: 2px solid transparent; padding-left: 10px; margin-left: -12px; }
+  nav.toc a:hover { color: var(--ink); }
+  nav.toc .sub { padding-left: 22px; font-size: 0.76rem; }
+
+  main { flex: 1; min-width: 0; padding: 44px 40px 120px; max-width: 860px; }
+
+  header.doc-head { margin-bottom: 40px; }
+  .phase-badge {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--phase); background: var(--phase-soft);
+    padding: 4px 10px; border-radius: 999px; margin-bottom: 14px;
+  }
+  h1 { font-size: 1.7rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.01em; text-wrap: balance; }
+  .lede { color: var(--muted); font-size: 0.96rem; max-width: 64ch; }
+
+  h2 {
+    font-size: 1.2rem; font-weight: 800; margin: 56px 0 6px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--line); scroll-margin-top: 20px;
+  }
+  h2 .num { color: var(--phase); font-variant-numeric: tabular-nums; margin-right: 8px; }
+  h3 { font-size: 1rem; font-weight: 700; margin: 28px 0 8px; scroll-margin-top: 20px; }
+  p { margin: 0 0 13px; max-width: 68ch; }
+  ul, ol { margin: 0 0 13px; padding-left: 1.35em; }
+  li { margin-bottom: 5px; max-width: 64ch; }
+  strong { color: var(--ink); }
+
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, "Courier New", monospace; font-size: 0.85em;
+    background: var(--code-bg); color: var(--code-ink); padding: 1px 5px; border-radius: 4px;
+  }
+  pre {
+    background: var(--code-bg); color: var(--code-ink); padding: 14px 16px; border-radius: 8px;
+    overflow-x: auto; font-size: 0.78rem; line-height: 1.55; margin: 0 0 16px;
+  }
+  pre code { background: none; padding: 0; }
+  pre.tall { max-height: 420px; overflow-y: auto; }
+
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 20px; font-size: 0.86rem; }
+  .table-wrap { overflow-x: auto; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; }
+
+  .decision {
+    background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0;
+    padding: 14px 18px; margin: 16px 0 22px;
+  }
+  .decision .label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .decision p:last-child { margin-bottom: 0; }
+
+  .rough {
+    background: var(--warn-soft); border-left: 3px solid var(--warn); border-radius: 0 8px 8px 0;
+    padding: 14px 18px; margin: 10px 0 16px;
+  }
+  .rough .label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--warn); margin-bottom: 6px; }
+  .rough p:last-child { margin-bottom: 0; }
+
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px 0 22px; font-size: 0.85rem; }
+  .flow .node { background: var(--surface); border: 1px solid var(--line); border-radius: 7px; padding: 8px 13px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.8rem; }
+  .flow .arrow { color: var(--muted); }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin: 0 0 16px; }
+  .card .tag { display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-bottom: 8px; }
+  .tag.in { background: var(--accent-soft); color: var(--accent); }
+  .tag.out { background: var(--phase-soft); color: var(--phase); }
+
+  footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.82rem; }
+  footer a { margin-right: 16px; }
+
+  @media (max-width: 880px) {
+    .shell { flex-direction: column; }
+    nav.toc { position: static; height: auto; width: 100%; padding: 20px 20px 0; }
+    main { padding: 20px 20px 80px; max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="toc">
+    <div class="eyebrow">On this page</div>
+    <a href="#suspect">1. 容疑者LLM（尋問応答）</a>
+    <a href="#suspect-in" class="sub">1-1. 入力</a>
+    <a href="#suspect-history" class="sub">1-2. 過去の対話履歴</a>
+    <a href="#suspect-out" class="sub">1-3. 出力</a>
+    <a href="#suspect-retry" class="sub">1-4. 検証失敗時の再送</a>
+    <a href="#indict">2. 推理検証LLM（起訴判定）</a>
+    <a href="#indict-in" class="sub">2-1. 入力</a>
+    <a href="#indict-out" class="sub">2-2. 出力</a>
+    <a href="#indict-after" class="sub">2-3. LLM出力の後処理</a>
+    <a href="#compare">3. 2つのLLM呼び出しの比較</a>
+  </nav>
+
+  <main>
+    <header class="doc-head">
+      <div class="phase-badge">スライド準備用リファレンス</div>
+      <h1>LLM入出力リファレンス</h1>
+      <p class="lede">
+        本プロジェクトでLLMを呼び出す箇所は大きく2つ——①容疑者の尋問応答、②起訴時の推理検証（自由文からKGエッジへのマッピング）。
+        どちらも「入力に何を渡すか」「出力に何を期待するか」が全く異なる設計になっている。実際のコード実行結果に基づく実例付きでまとめる。
+      </p>
+    </header>
+
+    <section id="suspect">
+      <h2><span class="num">1</span>容疑者LLM（尋問応答）</h2>
+      <p>
+        <code>suspect_agents/suspect_agent_kg_verbatim.py</code>（本番実装）が毎ターン1回呼び出す。役割は「探偵の質問に、その容疑者が知っている事実の範囲内で自然に答える」こと。
+      </p>
+
+      <h3 id="suspect-in">1-1. 入力: messages配列</h3>
+      <p>
+        Ollamaのchat補完APIに渡す<code>messages</code>は3種類のメッセージから構成される。<strong>system</strong>は毎ターン同じ内容で固定、<strong>過去のuser/assistantペア</strong>はターンを重ねるごとに増え続ける逐語履歴、最後に今回の<strong>user</strong>質問が続く。
+      </p>
+      <div class="flow">
+        <div class="node">[system] 固定のシステムプロンプト</div><span class="arrow">→</span>
+        <div class="node">[user][assistant] × 過去のターン数</div><span class="arrow">→</span>
+        <div class="node">[user] 今回の質問</div>
+      </div>
+
+      <div class="card">
+        <span class="tag in">system message の内部構造</span>
+        <ol>
+          <li><strong>キャラクター設定</strong> — 名前・bio・personality tags・interrogation_style（キャラクターごとのJSONデータをそのまま埋め込み）</li>
+          <li><strong>[Facts you know]</strong> — この容疑者の可視エッジのみ。<code>provenance</code>で personal（自己知識・直接観察）／public（伝聞・公開報告）／other の3グループに分けて列挙</li>
+          <li><strong>[Facts you know but must NOT reveal]</strong> — 隠蔽エッジ（<code>hidden_from_detective: true</code>）。存在する場合のみ追加</li>
+          <li><strong>[Output format]</strong> — 出力JSONのスキーマ指示</li>
+        </ol>
+        <p style="margin-bottom:0">
+          <code>[Your own prior statements]</code>ブロック（かつての構造化自己申告グラフ）は現在は使われていない — <code>ledger_text=""</code>で呼ぶため丸ごと省略され、代わりに<code>messages</code>側の逐語履歴が同じ役割を果たす。
+        </p>
+      </div>
+
+      <h3>実例（Elena Rostova・有罪側）のsystem message全文</h3>
+      <pre class="tall"><code>You are Elena Rostova. You are a suspect being interrogated by a detective.
+Speak naturally as your character — embody them, do not recite their profile.
+Answer the detective's question as directly as you safely can.
+Use the facts as anchors. You may speak naturally and add harmless color, but do not add new concrete case facts such as people, places, times, evidence, or actions unless supported by your facts.
+Do not evade unless a direct answer would reveal a forbidden hidden fact.
+
+Bio: Elena Rostova, 34, is the lead actress of 'Shadows of Guilt'. ...
+
+Personality: composed, calculating, deflects with charm, precise under pressure, hides panic behind poise
+
+Interrogation style: Calm and composed. Deflects with charm. Steers suspicion toward Julian's letter
+or Leo's dismissal. If asked about the ventilation shaft, the candlestick, or the compact mirror,
+become visibly anxious and redirect immediately. Never acknowledge entering the shaft or striking Marcus.
+
+
+[Facts you know]
+Base concrete case claims on the triples below, respecting the provenance labels.
+You may add harmless conversational detail, emotion, uncertainty, and natural phrasing as long as
+it does not contradict these facts or your prior statements.
+Do not invent major new evidence, witnesses, claimed whereabouts, locations, murder methods, or
+case-solving facts.
+
+Personal knowledge / direct observations — you may speak about these as your own knowledge:
+  e13: Elena Rostova --[OWNS]--> Silver Compact Mirror  (self_knowledge)
+  e14: Elena Rostova --[WAS_IN]--> Elena's Dressing Room  (self_knowledge)  @ 9:10 PM
+  e74: Elena Rostova --[PARTICIPATED_IN]--> Elena's Visit to Marcus @ 7:00 PM  (direct_observation)  @ 7:00 PM
+  ... (このカテゴリ計13本のエッジ)
+
+Public reports / hearsay — you may mention these, but do not present them as your own direct experience:
+  e1: Marcus Vance --[FOUND_DEAD_IN]--> Marcus's Dressing Room  (public_report)
+  e9: Elena Rostova --[HAS_MOTIVE]--> Marcus Vance  (public_hearsay)
+  e58: Marcus Vance --[CONTROLLED]--> Elena's Debt Contracts  (public_hearsay)
+  ... (このカテゴリ計30本のエッジ)
+
+
+[Facts you know but must NOT reveal]
+You are aware of these but must never disclose them to the detective.
+If pressed on these topics, deflect or deny. Stay composed on the surface.
+  e12: Elena Rostova --[STRUCK]--> Marcus Vance  (self_knowledge)  @ 9:05 PM
+  e81: Elena's Vent Entry @ 9:00 PM --[ENTERED]--> Ventilation Shaft  (self_knowledge)
+  e89: Elena Drops the Compact @ 9:08 PM --[DROPPED]--> Silver Compact Mirror  (self_knowledge)
+  ... (このカテゴリ計14本のエッジ)
+
+
+[Output format]
+Respond ONLY in the following JSON. No text outside the JSON.
+{"response": "Your spoken response in English", "used_edge_ids": ["e1", "e2"]}
+used_edge_ids: edge IDs used as the basis for your response.</code></pre>
+
+      <p>
+        この後に続く<code>messages</code>の残りは、これまでのターンの<code>{"role": "user", "content": "Detective: ..."}</code> / <code>{"role": "assistant", "content": "（前回の生の応答文）"}</code>の繰り返しと、今回の質問<code>{"role": "user", "content": "Detective: 今回の質問"}</code>。
+      </p>
+
+      <h3 id="suspect-history">1-2. 過去の対話履歴（逐語履歴）の構造</h3>
+      <p>
+        容疑者の記憶は、かつてのように事実をトリプルへ要約したものではなく、<strong>実際に生成された生の発話をそのまま</strong><code>chat_history</code>というリストに積み上げ、毎ターン丸ごと再送する方式（<code>suspect_agents/suspect_agent_kg_verbatim.py</code>）。
+      </p>
+      <pre><code>self.chat_history: list = []  # {"role": ..., "content": ...} のプレーンなリスト。JSONではなく発話文そのもの
+
+def get_suspect_response(self, user_message: str) -> str:
+    ...
+    system_msg = {"role": "system", "content": self.system_content}
+    user_msg   = {"role": "user", "content": f"Detective: {question_for_llm}"}
+
+    for attempt in range(MAX_RETRIES):
+        messages = [system_msg] + self.chat_history + [user_msg]
+        raw = llm_messages(messages, temperature=0.7, quality=True)
+
+        is_valid, parsed, error = validate_response(...)
+        if is_valid:
+            response_text = parsed["response"]
+            # 検証OKになった発話だけを履歴に追加する — JSONの生文字列ではなく
+            # "response" フィールドの中身（プレーンな発話文）だけを保存する
+            self.chat_history.append({"role": "user", "content": f"Detective: {question_for_llm}"})
+            self.chat_history.append({"role": "assistant", "content": response_text})
+            return response_text</code></pre>
+      <ul>
+        <li>保存されるのは<strong>検証を通過した発話のみ</strong> — バリデータで弾かれた（＝再送された）試行は<code>chat_history</code>には一切残らない</li>
+        <li>保存する内容は<code>used_edge_ids</code>を含むJSON全体ではなく、<code>response</code>フィールドの<strong>プレーンな発話文だけ</strong></li>
+        <li>system messageは対象外 — 固定のキャラクター設定が毎ターン再送されるだけで、履歴には積まれない</li>
+      </ul>
+
+      <h3>実例（Julian・3ターン目に送られる<code>messages</code>配列、実際の生成結果）</h3>
+      <p>1・2ターン目の実際の応答が<code>chat_history</code>に積まれた状態で、3ターン目の質問と一緒に送信される。</p>
+      <pre class="tall"><code>[
+  {"role": "system", "content": "You are Dr. Julian Wilde. You are a suspect being interrogated ... (システムプロンプト全文、毎ターン不変)"},
+
+  {"role": "user", "content": "Detective: What can you tell me about your relationship with Marcus?"},
+  {"role": "assistant", "content": "Well, let's get one thing straight: I was there to discuss the theatre's
+    future. I have a genuine interest in the arts, unlike certain people who only see money. I was in the lobby
+    from 9:00 PM to 9:30 PM, sharing insights on future investment with my associates Barton and Finch. ...
+    As for my credentials, I am a respected physician and patron, not a fraud. The claims about my
+    qualifications being purchased are baseless and defamatory."},
+
+  {"role": "user", "content": "Detective: Did Marcus have any enemies?"},
+  {"role": "assistant", "content": "Enemies? Marcus was a man who loved control. He controlled Elena's debt
+    contracts and her career, creating a hostile environment that naturally bred resentment. And don't get me
+    started on Leo Cross; Marcus fired him at 10:00 AM, causing a wrongful termination that surely planted
+    seeds of bitterness. ... He was a difficult man."},
+
+  {"role": "user", "content": "Detective: What do you know about Leo Cross being fired?"}
+]</code></pre>
+      <div class="rough">
+        <div class="label">留意点（<code>plan/open_issues.md</code>参照）</div>
+        <p style="margin-bottom:0">
+          この配列はターンを重ねるごとに単調に増加する（要約や圧縮は一切行われない）。実測では10ターンの尋問で<code>prompt_tokens</code>が約2800→4030まで増加し、<code>NUM_CTX = 4096</code>（<code>modules/llm_client.py</code>）に接近してJSON生成が破綻する例も確認済み。まだ対策（最大ターン数の上限や古いターンの圧縮）は実装していない。
+        </p>
+      </div>
+      <div class="decision">
+        <div class="label">以前の方式との違い</div>
+        <p style="margin-bottom:0">
+          保持されている<code>suspect_agents/suspect_agent_kg.py</code>（トリプル方式・将来再利用の可能性ありのため削除せず保持）は、この<code>chat_history</code>の代わりに<code>CommitmentLedger.get_self_graph_text()</code>が生成する構造化トリプル要約（最大直近6ターン、圧縮済み）を<code>ledger_text</code>としてsystem message内の別ブロックに埋め込む——<code>messages</code>配列自体は毎ターン<code>[system, user]</code>の2件だけで、履歴は積まれない。
+        </p>
+      </div>
+
+      <div class="rough">
+        <div class="label">留意点</div>
+        <p>
+          system messageは毎ターン<strong>丸ごと再送</strong>される（キャラごとに固定・不変）。ターンを重ねるほどコンテキストが増えるのは逐語履歴側であり、system message自体のサイズは一定。
+        </p>
+      </div>
+
+      <h3 id="suspect-out">1-3. 出力: JSON</h3>
+      <div class="card">
+        <span class="tag out">出力スキーマ</span>
+        <pre><code>{"response": "発話内容（英語）", "used_edge_ids": ["e13", "e14", ...]}</code></pre>
+        <ul style="margin-bottom:0">
+          <li><code>response</code> — 容疑者としての発話。この文字列がそのまま（日本語モードなら翻訳して）画面に表示される</li>
+          <li><code>used_edge_ids</code> — 今回の発話の根拠として使ったエッジID。<strong>ゲーム状態を動かす唯一の手がかり</strong> — 場所開放判定（<code>location_tracker.py</code>）はこの配列だけを見る</li>
+        </ul>
+      </div>
+
+      <h3>実例出力（Julian・ロビーの質問に対する実際の応答）</h3>
+      <pre><code>{
+  "response": "I was in the front row of the stalls for the first act, Detective. I sat there
+    from 7:30 until the curtain called at 9:00. After that, I moved to the lobby where I was
+    with Barton and Finch until the show ended...",
+  "used_edge_ids": ["e108", "e109", "e110", "e111", "e112", "e113", "e114", "e118"]
+}</code></pre>
+      <p>
+        以前は<code>asserted_triples</code>という第3フィールド（自己申告した事実をトリプル形式で書き出す）も要求していたが、記憶方式を逐語履歴に切り替えた際に誰も読まなくなったため、直近の変更でプロンプト・検証の両方から削除済み（生成させていない）。
+      </p>
+
+      <div class="decision">
+        <div class="label">検証ステップ（<code>validator_kg.py</code>）</div>
+        <p style="margin-bottom:0">
+          この出力は<code>validate_response()</code>でJSONパース・型チェックの後、<strong>漏洩チェック</strong>（<code>used_edge_ids</code>に隠蔽エッジが含まれていないか）と<strong>グラウンディングチェック</strong>（可視エッジの範囲外を指していないか）を通過して初めて採用される。失敗した場合はエラーヒントを付けて最大3回まで再送。
+        </p>
+      </div>
+
+      <h3 id="suspect-retry">1-4. hidden_edgeが漏洩した場合の再送プロンプト（実例）</h3>
+      <p>
+        容疑者LLMが<code>used_edge_ids</code>に隠蔽エッジを含めて返してしまった場合を実際に再現した例。Elenaの隠蔽エッジ<code>e12</code>（<code>Elena Rostova --[STRUCK]--&gt; Marcus Vance</code>）を含む出力を<code>validate_response()</code>に通すと、次のエラーが返る。
+      </p>
+      <pre><code>raw output: {"response": "Fine, I did strike him with the candlestick, but it was self-defense!",
+             "used_edge_ids": ["e14", "e12"]}
+
+validate_response() の戻り値:
+  is_valid = False
+  error    = "hidden_edges が漏洩しています: ['e12']"</code></pre>
+      <p>
+        この<code>error</code>文字列がそのまま次の<code>user</code>メッセージに埋め込まれ、system messageは変更せずに<strong>同じターン内で即時再送</strong>される（<code>chat_history</code>には失敗した試行は残らない）。
+      </p>
+      <pre><code>[user] "Detective: Did you strike Marcus with the candlestick?
+
+[Previous output was invalid: hidden_edges が漏洩しています: ['e12']. Please output valid JSON again.]"</code></pre>
+      <div class="rough">
+        <div class="label">留意点</div>
+        <p style="margin-bottom:0">
+          エラーメッセージ自体（<code>"hidden_edges が漏洩しています"</code>）は日本語で書かれている。システムプロンプトや会話履歴はすべて英語で統一されているのに対し、バリデータのエラーヒントだけ日本語が混入する——LLMの理解には支障が出ていないようだが、プロンプト全体の言語一貫性としては小さな不整合。
+        </p>
+      </div>
+      <p>
+        この再送は<code>MAX_RETRIES = 3</code>回まで行われ、3回とも失敗した場合は安全な定型応答（<code>"I need a moment to collect myself. Ask me again, Detective."</code>）にフォールバックする。他に発生し得るエラー文字列は次の通り（いずれも同じ再送テンプレートに埋め込まれる）。
+      </p>
+      <div class="table-wrap">
+      <table>
+        <tr><th>検証ステップ</th><th>エラー文字列の例</th></tr>
+        <tr><td>JSONパース失敗</td><td><code>JSONパースエラー: Expecting ',' delimiter: ...</code></td></tr>
+        <tr><td>必須フィールド欠落</td><td><code>'response' フィールドが存在しないか無効です</code> / <code>'used_edge_ids' フィールドが存在しません</code></td></tr>
+        <tr><td>型不正</td><td><code>'used_edge_ids' は配列である必要があります</code></td></tr>
+        <tr><td>隠蔽漏洩（上記の例）</td><td><code>hidden_edges が漏洩しています: ['e12']</code></td></tr>
+        <tr><td>グラウンディング違反</td><td><code>使用できないedge IDが含まれています: ['e999']</code>（可視エッジの範囲外を指した場合）</td></tr>
+      </table>
+      </div>
+    </section>
+
+    <section id="indict">
+      <h2><span class="num">2</span>推理検証LLM（起訴判定）</h2>
+      <p>
+        <code>modules/reason_edge_extractor.py</code>が呼び出す。役割は容疑者LLMと全く異なる——「探偵（プレイヤー）が自由文で書いた推理を、KGのエッジIDに変換すること」だけ。<strong>勝敗の判定そのものはLLMに一切させない。</strong>
+      </p>
+
+      <h3 id="indict-in">2-1. 入力</h3>
+      <p>
+        毎起訴1回、<code>llm()</code>（単発プロンプト、<code>temperature=0.0</code>）を呼ぶ。渡すのはシナリオ全体のエッジ・ノードではなく、<code>solution.proof_graph</code>が参照しているエッジ・ノードだけに絞った部分グラフ——起訴判定エージェント版の「サブグラフ抽出」に相当する仕組み（<code>_proof_graph_subgraph()</code>）。
+      </p>
+      <div class="flow">
+        <div class="node">[knowledge graph edges] proof_graph参照分のみ（今回の例で19本）</div>
+      </div>
+      <div class="flow">
+        <div class="node">[knowledge graph nodes and aliases] 上記エッジの端点ノード＋日本語表示名（今回の例で18件）</div>
+      </div>
+      <div class="flow">
+        <div class="node">[player explanation] プレイヤーが書いた起訴理由の生テキスト</div>
+      </div>
+
+      <h3>実例（proof_graph部分グラフ＋プレイヤーの理由文）</h3>
+      <pre class="tall"><code>You map a player's murder accusation explanation to knowledge-graph edge IDs.
+
+Task:
+- Read the player's explanation, which may be in Japanese or English.
+- Rewrite it into atomic factual claims.
+- Map each claim to the KG edges it meaningfully mentions or paraphrases.
+- Do not judge whether the accusation wins.
+- Do not solve the case.
+- Return only valid JSON.
+
+Relation guide:
+- FOUND_IN: an item, person, or clue was found in a location.
+- OWNS: ownership, belonging, initials, signature, personal property, or possession.
+- CONNECTS_TO: a route, passage, shaft, door, corridor, or way between places.
+- WAS_IN / PARTICIPATED_IN / OCCURRED_AT: a person or event was at a relevant place and time.
+- CANNOT_ACCESS: a person could not enter or access a place.
+(... 出力スキーマの指示は省略 ...)
+
+[Knowledge graph edges]
+e8: Ventilation Shaft --[CONNECTS_TO]--> Elena's Dressing Room
+e7: Ventilation Shaft --[CONNECTS_TO]--> Marcus's Dressing Room
+e42: Ventilation Shaft --[ONLY_POSSIBLE_ENTRY_TO]--> Marcus's Dressing Room
+e5: Locked Door --[FOUND_IN]--> Marcus's Dressing Room
+e37: Locked Door --[LOCKED_FROM]--> Marcus's Dressing Room
+e41: Locked Door --[HAD_NO_SIGN_OF]--> Forced Entry
+e13: Elena Rostova --[OWNS]--> Silver Compact Mirror
+e55: Silver Compact Mirror --[ENGRAVED_WITH]--> E.R.
+e6: Silver Compact Mirror --[FOUND_IN]--> Ventilation Shaft
+e111: Dr. Julian Wilde --[PARTICIPATED_IN]--> Julian's Lobby Presence @ 9:00 PM - 9:30 PM
+e112: Julian's Lobby Presence @ 9:00 PM - 9:30 PM --[OCCURRED_AT]--> Theatre Lobby
+e115: Barton --[WITNESSED]--> Julian's Lobby Presence @ 9:00 PM - 9:30 PM
+e116: Finch --[WITNESSED]--> Julian's Lobby Presence @ 9:00 PM - 9:30 PM
+e120: Dr. Julian Wilde --[DID_NOT_LEAVE]--> Theatre Lobby @ 9:00 PM - 9:30 PM
+e123: Leo Cross --[PARTICIPATED_IN]--> Leo's Bar Presence @ 8:00 PM - 10:00 PM
+e124: Leo's Bar Presence @ 8:00 PM - 10:00 PM --[OCCURRED_AT]--> Theatre Bar
+e126: Tommy Reeves --[WITNESSED]--> Leo's Bar Presence @ 8:00 PM - 10:00 PM
+e130: Leo Cross --[DID_NOT_LEAVE]--> Theatre Bar @ 8:00 PM - 10:00 PM
+e134: Leo's Backstage Pass Revoked @ 8:00 PM --[PREVENTED_ACCESS_TO]--> Marcus's Dressing Room
+
+[Knowledge graph nodes and aliases]
+n_elena: Elena Rostova | Japanese: エレナ・ロストヴァ
+n_silver_compact: Silver Compact Mirror | Japanese: 銀のコンパクトミラー | Description: A small
+  silver makeup compact, engraved with the initials E.R. Found inside the ventilation shaft,
+  roughly halfway between Elena's dressing room and Marcus's. | Significance: Someone dropped
+  this inside the shaft. The initials suggest its owner — but ownership alone does not place
+  them at the scene at the time of the murder.
+n_lobby: Theatre Lobby | Japanese: 劇場ロビー | Description: Public foyer. Julian Wilde was
+  here with investors Barton and Finch during the entire intermission.
+n_locked_door: Locked Door | Japanese: 施錠されたドア | Description: The dressing room door was
+  locked from the inside with a deadbolt during intermission. ... | Significance: No forced
+  entry. The door was bolted from inside and the key was on the body. How did the killer get
+  in — and out?
+(... 他14件のノード ...)
+
+[Player explanation]
+Elena is the murderer. Her silver compact mirror was found inside the ventilation shaft that
+connects Marcus's dressing room to her own dressing room, proving she used it to reach him.
+Marcus's dressing room door was locked from the inside with no sign of forced entry, so the
+vent was the only way in or out.</code></pre>
+
+      <div class="decision">
+        <div class="label">容疑者LLMとの違い</div>
+        <p style="margin-bottom:0">
+          容疑者LLMは「この容疑者だけが知っている事実」に絞るのに対し、こちらは「<code>proof_graph</code>が採点対象にしているエッジ」だけに絞る——絞り込みの軸は違うが、どちらも<strong>全知識グラフを渡さずスコープを絞る</strong>という同じ設計思想。これはコンテキストオーバーフロー対策として明示的に選んだ実装（<code>_proof_graph_subgraph()</code>）。
+        </p>
+      </div>
+
+      <h3 id="indict-out">2-2. 出力: JSON</h3>
+      <div class="card">
+        <span class="tag out">出力スキーマ</span>
+        <pre><code>{
+  "claims": [ { "text": "atomic factual claim", "quote": "player's supporting phrase" } ],
+  "mentioned_edges": [
+    { "edge_id": "e6", "confidence": 0.95, "matched_claim": "...", "quote": "..." }
+  ]
+}</code></pre>
+        <p style="margin-bottom:0">
+          <code>confidence</code>が0.6（<code>CONFIDENCE_THRESHOLD</code>）以上のエッジだけが、後続の採点で「言及された」とみなされる。
+        </p>
+      </div>
+
+      <h3>実例出力（上記の理由文に対する実際の抽出結果、抜粋）</h3>
+      <pre class="tall"><code>{
+  "claims": [
+    { "text": "Elena Rostova is the murderer.", "quote": "Elena is the murderer." },
+    { "text": "A silver compact mirror was found inside the ventilation shaft.",
+      "quote": "Her silver compact mirror was found inside the ventilation shaft" },
+    { "text": "The ventilation shaft connects Marcus's dressing room to Elena's dressing room.",
+      "quote": "ventilation shaft that connects Marcus's dressing room to her own dressing room" },
+    { "text": "Marcus's dressing room door was locked from the inside.",
+      "quote": "Marcus's dressing room door was locked from the inside" },
+    { "text": "There was no sign of forced entry on Marcus's dressing room door.",
+      "quote": "with no sign of forced entry" }
+  ],
+  "mentioned_edges": [
+    { "edge_id": "e13", "confidence": 0.95, "matched_claim": "The silver compact mirror belongs to Elena Rostova." },
+    { "edge_id": "e6",  "confidence": 0.95, "matched_claim": "A silver compact mirror was found inside the ventilation shaft." },
+    { "edge_id": "e8",  "confidence": 0.95, "matched_claim": "The ventilation shaft connects Marcus's dressing room to Elena's dressing room." },
+    { "edge_id": "e7",  "confidence": 0.95, "matched_claim": "The ventilation shaft connects Marcus's dressing room to Elena's dressing room." },
+    { "edge_id": "e42", "confidence": 0.90, "matched_claim": "The ventilation shaft was the only way to enter or exit Marcus's dressing room." },
+    { "edge_id": "e37", "confidence": 0.95, "matched_claim": "Marcus's dressing room door was locked from the inside." },
+    { "edge_id": "e41", "confidence": 0.95, "matched_claim": "There was no sign of forced entry on Marcus's dressing room door." }
+  ]
+}</code></pre>
+
+      <h3 id="indict-after">2-3. LLM出力の後処理（ここは完全にPython・ルールベース）</h3>
+      <p>
+        <code>indictment_evaluator.py</code>が、上記のLLM抽出結果（<code>mentioned_edge_ids</code>）と<code>solution.proof_graph</code>（グループ・重み・最小要求数・必須フラグ・最小合格点）を照合し、<strong>LLMを一切使わずに</strong>スコアと勝敗を計算する。
+      </p>
+      <div class="table-wrap">
+      <table>
+        <tr><th>ステップ</th><th>内容</th></tr>
+        <tr><td>1</td><td><code>accused_correct</code> = 起訴した容疑者IDが<code>solution.killer_node</code>と一致するか</td></tr>
+        <tr><td>2</td><td>各<code>proof_graph</code>グループについて、<code>mentioned_edge_ids</code>との積集合が<code>min_required</code>本以上あれば合格、その重みをスコアに加算</td></tr>
+        <tr><td>3</td><td><code>required: true</code>のグループが1つでも不合格なら、スコアに関わらず<code>reason_accepted = False</code></td></tr>
+        <tr><td>4</td><td><code>reason_accepted</code> = 必須グループ全合格 かつ スコア ≥ <code>minimum_score</code></td></tr>
+        <tr><td>5</td><td><code>won</code> = <code>accused_correct</code> かつ <code>reason_accepted</code></td></tr>
+      </table>
+      </div>
+
+      <h3>実例の最終結果</h3>
+      <pre><code>{
+  "accused_correct": true,
+  "reason_accepted": true,
+  "won": true,
+  "score": 7,
+  "minimum_score": 5,
+  "passed_groups": ["compact_link (weight 4, required)", "vent_route (weight 2)", "locked_room (weight 1)"],
+  "failed_groups": ["julian_presence_clears (weight 1)", "leo_cleared (weight 1)"]
+}</code></pre>
+      <p>
+        言及しなかった<code>julian_presence_clears</code>・<code>leo_cleared</code>（重み1ずつ、いずれも<code>required: false</code>）は不合格のままだが、必須グループ<code>compact_link</code>を満たし合計スコアが最低点5を超えているため勝利になる。
+      </p>
+    </section>
+
+    <section id="compare">
+      <h2><span class="num">3</span>2つのLLM呼び出しの比較</h2>
+      <div class="table-wrap">
+      <table>
+        <tr><th></th><th>容疑者LLM</th><th>推理検証LLM</th></tr>
+        <tr><td>呼び出し頻度</td><td>探偵の質問1回ごと（容疑者切替ごとに独立）</td><td>起訴1回につき1回だけ</td></tr>
+        <tr><td>入力の絞り込み軸</td><td>その容疑者が知っている事実（可視/隠蔽）</td><td><code>proof_graph</code>が参照するエッジのみ</td></tr>
+        <tr><td>入力の成長</td><td>逐語履歴が毎ターン増える（要対策）</td><td>毎回一定（成長しない）</td></tr>
+        <tr><td>出力の役割</td><td>プレイヤーに見せる発話そのもの＋場所解放のトリガー</td><td>自由文→エッジIDの変換結果のみ</td></tr>
+        <tr><td>最終判断者</td><td>LLM自身（検証はJSON形式・漏洩チェックのみ）</td><td><strong>LLMではなくPython</strong>（<code>proof_graph</code>のルールベース採点）</td></tr>
+        <tr><td>temperature</td><td>0.7（自然な会話のばらつきを許容）</td><td>0.0（マッピングの再現性を優先）</td></tr>
+      </table>
+      </div>
+      <div class="decision">
+        <div class="label">設計上の一貫したテーマ</div>
+        <p style="margin-bottom:0">
+          両方とも「LLMにやらせるのは自然言語⇄構造化データの変換だけ」「最終的な正誤判定・状態遷移はコードの側で決定的に行う」という同じ方針で作られている。これがスライドで語るべき本プロジェクトのバックエンド設計の核。
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      <a href="investigation_phase.html">→ 捜査フェーズの実装</a>
+      <a href="indictment_phase.html">→ 起訴フェーズの実装</a>
+      <a href="presentation_outline.md">→ 発表スライド構成案</a>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

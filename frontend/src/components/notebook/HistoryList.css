@@ -1,0 +1,38 @@
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.history-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--paper-white);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.history-icon {
+  flex-shrink: 0;
+}
+
+.history-index {
+  flex-shrink: 0;
+  color: var(--ink-faint);
+  font-size: 0.75rem;
+}
+
+.history-summary {
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.notebook-empty {
+  color: var(--ink-faint);
+  font-style: italic;
+  text-align: center;
+  padding: 2rem 0;
+}

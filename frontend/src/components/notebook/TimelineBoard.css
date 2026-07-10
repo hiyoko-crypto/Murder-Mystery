@@ -1,0 +1,146 @@
+.timeline-board {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 0.5rem;
+}
+
+/* 容疑者ごとに列で並べて、アリバイを横並びで見比べられるようにする */
+.timeline-columns {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 0.8rem;
+  overflow-x: auto;
+  padding-bottom: 0.2rem;
+}
+
+.timeline-column {
+  flex: 0 0 260px;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--paper-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.7rem;
+  min-height: 0;
+}
+
+.timeline-column-header {
+  flex-shrink: 0;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: var(--gold-dark);
+  text-align: center;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.timeline-column-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-right: 0.1rem;
+}
+
+.timeline-card {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  background: var(--paper-white);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.7rem 0.8rem;
+  cursor: grab;
+}
+
+.timeline-card.dragging {
+  opacity: 0.4;
+  border-color: var(--gold);
+}
+
+.timeline-drag-handle {
+  color: var(--ink-faint);
+  font-size: 1rem;
+  padding-top: 6px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.timeline-card-fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.timeline-card-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.timeline-time-input {
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.timeline-suspect-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.timeline-time-input,
+.timeline-suspect-select,
+.timeline-text-input {
+  background: var(--paper-white);
+  border: 1px solid var(--border-strong);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.timeline-time-input:focus,
+.timeline-suspect-select:focus,
+.timeline-text-input:focus {
+  border-color: var(--gold);
+}
+
+.timeline-text-input {
+  width: 100%;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.timeline-empty {
+  color: var(--ink-faint);
+  font-style: italic;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.timeline-add-btn {
+  flex-shrink: 0;
+  background: var(--paper-white);
+  border: 1px solid var(--gold);
+  color: var(--gold-dark);
+  padding: 13px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.15s;
+}
+
+.timeline-add-btn:hover {
+  background: var(--gold);
+  color: var(--paper-white);
+}

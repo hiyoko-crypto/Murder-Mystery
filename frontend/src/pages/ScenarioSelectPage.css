@@ -1,0 +1,95 @@
+.scenario-select-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--paper) 0%, #ecdfbd 100%);
+  gap: 2.4rem;
+  padding: 2rem;
+}
+
+.scenario-select-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.scenario-select-status {
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.scenario-select-status.error {
+  color: var(--danger-text);
+}
+
+.scenario-select-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  width: 100%;
+  max-width: 360px;
+}
+
+.scenario-select-card {
+  background: var(--paper-panel);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  font-family: inherit;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.scenario-select-card:hover:not(:disabled) {
+  background: var(--gold-soft);
+  border-color: var(--gold);
+  color: var(--gold-dark);
+}
+
+.scenario-select-card:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.scenario-select-card.active {
+  border-color: var(--gold);
+  border-width: 2px;
+}
+
+.scenario-select-label {
+  font-size: 1.1rem;
+  font-weight: bold;
+  letter-spacing: 0.03em;
+}
+
+.scenario-select-badge {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+
+.scenario-select-back {
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s;
+  padding: 0.3rem 0.6rem;
+}
+
+.scenario-select-back:hover {
+  color: var(--ink);
+}

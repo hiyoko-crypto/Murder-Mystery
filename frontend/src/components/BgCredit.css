@@ -1,0 +1,18 @@
+/* 写真は画面幅いっぱいに表示されるので、中央寄せされたゲーム画面の枠ではなく
+   ブラウザの実際の右端に固定する */
+.bg-credit {
+  position: fixed;
+  bottom: 0.4rem;
+  right: 0;
+  z-index: 2;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(0, 0, 0, 0.35);
+  padding: 2px 7px;
+  border-radius: 0 0 0 3px;
+}
+
+/* 場所ページ: メニューパネル（Examine/Talk/Move）の少し上、画像が見える最後の帯に置く */
+.bg-credit.loc-position {
+  bottom: 13rem;
+}

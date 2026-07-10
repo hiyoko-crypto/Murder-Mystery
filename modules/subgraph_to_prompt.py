@@ -4,13 +4,27 @@ Translation to Japanese is handled downstream by translator.py.
 """
 
 
+def _node_label(node_id: str, nodes: dict) -> str:
+    props = nodes.get(node_id, {}).get("properties", {})
+    name = props.get("name", node_id)
+    if "time" in props:
+        return f"{name} @ {props['time']}"
+    if "start_time" in props or "end_time" in props:
+        start = props.get("start_time", "?")
+        end = props.get("end_time", "?")
+        return f"{name} @ {start} - {end}"
+    return name
+
+
 def _edge_to_triple(edge: dict, nodes: dict) -> str:
-    from_name = nodes.get(edge["from"], {}).get("properties", {}).get("name", edge["from"])
-    to_name   = nodes.get(edge["to"],   {}).get("properties", {}).get("name", edge["to"])
+    from_name = _node_label(edge["from"], nodes)
+    to_name   = _node_label(edge["to"], nodes)
     rel       = edge["rel"]
     props     = edge.get("properties", {})
 
     line = f"{edge['id']}: {from_name} --[{rel}]--> {to_name}"
+    if "provenance" in props:
+        line += f"  ({props['provenance']})"
     if "time" in props:
         line += f"  @ {props['time']}"
     if "detail" in props:
@@ -18,7 +32,29 @@ def _edge_to_triple(edge: dict, nodes: dict) -> str:
     return line
 
 
-def build_system_prompt(subgraph: dict, nodes: dict, ledger_text: str = "") -> str:
+def _group_visible_edges(edges: list) -> dict:
+    groups = {
+        "personal": [],
+        "public": [],
+        "other": [],
+    }
+    for edge in edges:
+        provenance = edge.get("properties", {}).get("provenance", "")
+        if provenance in {"self_knowledge", "direct_observation"}:
+            groups["personal"].append(edge)
+        elif provenance in {"public_report", "public_hearsay"}:
+            groups["public"].append(edge)
+        else:
+            groups["other"].append(edge)
+    return groups
+
+
+def build_system_prompt(
+    subgraph: dict,
+    nodes: dict,
+    ledger_text: str = "",
+    include_asserted_triples: bool = True,
+) -> str:
     props = subgraph["node"]["properties"]
     lines = []
 
@@ -26,18 +62,29 @@ def build_system_prompt(subgraph: dict, nodes: dict, ledger_text: str = "") -> s
     lines.append(f"You are {props['name']}. You are a suspect being interrogated by a detective.")
     lines.append("Speak naturally as your character — embody them, do not recite their profile.")
     lines.append("Answer the detective's question as directly as you safely can.")
-    lines.append("If an exact detail is not in your facts, say you are not certain and give the closest supported answer.")
+    lines.append("Keep your response to roughly 100 characters, unless the question genuinely requires laying out several distinct facts.")
+    lines.append("Use the facts as anchors. You may add brief natural color (emotion, hesitation, tone), but do not add new concrete case facts such as people, places, times, evidence, or actions unless supported by your facts.")
     lines.append("Do not evade unless a direct answer would reveal a forbidden hidden fact.")
     lines.append(f"\nBio: {props['bio']}")
     lines.append(f"\nPersonality: {', '.join(props.get('tags', []))}")
     lines.append(f"\nInterrogation style: {props.get('interrogation_style', '')}")
 
     # ── Visible triples ─────────────────────────────────────────────
+    groups = _group_visible_edges(subgraph["visible_edges"])
     lines.append("\n\n[Facts you know]")
-    lines.append("Base concrete case claims on the triples below.")
-    lines.append("You may add harmless conversational detail, emotion, uncertainty, and natural phrasing as long as it does not contradict these facts or your prior statements.")
-    lines.append("Do not invent major new evidence, witnesses, alibis, locations, murder methods, or case-solving facts.")
-    for edge in subgraph["visible_edges"]:
+    lines.append("Base concrete case claims on the triples below, respecting the provenance labels.")
+    lines.append("Do not invent major new evidence, witnesses, claimed whereabouts, locations, murder methods, or case-solving facts.")
+    if groups["personal"]:
+        lines.append("\nPersonal knowledge / direct observations — you may speak about these as your own knowledge:")
+    for edge in groups["personal"]:
+        lines.append("  " + _edge_to_triple(edge, nodes))
+    if groups["public"]:
+        lines.append("\nPublic reports / hearsay — you may mention these, but do not present them as your own direct experience:")
+    for edge in groups["public"]:
+        lines.append("  " + _edge_to_triple(edge, nodes))
+    if groups["other"]:
+        lines.append("\nOther known facts — use cautiously and only as written:")
+    for edge in groups["other"]:
         lines.append("  " + _edge_to_triple(edge, nodes))
 
     # ── Hidden triples ──────────────────────────────────────────────
@@ -50,14 +97,21 @@ def build_system_prompt(subgraph: dict, nodes: dict, ledger_text: str = "") -> s
 
     # ── Commitment ledger ───────────────────────────────────────────
     if ledger_text:
-        lines.append("\n\n[What you have told the detective so far — maintain consistency]")
+        lines.append("\n\n[Your own prior statements this interrogation — maintain consistency]")
+        lines.append("These are your own past claims, not verified case facts. Before answering, check them: do not give a new version of a location, timing, or opinion you already stated.")
         lines.append(ledger_text)
 
     # ── Output format ───────────────────────────────────────────────
     lines.append("\n\n[Output format]")
     lines.append("Respond ONLY in the following JSON. No text outside the JSON.")
-    lines.append('{"response": "Your spoken response in English", "used_edge_ids": ["e1", "e2"], "asserted_triples": [["Subject", "REL", "Object"]]}')
-    lines.append("used_edge_ids: edge IDs used as the basis for your response.")
-    lines.append("asserted_triples: fact triples extractable from your response.")
+    if include_asserted_triples:
+        lines.append('{"response": "Your spoken response in English", "used_edge_ids": ["e1", "e2"], "asserted_triples": [["Subject", "REL", "Object"]]}')
+    else:
+        lines.append('{"response": "Your spoken response in English", "used_edge_ids": ["e1", "e2"]}')
+    lines.append("used_edge_ids is critical, not optional bookkeeping: list the edge ID for every fact in \"response\", with no omissions. The game mechanically tracks only what appears here — a fact you speak but do not list here is treated as never said.")
+    if include_asserted_triples:
+        lines.append("asserted_triples: ONLY the fact triples explicitly stated in the \"response\" text above — not background facts you merely relied on without saying.")
+        lines.append("Do not repeat a triple from your own prior statements below unless you are restating that exact fact again right now.")
+        lines.append('If a triple has a specific time attached (from the facts above or your own response), append it to the object as "Object @ time", e.g. ["Elena", "VISITED", "Marcus\'s Dressing Room @ 7:00 PM"]. Omit the time if none applies — do not invent one.')
 
     return "\n".join(lines)

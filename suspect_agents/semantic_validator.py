@@ -27,7 +27,7 @@ Check these categories:
 3. ledger_contradiction:
    The response must not contradict the suspect's recent previous statements.
 4. case_breaking_fabrication:
-   The response must not invent major new evidence, witnesses, alibis, locations, murder methods, or case-solving facts.
+   The response must not invent major new evidence, witnesses, claimed whereabouts, locations, murder methods, or case-solving facts.
 
 Important rules:
 - This is an internal validation step. Do not roleplay.
@@ -89,9 +89,21 @@ def _extract_json(text: str) -> str:
     return text
 
 
+def _node_label(node_id: str, nodes: dict) -> str:
+    props = nodes.get(node_id, {}).get("properties", {})
+    name = props.get("name", node_id)
+    if "time" in props:
+        return f"{name} @ {props['time']}"
+    if "start_time" in props or "end_time" in props:
+        start = props.get("start_time", "?")
+        end = props.get("end_time", "?")
+        return f"{name} @ {start} - {end}"
+    return name
+
+
 def _edge_to_line(edge: dict, nodes: dict) -> str:
-    from_name = nodes.get(edge["from"], {}).get("properties", {}).get("name", edge["from"])
-    to_name = nodes.get(edge["to"], {}).get("properties", {}).get("name", edge["to"])
+    from_name = _node_label(edge["from"], nodes)
+    to_name = _node_label(edge["to"], nodes)
     props = edge.get("properties", {})
 
     line = f'{edge["id"]}: {from_name} --[{edge["rel"]}]--> {to_name}'
@@ -119,7 +131,7 @@ def _safe_retry_hint(result: dict | None = None) -> str:
     if result.get("public_contradiction"):
         return "Regenerate the answer so it does not contradict public facts."
     if result.get("case_breaking_fabrication"):
-        return "Regenerate the answer without inventing major new evidence, witnesses, alibis, or case-solving facts."
+        return "Regenerate the answer without inventing major new evidence, witnesses, claimed whereabouts, or case-solving facts."
     return "Regenerate the answer more carefully while staying consistent with public facts and prior statements."
 
 

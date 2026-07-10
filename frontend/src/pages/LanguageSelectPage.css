@@ -1,0 +1,92 @@
+.lang-select-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--paper) 0%, #ecdfbd 100%);
+  gap: 2.4rem;
+}
+
+.lang-select-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.lang-select-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.lang-select-card {
+  background: var(--paper-panel);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  width: 180px;
+  padding: 2.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.lang-select-card:first-child {
+  border-radius: 4px 0 0 4px;
+  border-right: none;
+}
+
+.lang-select-card:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.lang-select-card:hover {
+  background: var(--gold-soft);
+  border-color: var(--gold);
+  color: var(--gold-dark);
+}
+
+.lang-select-label {
+  font-size: 1.6rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.lang-select-sub {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-faint);
+}
+
+.lang-select-card:hover .lang-select-sub {
+  color: var(--gold-dark);
+}
+
+.lang-select-divider {
+  width: 1px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.lang-select-back {
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s;
+  padding: 0.3rem 0.6rem;
+}
+
+.lang-select-back:hover {
+  color: var(--ink);
+}
