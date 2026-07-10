@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { fetchScenario, type ApiScenario, type ExamineRules } from '../api/scenario'
+import { fetchScenario, type ApiScenario } from '../api/scenario'
 import { matchBackground, BG_LIBRARY, type BgCredit } from '../utils/backgroundMatch'
 import { triggerUnsplashDownload } from '../api/unsplashFallback'
 import type { Suspect, Location, Item } from '../types'
@@ -14,7 +14,6 @@ const STATIC_BG: Record<string, string> = {
 interface ScenarioCtx {
   scenario: ApiScenario | null
   loading: boolean
-  examineRules: ExamineRules | null
   locationBg: (locationId: string) => string
   locationBgCredit: (locationId: string) => BgCredit | null
   suspects: (lang: Lang) => Suspect[]
@@ -86,7 +85,6 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
       id: l.id,
       name: ja(l.name, lang),
       description: l.description,
-      items: l.items,
       suspects: l.suspects,
     }))
   }
@@ -99,7 +97,6 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
       emoji: item.emoji,
       discoveryText: item.description,
       detail: item.description,
-      locationId: item.locationId,
     }))
   }
 
@@ -107,7 +104,6 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
     <Ctx.Provider value={{
       scenario,
       loading,
-      examineRules: scenario?.examineRules ?? null,
       locationBg,
       locationBgCredit,
       suspects,

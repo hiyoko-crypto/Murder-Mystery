@@ -12,18 +12,17 @@ from modules.scenario_loader import ScenarioLoader
 class LocationTracker:
     def __init__(self, loader: ScenarioLoader):
         self.loader = loader
-        rules = loader.get_examine_rules()
-        self.loc_rules  = rules.get("locations", {})
-        self.item_rules = rules.get("items", {})
 
         self.known_locations:    set = set()
         self.examined_locations: set = set()
         self.found_items:        set = set()
 
         # Seed with initially available locations
-        for loc_id, r in self.loc_rules.items():
-            if r.get("initially_available"):
-                self.known_locations.add(loc_id)
+        for node_id, node in loader.nodes.items():
+            if "Location" not in node.get("labels", []):
+                continue
+            if node["properties"].get("initially_available"):
+                self.known_locations.add(node_id)
 
     # ------------------------------------------------------------------
     # Testimony-based unlocking
@@ -47,8 +46,8 @@ class LocationTracker:
             for node_ref in node_refs:
                 if not node_ref:
                     continue
-                r = self.loc_rules.get(node_ref, {})
-                if r.get("unlock_from_testimony") and node_ref not in self.known_locations:
+                node = self.loader.nodes.get(node_ref, {})
+                if node.get("properties", {}).get("unlock_from_testimony") and node_ref not in self.known_locations:
                     self.known_locations.add(node_ref)
                     newly.append(node_ref)
         return newly
@@ -103,10 +102,10 @@ class LocationTracker:
             }
         """
         self.examined_locations.add(location_id)
-        rules = self.loc_rules.get(location_id, {})
+        node = self.loader.nodes.get(location_id, {})
 
-        description  = rules.get("description", "Nothing notable here.")
-        items_here   = rules.get("items_present", [])
+        description  = node.get("properties", {}).get("room_description", "Nothing notable here.")
+        items_here   = self.get_catalog_items(location_id)
         newly_found  = []
         already_found = []
 
@@ -142,7 +141,12 @@ class LocationTracker:
         node  = self.loader.nodes.get(item_id, {})
         props = node.get("properties", {})
 
-        unlocks     = self.item_rules.get(item_id, {}).get("unlocks_location")
+        unlocks = None
+        for edge in self.loader.edges.values():
+            if edge.get("from") == item_id and edge.get("rel") == "REVEALS":
+                unlocks = edge.get("to")
+                break
+
         newly_unlocked = None
         if unlocks and unlocks not in self.known_locations:
             self.known_locations.add(unlocks)
@@ -158,6 +162,14 @@ class LocationTracker:
     # ------------------------------------------------------------------
     # UI helpers
     # ------------------------------------------------------------------
+
+    def get_catalog_items(self, location_id: str) -> list:
+        """Full item catalog for a location, regardless of found-state."""
+        return [
+            edge["from"]
+            for edge in self.loader.edges.values()
+            if edge.get("rel") == "FOUND_IN" and edge.get("to") == location_id
+        ]
 
     def get_available_locations(self) -> list:
         return sorted(self.known_locations)

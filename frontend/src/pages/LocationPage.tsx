@@ -23,7 +23,7 @@ interface Discovery {
 export default function LocationPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { foundItems, unlockedLocations, refetchState, resetGame } = useGame()
+  const { foundItems, unlockedLocations, locationItemCatalog, refetchState, resetGame } = useGame()
   const { lang, t } = useLanguage()
   const { locations: getLocations, items: getItems, suspects: getSuspects, locationBg } = useScenario()
   const { appendHistory } = useCaseNotes()
@@ -60,7 +60,8 @@ export default function LocationPage() {
   const location = locations.find((l) => l.id === id)
   if (!location) return <div>{t('not.found')}</div>
 
-  const locationItems    = items.filter((item) => location.items.includes(item.id))
+  const locationItemIds  = locationItemCatalog[location.id] ?? []
+  const locationItems    = items.filter((item) => locationItemIds.includes(item.id))
   const moveLocations    = locations.filter((l) => unlockedLocations.includes(l.id))
   const foundCount       = locationItems.filter((item) => foundItems.includes(item.id)).length
 
