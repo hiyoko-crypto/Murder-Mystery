@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { fetchScenario, type ApiScenario } from '../api/scenario'
 import { matchBackground, BG_LIBRARY, type BgCredit } from '../utils/backgroundMatch'
 import { triggerUnsplashDownload } from '../api/unsplashFallback'
@@ -14,6 +14,7 @@ const STATIC_BG: Record<string, string> = {
 interface ScenarioCtx {
   scenario: ApiScenario | null
   loading: boolean
+  refetchScenario: () => Promise<void>
   locationBg: (locationId: string) => string
   locationBgCredit: (locationId: string) => BgCredit | null
   suspects: (lang: Lang) => Suspect[]
@@ -27,11 +28,23 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
   const [scenario, setScenario] = useState<ApiScenario | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const refetchScenario = useCallback(async () => {
+    setLoading(true)
+    try {
+      const data = await fetchScenario()
+      setScenario(data)
+    } catch (err) {
+      console.error('[ScenarioContext] fetch failed:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
-    fetchScenario()
-      .then(data => setScenario(data))
-      .catch(err => console.error('[ScenarioContext] fetch failed:', err))
-      .finally(() => setLoading(false))
+    refetchScenario()
+    // Only ever needed once on mount — later reloads (e.g. after picking a
+    // different scenario) call refetchScenario() explicitly instead.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Keyword-matching every location against BG_LIBRARY only depends on the
@@ -104,6 +117,7 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
     <Ctx.Provider value={{
       scenario,
       loading,
+      refetchScenario,
       locationBg,
       locationBgCredit,
       suspects,

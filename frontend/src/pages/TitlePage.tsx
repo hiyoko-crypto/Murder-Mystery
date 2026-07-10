@@ -10,13 +10,13 @@ export default function TitlePage() {
 
   const handleStart = async () => {
     await resetGame()
-    navigate('/language')
+    navigate('/scenario-select')
   }
 
   return (
     <div className="title-page">
       <div className="title-content">
-        <h1 className="title-logo">HOLMES</h1>
+        <h1 className="title-logo">POIROT</h1>
         <p className="title-subtitle">{t('title.subtitle')}</p>
         <button className="title-btn" onClick={handleStart}>
           {t('title.start')}

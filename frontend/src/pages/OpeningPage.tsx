@@ -34,7 +34,7 @@ export default function OpeningPage() {
       <div className="opening-content">
         {loading ? (
           <p className="opening-text" style={{ opacity: 0.5 }}>
-            {ja ? '読み込み中...' : 'Loading...'}
+            {ja ? '読み込み中...（シナリオ切替直後は時間がかかることがあります）' : 'Loading... (can take a while right after switching scenarios)'}
           </p>
         ) : briefing ? (
           <div className="briefing-card">

@@ -25,7 +25,7 @@ export default function LanguageSelectPage() {
           <span className="lang-select-sub">英語</span>
         </button>
       </div>
-      <button className="lang-select-back" onClick={() => navigate('/')}>← Back</button>
+      <button className="lang-select-back" onClick={() => navigate('/scenario-select')}>← Back</button>
     </div>
   )
 }

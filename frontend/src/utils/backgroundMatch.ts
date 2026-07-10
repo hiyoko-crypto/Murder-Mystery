@@ -113,6 +113,24 @@ export const BG_LIBRARY: BgEntry[] = [
     url: 'https://images.unsplash.com/photo-1777264935754-aa53096c2d68?q=80&w=1200&auto=format&fit=crop',
     credit: { name: 'Aakriti Raina', unsplashId: 'HRsi-QzS3zw' },
   },
+  // Added for the sci-fi "AI suspects" scenario (server room, monitoring
+  // station, virtual sandbox) — the library above was built for the
+  // theatre-murder scenario and had nothing appropriate for a tech setting.
+  {
+    keywords: ['server room', 'server', 'data center', 'datacenter', 'mainframe', 'servers', 'サーバー', 'サーバールーム', 'データセンター'],
+    url: 'https://images.unsplash.com/photo-1584169417032-d34e8d805e8b?q=80&w=1200&auto=format&fit=crop',
+    credit: { name: 'İsmail Enes Ayhan', unsplashId: 'lVZjvw-u9V8' },
+  },
+  {
+    keywords: ['control room', 'monitoring station', 'monitoring', 'surveillance', 'security room', 'command center', '監視', '管制室', 'モニタリング'],
+    url: 'https://images.unsplash.com/photo-1714596282575-82d224db8c70?q=80&w=1200&auto=format&fit=crop',
+    credit: { name: 'Albert Sukhanov', unsplashId: 'EZTbB6p2cYk' },
+  },
+  {
+    keywords: ['virtual', 'digital', 'cyberspace', 'sandbox', 'simulation', 'virtual reality', '仮想', 'デジタル空間', 'サイバー'],
+    url: 'https://images.unsplash.com/photo-1644088379091-d574269d422f?q=80&w=1200&auto=format&fit=crop',
+    credit: { name: 'Conny Schneider', unsplashId: 'xuTJZ7uD7PI' },
+  },
 ]
 
 // Shown when nothing in BG_LIBRARY scores above MIN_SCORE — an ambiguous,

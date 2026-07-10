@@ -20,21 +20,35 @@ from modules.i18n import set_lang
 
 _sessions: dict[str, GameSession] = {}   # lang → GameSession
 scenario_json: dict | None = None
+_current_scenario_path: str | None = None
 
 SCENARIO_GLOB = "scenarios/*.json"
 
 
-def _find_scenario() -> str | None:
+def _list_scenario_files() -> list[str]:
     files = sorted(glob.glob(SCENARIO_GLOB))
-    return next((f for f in files if "template" not in os.path.basename(f).lower()), None)
+    return [f for f in files if "template" not in os.path.basename(f).lower()]
 
 
-def _load_raw_scenario() -> dict | None:
-    path = _find_scenario()
-    if not path:
-        return None
+def _find_scenario() -> str | None:
+    files = _list_scenario_files()
+    return files[0] if files else None
+
+
+def _load_scenario_by_path(path: str) -> None:
+    """(Re)loads the given scenario file as the active one for both languages.
+    Used at startup and whenever the frontend explicitly picks a scenario."""
+    global scenario_json, _current_scenario_path
     with open(path, encoding="utf-8") as f:
-        return json.load(f)
+        scenario_json = json.load(f)
+    _current_scenario_path = path
+    _sessions.clear()
+    for lang in ("en", "ja"):
+        try:
+            _sessions[lang] = GameSession(path, language=lang)
+            print(f"[api] GameSession({lang}) loaded: {path}")
+        except Exception as e:
+            print(f"[api] GameSession({lang}) failed: {e}")
 
 
 def _get_session(lang: str = "ja") -> GameSession:
@@ -45,16 +59,9 @@ def _get_session(lang: str = "ja") -> GameSession:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global scenario_json
-    scenario_json = _load_raw_scenario()
     path = _find_scenario()
     if path:
-        for lang in ("en", "ja"):
-            try:
-                _sessions[lang] = GameSession(path, language=lang)
-                print(f"[api] GameSession({lang}) loaded: {path}")
-            except Exception as e:
-                print(f"[api] GameSession({lang}) failed: {e}")
+        _load_scenario_by_path(path)
     else:
         print("[api] No scenario found in scenarios/")
     yield
@@ -92,6 +99,10 @@ class IndictRequest(BaseModel):
     lang: str = "ja"
 
 
+class SelectScenarioRequest(BaseModel):
+    scenario_id: str
+
+
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
 @app.get("/health")
@@ -112,12 +123,31 @@ def get_scenario():
 
 @app.get("/scenarios")
 def list_scenarios():
-    files = sorted(glob.glob(SCENARIO_GLOB))
     return [
-        {"id": os.path.basename(f).replace(".json", ""), "path": f}
-        for f in files
-        if "template" not in os.path.basename(f).lower()
+        {
+            "id": os.path.basename(f).replace(".json", ""),
+            "path": f,
+            "active": f == _current_scenario_path,
+        }
+        for f in _list_scenario_files()
     ]
+
+
+@app.post("/select_scenario")
+def select_scenario(req: SelectScenarioRequest):
+    match = next(
+        (f for f in _list_scenario_files() if os.path.basename(f).replace(".json", "") == req.scenario_id),
+        None,
+    )
+    if not match:
+        raise HTTPException(404, f"Scenario '{req.scenario_id}' not found")
+    # Rebuilding GameSession wipes its per-session Japanese translation cache
+    # (each field in /briefing is a separate LLM call on a cache miss) — skip
+    # the rebuild entirely when re-selecting the scenario that's already
+    # active, so re-confirming the default doesn't pay that cost again.
+    if match != _current_scenario_path:
+        _load_scenario_by_path(match)
+    return {"status": "ok", "scenario_id": req.scenario_id}
 
 
 @app.get("/briefing")

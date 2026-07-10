@@ -155,7 +155,8 @@
     ],
     "properties": {
       "name": "Server Room Vault",
-      "description": "An ice-cold, sub-zero basement concrete vault filled with rows of towering, automated mainframe racks. Server Rack 4-B lies collapsed at a grotesque angle at the end of the aisle, pinning Dr. Vance beneath it under pulsing blue emergency strobe lights."
+      "description": "An ice-cold, sub-zero basement concrete vault filled with rows of towering, automated mainframe racks. Server Rack 4-B lies collapsed at a grotesque angle at the end of the aisle, pinning Dr. Vance beneath it under pulsing blue emergency strobe lights.",
+      "initially_available": true
     }
   },
   {

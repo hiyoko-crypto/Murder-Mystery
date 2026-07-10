@@ -169,3 +169,24 @@ export async function fetchScenario(): Promise<ApiScenario> {
   if (raw.knowledge_graph) return parseKgFormat(raw)
   return raw as ApiScenario
 }
+
+export interface ScenarioListEntry {
+  id: string
+  path: string
+  active: boolean
+}
+
+export async function fetchScenarioList(): Promise<ScenarioListEntry[]> {
+  const res = await fetch(`${BASE}/scenarios`)
+  if (!res.ok) throw new Error(`scenario list fetch failed: ${res.status}`)
+  return res.json()
+}
+
+export async function selectScenario(scenarioId: string): Promise<void> {
+  const res = await fetch(`${BASE}/select_scenario`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ scenario_id: scenarioId }),
+  })
+  if (!res.ok) throw new Error(`select_scenario failed: ${res.status}`)
+}

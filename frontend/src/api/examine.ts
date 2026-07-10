@@ -52,7 +52,10 @@ export async function examineItem(itemId: string, lang = 'ja'): Promise<ExamineI
 }
 
 export async function fetchBriefing(lang = 'ja'): Promise<BriefingResult> {
-  const res = await fetch(`${BASE}/briefing?lang=${lang}`, { signal: AbortSignal.timeout(15000) })
+  // Generous timeout: right after switching scenarios the backend's Japanese
+  // translation cache is cold, and every briefing field is its own LLM call
+  // on a cache miss — that can comfortably exceed 15s.
+  const res = await fetch(`${BASE}/briefing?lang=${lang}`, { signal: AbortSignal.timeout(60000) })
   if (!res.ok) throw new Error(`briefing ${res.status}`)
   return res.json()
 }
