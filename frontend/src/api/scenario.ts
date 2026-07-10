@@ -13,7 +13,6 @@ export interface ApiLocation {
   name: string
   description: string
   suspects: string[]
-  items: string[]
 }
 
 export interface ApiItem {
@@ -22,16 +21,6 @@ export interface ApiItem {
   description: string
   emoji: string
   type: string
-  locationId: string
-}
-
-export interface ExamineRules {
-  /** IDs of locations available at game start */
-  initialLocations: string[]
-  /** itemId → locationId that gets unlocked when item is found */
-  itemUnlocksLocation: Record<string, string>
-  /** suspectId → locationId (their alibi/testimony location) */
-  suspectAlibiLocation: Record<string, string>
 }
 
 export interface ApiScenario {
@@ -40,7 +29,6 @@ export interface ApiScenario {
   items: ApiItem[]
   victim: { id: string; name: string; description: string } | null
   displayNamesJa?: Record<string, string>
-  examineRules?: ExamineRules
 }
 
 // Keyword → emoji table: first match wins, checked against lowercased (name + description)
@@ -94,9 +82,6 @@ function emojiForItem(labels: string[], name: string, description: string): stri
 function parseKgFormat(raw: any): ApiScenario {
   const kg = raw.knowledge_graph
   const displayNamesJa: Record<string, string> = raw.display_names_ja ?? {}
-  const examineRulesRaw = raw.examine_rules ?? {}
-  const locRules: Record<string, any> = examineRulesRaw.locations ?? {}
-  const itemRulesRaw: Record<string, any> = examineRulesRaw.items ?? {}
 
   const nodeMap: Record<string, any> = {}
   for (const n of kg.nodes) nodeMap[n.id] = n
@@ -113,25 +98,8 @@ function parseKgFormat(raw: any): ApiScenario {
 
   // Crime scene = first initially-available location
   const crimeSceneId =
-    Object.entries(locRules).find(([, r]: any) => r.initially_available)?.[0] ??
+    locationNodes.find((l: any) => l.properties?.initially_available)?.id ??
     locationNodes[0]?.id
-
-  const itemToLoc: Record<string, string> = {}
-  for (const [locId, rules] of Object.entries(locRules) as any[]) {
-    for (const itemId of (rules.items_present ?? [])) {
-      itemToLoc[itemId] = locId
-    }
-  }
-
-  // Build examine rules
-  const initialLocations = Object.entries(locRules)
-    .filter(([, r]: any) => r.initially_available)
-    .map(([id]) => id)
-
-  const itemUnlocksLocation: Record<string, string> = {}
-  for (const [itemId, rules] of Object.entries(itemRulesRaw) as any[]) {
-    if (rules.unlocks_location) itemUnlocksLocation[itemId] = rules.unlocks_location
-  }
 
   // Suspect → alibi location: HAS_ALIBI first, then WAS_IN
   // Build this BEFORE locSuspects so we can place suspects correctly
@@ -149,10 +117,8 @@ function parseKgFormat(raw: any): ApiScenario {
 
   // Place suspects at crime scene (always) AND their alibi location (for unlocked areas)
   const locSuspects: Record<string, string[]> = {}
-  const locItems: Record<string, string[]> = {}
   for (const l of locationNodes) {
     locSuspects[l.id] = []
-    locItems[l.id] = locRules[l.id]?.items_present ?? []
   }
   for (const s of suspectNodes) {
     if (crimeSceneId && locSuspects[crimeSceneId] !== undefined) {
@@ -175,9 +141,8 @@ function parseKgFormat(raw: any): ApiScenario {
     locations: locationNodes.map((l: any) => ({
       id: l.id,
       name: l.properties?.name ?? l.id,
-      description: locRules[l.id]?.description ?? l.properties?.description ?? '',
+      description: l.properties?.room_description ?? l.properties?.description ?? '',
       suspects: locSuspects[l.id] ?? [],
-      items: locItems[l.id] ?? [],
     })),
     items: itemNodes.map((item: any) => ({
       id: item.id,
@@ -185,7 +150,6 @@ function parseKgFormat(raw: any): ApiScenario {
       description: item.properties?.description ?? item.properties?.significance ?? '',
       emoji: emojiForItem(item.labels ?? [], item.properties?.name ?? '', item.properties?.description ?? ''),
       type: (item.labels ?? []).find((l: string) => l !== 'Item') ?? 'Item',
-      locationId: itemToLoc[item.id] ?? '',
     })),
     victim: victimNode
       ? {
@@ -195,7 +159,6 @@ function parseKgFormat(raw: any): ApiScenario {
         }
       : null,
     displayNamesJa,
-    examineRules: { initialLocations, itemUnlocksLocation, suspectAlibiLocation },
   }
 }
 

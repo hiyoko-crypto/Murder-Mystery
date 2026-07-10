@@ -21,6 +21,23 @@ def examine_location(self, location_id: str) -> dict:
 
 `examine_rules.locations[location_id].items_present`に列挙されたアイテムIDを、その場所を調査した瞬間にまとめて発見済みにする。純粋にJSON側の静的なリストを読むだけで、LLMは一切関与しない。
 
+**このリストは知識グラフ（`knowledge_graph.nodes`/`edges`）から動的に導出されているものではない。** `examine_rules`という完全に別セクションに、あらかじめ手動で書かれた固定リストを読んでいるだけ。実際の値（`the_final_act.json`）:
+
+```json
+"examine_rules": {
+  "locations": {
+    "n_dressing_room": {
+      "items_present": ["n_candlestick", "n_torn_letter", "n_vent_grate", "n_locked_door"]
+    },
+    "n_vent_shaft": {
+      "items_present": ["n_silver_compact"]
+    }
+  }
+}
+```
+
+各アイテムID（例: `n_candlestick`）自体は`knowledge_graph.nodes`にも存在するノードIDと一致しており、`examine_item()`が呼ばれた際にそのノードの`name`/`description`/`significance`プロパティを表示用に参照する（`game_session.py`の`_item_info()`）。ただし「このアイテムがこの場所にある」という対応関係そのものは、知識グラフのエッジ（例えば`e2: Brass Candlestick --[FOUND_IN]--> Marcus's Dressing Room`のような、意味的には同じことを言っているエッジが実際に存在する）を辿って導き出しているのではなく、`examine_rules`側の固定リストが唯一の情報源になっている。つまりグラフ上の`FOUND_IN`エッジと`items_present`リストは、たまたま同じ事実を重複して表現しているだけの、コード上は無関係な2つのデータであり、片方だけ更新すると食い違いが起きうる。
+
 ### アイテムを調査 → 新しい場所が開放される（`examine_item`）
 
 ```python
@@ -79,7 +96,22 @@ e112: Julian's Lobby Presence --[OCCURRED_AT]--> Theatre Lobby
 ```
 Julianの応答が`used_edge_ids`に`e111`か`e112`のどちらかを含めば、「劇場ロビー」が新規開放される。
 
-この経路は**非決定的**——同じ質問をしても、LLMがその発話の根拠として実際に`used_edge_ids`へそのエッジを含めるかどうかで結果が変わる。実際のテストでは、応答本文が場所について語っていても`used_edge_ids`への引用が漏れて場所が開放されないケースが確認されている（`plan/open_issues.md`参照）。
+この経路は**非決定的**——同じ質問をしても、LLMがその発話の根拠として実際に`used_edge_ids`へそのエッジを含めるかどうかで結果が変わる。
+
+### 信頼性の実測（2026-07-09時点）
+
+`modules/subgraph_to_prompt.py`のプロンプトに以下2点の調整を加えたことで、直接的な質問に対する引用漏れはほぼ解消された。
+
+- 応答の長さを「roughly 100 characters」程度に制限する指示を追加（長い応答ほど、語った事実の一部だけしか引用されない傾向があったため）
+- `used_edge_ids`の指示を強化——「本文で述べた事実は全て漏らさず列挙せよ、ここに無いものは言っていないのと同じ扱いになる」と明記
+
+この状態で、時刻を明示した直接的な質問（例:「Where were you between 9:00 PM and 9:30 PM?」）を3容疑者・各5回ずつ試したところ、**15/15で場所への言及と解放が一致**（引用漏れ0件）。
+
+一方、「Where were you when the incident happened?」のような抽象的な質問では、**「言及したのに引用しない」という不具合は0件のまま**だが、そもそも容疑者が解放に繋がらない**別の（間違ってはいない）アリバイを選んで答えてしまう**ケースが残る（例: Julianは「観客席にいた」と「ロビーにいた」の2つの真実のアリバイを持つため、曖昧な聞き方だと前者で答えを終えることがある）。これは引用の技術的な不具合ではなく、質問の具体性に依存する内容選択の問題として切り分けられている。
+
+### 判明した見落とし: シナリオファイルの取り違え
+
+デバッグの過程で、`api.py`（フロントエンド用バックエンド）がシナリオファイルを`sorted(glob.glob("scenarios/*.json"))`で自動検出しており、`scenarios/the_final_act copy.json`（アルファベット順でスペースがピリオドより先に来るため、意図せず`the_final_act.json`より先にマッチする）という**別バージョンの古いコピーファイル**を読み込んでしまっていたことが判明した。CLIおよび直接のPythonテストは常に正しい`the_final_act.json`を明示的に読み込んでいたため、フロントエンド経由でのみ場所解放が失敗するように見えた本当の原因はこれだった。
 
 ## まとめ表
 

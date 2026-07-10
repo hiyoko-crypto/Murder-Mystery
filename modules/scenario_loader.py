@@ -37,9 +37,6 @@ class ScenarioLoader:
     def get_murder_details(self) -> dict:
         return self.data.get("murder_details", {})
 
-    def get_examine_rules(self) -> dict:
-        return self.data.get("examine_rules", {"locations": {}, "items": {}})
-
     def get_all_suspect_node_ids(self) -> list:
         """Return node_ids in the order defined in suspects[]."""
         return [s["node_id"] for s in self.data["suspects"]]

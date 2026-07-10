@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../contexts/LanguageContext'
-import { useScenario } from '../contexts/ScenarioContext'
+import { useGame } from '../contexts/GameContext'
 import { fetchBriefing, type BriefingResult } from '../api/examine'
 import './OpeningPage.css'
 
 export default function OpeningPage() {
   const navigate = useNavigate()
   const { lang, t } = useLanguage()
-  const { examineRules } = useScenario()
+  const { unlockedLocations } = useGame()
 
   const [briefing, setBriefing] = useState<BriefingResult | null>(null)
   const [loading, setLoading] = useState(true)
@@ -25,7 +25,7 @@ export default function OpeningPage() {
 
   useEffect(() => { loadBriefing() }, [lang]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const firstLocationId = examineRules?.initialLocations[0] ?? ''
+  const firstLocationId = unlockedLocations[0] ?? ''
 
   const ja = lang === 'ja'
 

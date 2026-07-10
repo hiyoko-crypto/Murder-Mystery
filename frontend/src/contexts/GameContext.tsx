@@ -7,6 +7,7 @@ import type { Message } from '../types'
 interface GameContextValue {
   unlockedLocations: string[]
   foundItems: string[]
+  locationItemCatalog: Record<string, string[]>
   refetchState: () => Promise<void>
   resetGame: () => Promise<void>
   getConversation: (suspectId: string) => Message[]
@@ -20,6 +21,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const { resetNotebook } = useCaseNotes()
   const [unlockedLocations, setUnlockedLocations] = useState<string[]>([])
   const [foundItems, setFoundItems] = useState<string[]>([])
+  const [locationItemCatalog, setLocationItemCatalog] = useState<Record<string, string[]>>({})
   const [conversations, setConversations] = useState<Record<string, Message[]>>({})
 
   const refetchState = useCallback(async () => {
@@ -27,8 +29,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       const res = await fetch(`/state?lang=${lang}`)
       if (!res.ok) return
       const data = await res.json()
-      setUnlockedLocations(
-        (data.available_locations ?? []).map((l: { id: string }) => l.id)
+      const locations: { id: string; item_ids?: string[] }[] = data.available_locations ?? []
+      setUnlockedLocations(locations.map((l) => l.id))
+      setLocationItemCatalog(
+        Object.fromEntries(locations.map((l) => [l.id, l.item_ids ?? []]))
       )
       setFoundItems(
         (data.found_items ?? []).map((i: { id: string }) => i.id)
@@ -46,6 +50,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     try { await resetSession() } catch { /* continue anyway */ }
     setUnlockedLocations([])
     setFoundItems([])
+    setLocationItemCatalog({})
     setConversations({})
     resetNotebook()
     await refetchState()
@@ -66,6 +71,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     <GameCtx.Provider value={{
       unlockedLocations,
       foundItems,
+      locationItemCatalog,
       refetchState,
       resetGame,
       getConversation,

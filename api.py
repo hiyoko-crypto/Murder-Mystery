@@ -134,7 +134,13 @@ def get_state(lang: str = "ja"):
         "current_suspect_id": state.current_suspect_id,
         "suspects": [{"id": s.id, "name": s.name} for s in state.suspects],
         "available_locations": [
-            {"id": l.id, "name": l.name, "examined": l.examined, "is_new": l.is_new}
+            {
+                "id": l.id,
+                "name": l.name,
+                "examined": l.examined,
+                "is_new": l.is_new,
+                "item_ids": l.item_ids,
+            }
             for l in state.available_locations
         ],
         "found_items": [

@@ -14,14 +14,12 @@ export interface Item {
   emoji: string
   discoveryText: string
   detail: string
-  locationId: string
 }
 
 export interface Location {
   id: string
   name: string
   description: string
-  items: string[]      // item ids
   suspects: string[]   // suspect ids
 }
 

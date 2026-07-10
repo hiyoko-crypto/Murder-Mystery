@@ -162,7 +162,10 @@
         ],
         "properties": {
           "name": "Marcus's Dressing Room",
-          "description": "Private room backstage. Locked from inside with no forced entry. Contains desk, bloodied brass candlestick on the floor, torn letter in the bin, unsealed ventilation grate."
+          "description": "Private room backstage. Locked from inside with no forced entry. Contains desk, bloodied brass candlestick on the floor, torn letter in the bin, unsealed ventilation grate.",
+          "initially_available": true,
+          "unlock_from_testimony": false,
+          "room_description": "Marcus's dressing room is eerily still. The body has been removed, but everything else remains untouched by order of the detective. The desk is scattered with papers. A faint smell of cologne lingers."
         }
       },
       {
@@ -173,7 +176,10 @@
         ],
         "properties": {
           "name": "Ventilation Shaft",
-          "description": "Narrow shaft running behind the backstage wall. Connects Elena's dressing room to Marcus's via the backstage corridor."
+          "description": "Narrow shaft running behind the backstage wall. Connects Elena's dressing room to Marcus's via the backstage corridor.",
+          "initially_available": false,
+          "unlock_from_testimony": false,
+          "room_description": "You crouch and peer into the ventilation shaft. It is narrow but passable for a slim adult. The dust on the floor is disturbed — a clear trail suggests someone crawled through here recently."
         }
       },
       {
@@ -183,7 +189,10 @@
         ],
         "properties": {
           "name": "Elena's Dressing Room",
-          "description": "Adjacent to Marcus's room. The vent shaft entrance is here. Elena was seen here during intermission by guests."
+          "description": "Adjacent to Marcus's room. The vent shaft entrance is here. Elena was seen here during intermission by guests.",
+          "initially_available": false,
+          "unlock_from_testimony": true,
+          "room_description": "Elena Rostova's dressing room, directly adjacent to Marcus's. The ventilation shaft entrance is visible here — the grate on this side is also loosely fitted."
         }
       },
       {
@@ -193,7 +202,10 @@
         ],
         "properties": {
           "name": "Theatre Lobby",
-          "description": "Public foyer. Julian Wilde was here with investors Barton and Finch during the entire intermission."
+          "description": "Public foyer. Julian Wilde was here with investors Barton and Finch during the entire intermission.",
+          "initially_available": false,
+          "unlock_from_testimony": true,
+          "room_description": "The theatre lobby. Staff and guests confirm that Dr. Julian Wilde was here during the entire intermission, deep in conversation with investors Barton and Finch. No one recalls him leaving."
         }
       },
       {
@@ -203,7 +215,10 @@
         ],
         "properties": {
           "name": "Theatre Bar",
-          "description": "Ground-floor bar. Leo Cross was here from 8:00 PM onward, confirmed by bartender Tommy Reeves."
+          "description": "Ground-floor bar. Leo Cross was here from 8:00 PM onward, confirmed by bartender Tommy Reeves.",
+          "initially_available": false,
+          "unlock_from_testimony": true,
+          "room_description": "The ground-floor bar. Bartender Tommy Reeves confirms Leo Cross arrived around 8:00 PM and did not leave his stool all evening. Three rounds of drinks, paid in cash."
         }
       },
       {
@@ -2526,6 +2541,13 @@
           "known_by": "all",
           "provenance": "public_report"
         }
+      },
+      {
+        "id": "e138",
+        "from": "n_vent_grate",
+        "rel": "REVEALS",
+        "to": "n_vent_shaft",
+        "properties": {}
       }
     ]
   },
@@ -2540,65 +2562,6 @@
       "node_id": "n_leo"
     }
   ],
-  "examine_rules": {
-    "locations": {
-      "n_dressing_room": {
-        "initially_available": true,
-        "unlock_from_testimony": false,
-        "items_present": [
-          "n_candlestick",
-          "n_torn_letter",
-          "n_vent_grate",
-          "n_locked_door"
-        ],
-        "description": "Marcus's dressing room is eerily still. The body has been removed, but everything else remains untouched by order of the detective. The desk is scattered with papers. A faint smell of cologne lingers."
-      },
-      "n_vent_shaft": {
-        "initially_available": false,
-        "unlock_from_testimony": false,
-        "unlock_from_item": "n_vent_grate",
-        "items_present": [
-          "n_silver_compact"
-        ],
-        "description": "You crouch and peer into the ventilation shaft. It is narrow but passable for a slim adult. The dust on the floor is disturbed — a clear trail suggests someone crawled through here recently."
-      },
-      "n_lobby": {
-        "initially_available": false,
-        "unlock_from_testimony": true,
-        "items_present": [],
-        "description": "The theatre lobby. Staff and guests confirm that Dr. Julian Wilde was here during the entire intermission, deep in conversation with investors Barton and Finch. No one recalls him leaving."
-      },
-      "n_bar": {
-        "initially_available": false,
-        "unlock_from_testimony": true,
-        "items_present": [],
-        "description": "The ground-floor bar. Bartender Tommy Reeves confirms Leo Cross arrived around 8:00 PM and did not leave his stool all evening. Three rounds of drinks, paid in cash."
-      },
-      "n_elena_room": {
-        "initially_available": false,
-        "unlock_from_testimony": true,
-        "items_present": [],
-        "description": "Elena Rostova's dressing room, directly adjacent to Marcus's. The ventilation shaft entrance is visible here — the grate on this side is also loosely fitted."
-      }
-    },
-    "items": {
-      "n_candlestick": {
-        "unlocks_location": null
-      },
-      "n_torn_letter": {
-        "unlocks_location": null
-      },
-      "n_vent_grate": {
-        "unlocks_location": "n_vent_shaft"
-      },
-      "n_locked_door": {
-        "unlocks_location": null
-      },
-      "n_silver_compact": {
-        "unlocks_location": null
-      }
-    }
-  },
   "solution": {
     "killer_node": "n_elena",
     "key_evidence_edges": [

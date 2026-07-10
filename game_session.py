@@ -30,6 +30,7 @@ class LocationInfo:
     name:     str
     examined: bool
     is_new:   bool          # True on first unlock
+    item_ids: list[str]     # full item catalog for this location
 
 
 @dataclass
@@ -152,6 +153,7 @@ class GameSession:
                 name=self._display_node_name(loc_id),
                 examined=self.tracker.is_examined(loc_id),
                 is_new=loc_id in self._new_location_ids,
+                item_ids=self.tracker.get_catalog_items(loc_id),
             )
             for loc_id in self.tracker.get_available_locations()
         ]
