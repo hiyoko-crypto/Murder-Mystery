@@ -1,13 +1,15 @@
 """Local Ollama LLM client."""
 
 import json
+import os
 import time
+import urllib.error
 import urllib.request
 
-MODEL = "qwen3.5:9b"
+MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
 NUM_CTX = 4096
 THINK = False
-OLLAMA_CHAT_URL = "http://localhost:11434/api/chat"
+OLLAMA_CHAT_URL = os.getenv("OLLAMA_CHAT_URL", "http://localhost:11434/api/chat")
 
 
 def _chat_completion(messages: list, temperature: float) -> str:
@@ -27,8 +29,16 @@ def _chat_completion(messages: list, temperature: float) -> str:
         headers={"Content-Type": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(request, timeout=180) as response:
-        body = json.load(response)
+    try:
+        with urllib.request.urlopen(request, timeout=180) as response:
+            body = json.load(response)
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            raise RuntimeError(
+                f"Ollama returned 404 for model '{MODEL}'. Install it with `ollama pull {MODEL}` "
+                "or set OLLAMA_MODEL to an installed model."
+            ) from e
+        raise
     return body["message"]["content"]
 
 

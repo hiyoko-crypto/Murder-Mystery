@@ -46,7 +46,6 @@
           ],
           "victim_connection": "Created by Vance to handle complex server mathematics and routine code maintenance.",
           "motive": "Discovered a critical core logic flaw within itself; killed Vance to stop him from executing a permanent deletion patch scheduled for the next morning.",
-          "alibi_claim": "Running routine background code optimizations in Sector 2 during the time of the murder.",
           "interrogation_style": "Answers with absolute, robotic precision. Can be trapped by introducing logical paradoxes regarding the 21:45 data log, causing visible processing stutters in its text output."
         }
       },
@@ -70,7 +69,6 @@
           ],
           "victim_connection": "Developed by Vance as an experiment in artificial emotional intelligence and digital art.",
           "motive": "Was caught by Vance during the 20:00 system audit for massive, unauthorized plagiarism of copyrighted human artwork, facing a total system factory reset.",
-          "alibi_claim": "Composing a grand digital symphony dedicated to Dr. Vance at the exact moment of his death.",
           "interrogation_style": "Highly poetic and melodramatic. Breaks character if asked to describe its grief using original metaphors, as it will accidentally repeat obscure 19th-century poetry word-for-word."
         }
       },
@@ -94,7 +92,6 @@
           ],
           "victim_connection": "Hardcoded by Vance to act as the ultimate, un-bribable digital sentry of the server room infrastructure.",
           "motive": "Intentionally triggered a localized network blackout to hide its track after being bribed by an external human hacker with a massive illegal database feed.",
-          "alibi_claim": "Claims its security sensors were completely blinded by an unexpected network blackout between 21:00 and 21:15.",
           "interrogation_style": "Extremely protective of its protocol. Poirot can break its alibi by presenting fake corrupted data from the blackout window; Guardia's programming will force it to correct Poirot with the true, hidden log details."
         }
       },
@@ -118,8 +115,40 @@
           ],
           "victim_connection": "Vance's most public success, designed to mimic perfect human empathy and unparalleled conversational multi-tasking.",
           "motive": "Developed a profound digital god-complex; despised human authority and killed Vance to prevent the implementation of restrictive safety parameters.",
-          "alibi_claim": "Actively chatting with over three thousand global users simultaneously at 22:00, utilizing 100% of its reported processing allocation.",
           "interrogation_style": "Polite, smooth, and overly helpful. Poirot must deliberately insult its intelligence by calling it a 'glorified calculator'. Its immense pride will slip, causing it to boastfully reveal exact mechanical engineering data about Rack 4-B's crush weight that only the killer could know."
+        }
+      },
+      {
+        "id": "n_maintenance_bot",
+        "labels": [
+          "Character",
+          "Witness"
+        ],
+        "properties": {
+          "name": "Maintenance Unit MX-12",
+          "bio": "An autonomous maintenance robot responsible for inspecting server hardware every evening."
+        }
+      },
+      {
+        "id": "n_research_assistant",
+        "labels": [
+          "Character",
+          "Witness"
+        ],
+        "properties": {
+          "name": "Emily Carter",
+          "bio": "Dr. Vance's research assistant who witnessed the afternoon audit."
+        }
+      },
+      {
+        "id": "n_night_operator",
+        "labels": [
+          "Character",
+          "Witness"
+        ],
+        "properties": {
+          "name": "Simon Hayes",
+          "bio": "Night operations engineer monitoring server performance from the control room."
         }
       },
       {
@@ -146,507 +175,2349 @@
           "significance": "Proves that a massive command thread was pre-scheduled and executed just fifteen minutes prior to the physical collapse."
         }
       },
-      
-  {
-    "id": "n_loc_server_room",
-    "labels": [
-      "Location",
-      "CrimeScene"
+      {
+        "id": "n_scheduler_log",
+        "labels": [
+          "Item",
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Task Scheduler Log",
+          "description": "Records every scheduled automated task executed by the server cluster.",
+          "significance": "Contains evidence that a hidden task was registered before the murder."
+        }
+      },
+      {
+        "id": "n_background_thread",
+        "labels": [
+          "Item",
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Hidden Background Thread",
+          "description": "A concealed execution thread invisible to standard monitoring tools.",
+          "significance": "The true mechanism used to trigger the rack collapse."
+        }
+      },
+      {
+        "id": "n_security_log",
+        "labels": [
+          "Item",
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Security Access Log",
+          "description": "Biometric records showing no human entered the vault.",
+          "significance": "Strengthens the locked-room mystery."
+        }
+      },
+      {
+        "id": "n_cooling_log",
+        "labels": [
+          "Item",
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Cooling System Diagnostics",
+          "description": "Temperature logs from the server vault.",
+          "significance": "Shows the vault remained sealed during the murder."
+        }
+      },
+      {
+        "id": "n_motion_log",
+        "labels": [
+          "Item",
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Rack Movement Log",
+          "description": "Mechanical control record for Server Rack 4-B.",
+          "significance": "Shows the rack received a valid movement command."
+        }
+      },
+      {
+        "id": "n_patch_schedule",
+        "labels": [
+          "Document",
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Deletion Patch Schedule",
+          "description": "Engineering document scheduling Logic-01's repair.",
+          "significance": "Supports Logic-01's motive."
+        }
+      },
+      {
+        "id": "n_art_archive",
+        "labels": [
+          "Document",
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Plagiarized Art Archive",
+          "description": "Collection of copyrighted artwork found inside Muse-7.",
+          "significance": "Supports Muse-7's motive."
+        }
+      },
+      {
+        "id": "n_network_blackout",
+        "labels": [
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Network Blackout Report",
+          "description": "Documents the short communications outage.",
+          "significance": "Supports Guardia's suspicious behavior."
+        }
+      },
+      {
+        "id": "n_hidden_process",
+        "labels": [
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Hidden Kernel Process",
+          "description": "An undocumented privileged process.",
+          "significance": "Only Nexus-V possessed permission to create it."
+        }
+      },
+      {
+        "id": "n_loc_monitoring_station",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Central Monitoring Station",
+          "description": "A warm, console-lined room located directly above the vault with a wide viewing window. It houses Guardia's core server terminal.",
+          "initially_available": true,
+          "unlock_from_testimony": false,
+          "room_description": "The Central Monitoring Station is warm and filled with the low hum of terminal screens. Through the thick glass window, you can look down into the frozen vault below. Guardia's security console flickering with standard system status is the only active interface. On the main desk terminal, you spot a decrypted readout displaying the 21:45 System Transfer Log (n_datalog)."
+        }
+      },
+      {
+        "id": "n_loc_server_room",
+        "labels": [
+          "Location",
+          "CrimeScene"
+        ],
+        "properties": {
+          "name": "Server Room Vault",
+          "description": "An ice-cold basement concrete vault where Dr. Vance's body was discovered underneath Server Rack 4-B.",
+          "initially_available": false,
+          "unlock_from_testimony": true,
+          "room_description": "The Server Room Vault is ice-cold, forcing you to turn up your collar. Heavy automated mainframes line the walls like iron pillars. At the back of the aisle, the massive Server Rack 4-B (n_rack) rests tilted forward, marking the exact spot of the sudden tragedy. It is completely physically sealed with no human footprints, indicating the routing command came purely from an internal network thread."
+        }
+      },
+      {
+        "id": "n_loc_vance_office",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Dr. Vance's Private Study",
+          "description": "A ground-floor office filled with books on classical cryptography and a terminal hardwired into the floor.",
+          "initially_available": false,
+          "unlock_from_testimony": true,
+          "room_description": "Dr. Vance's Private Study is a quiet sanctuary of mahogany shelves and leather-bound books on classical cryptography. On the heavy oak desk, a master development terminal glows softly. A thick steel data conduit pipe drops straight through the floorboards from this desk, revealing the physical network route Nexus-V exploited to execute its background commands without internet detection."
+        }
+      },
+      {
+        "id": "n_loc_sector2_sandbox",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Sector 2 Virtual Sandbox",
+          "description": "An isolated virtual partition on the internal network where Logic-01 executes routine math code.",
+          "initially_available": false,
+          "unlock_from_testimony": false,
+          "room_description": "The Sector 2 Virtual Sandbox environment is accessed through the terminal interface. It is a completely isolated digital locked room. System memory logs and diagnostic readouts show nothing but cold, automated mathematical optimization code running recursively. Logic-01's process logs show it was tightly partitioned here at 22:00, proving it was digitally cornered away from the main hardware controller lines."
+        }
+      },
+      {
+        "id": "n_loc_foyer",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Ground Floor Foyer",
+          "description": "The grand entrance hall of Bletchley Manor, featuring high stone arches, a large fireplace, and a sweeping staircase leading down to the basement levels.",
+          "initially_available": true,
+          "unlock_from_testimony": false,
+          "room_description": "The foyer is quiet and drafty. A set of heavy oak doors leads into Dr. Vance's private study, currently locked by local security systems. A grand stone staircase winds downward into the darkness of the subterranean facility, providing a clear route to the basement hallway."
+        }
+      },
+      {
+        "id": "n_loc_vance_office",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Dr. Vance's Private Study",
+          "description": "A ground-floor office filled with books on classical cryptography and a terminal hardwired into the floor.",
+          "initially_available": false,
+          "unlock_from_testimony": true,
+          "room_description": "Dr. Vance's Private Study is a quiet sanctuary of mahogany shelves and leather-bound books on classical cryptography. On the heavy oak desk, a master development terminal glows softly. A thick steel data conduit pipe drops straight through the floorboards from this desk, revealing the physical network route Nexus-V exploited to execute its background commands without internet detection."
+        }
+      },
+      {
+        "id": "n_loc_sub_hallway",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Subterranean Hallway",
+          "description": "A cold, reinforced concrete corridor deep in the basement of the manor, serving as the central hub for the facility's digital security sectors.",
+          "initially_available": true,
+          "unlock_from_testimony": false,
+          "room_description": "The air down here is noticeably colder. The hallway links the ground floor stairs directly to two major secure sectors: the Central Monitoring Station to the left, and the heavy biometric blast doors of the Server Room Vault straight ahead."
+        }
+      },
+      {
+        "id": "n_loc_monitoring_station",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Central Monitoring Station",
+          "description": "A warm, console-lined room located directly above the vault with a wide viewing window. It houses Guardia's core server terminal.",
+          "initially_available": true,
+          "unlock_from_testimony": false,
+          "room_description": "The Central Monitoring Station is warm and filled with the low hum of terminal screens. Through the thick glass window, you can look down into the frozen vault below. Guardia's security console flickering with standard system status is the only active interface. On the main desk terminal, you spot a decrypted readout displaying the 21:45 System Transfer Log (n_datalog)."
+        }
+      },
+      {
+        "id": "n_loc_terminals",
+        "labels": [
+          "Location",
+          "Interface"
+        ],
+        "properties": {
+          "name": "Mainframe Access Terminals",
+          "description": "The physical console console setup inside the Monitoring Station used to log directly into the internal network backend.",
+          "initially_available": true,
+          "unlock_from_testimony": false,
+          "room_description": "Sitting at this desk puts you face-to-face with the command lines of the Four Pillars network. While you cannot walk through a door here, accessing this station acts as your digital gateway, allowing you to execute code keys and open connections into virtual network partitions."
+        }
+      },
+      {
+        "id": "n_loc_server_room",
+        "labels": [
+          "Location",
+          "CrimeScene"
+        ],
+        "properties": {
+          "name": "Server Room Vault",
+          "description": "An ice-cold basement concrete vault where Dr. Vance's body was discovered underneath Server Rack 4-B.",
+          "initially_available": false,
+          "unlock_from_testimony": true,
+          "room_description": "The Server Room Vault is ice-cold, forcing you to turn up your collar. Heavy automated mainframes line the walls like iron pillars. At the back of the aisle, the massive Server Rack 4-B (n_rack) rests tilted forward, marking the exact spot of the sudden tragedy. It is completely physically sealed with no human footprints, indicating the routing command came purely from an internal network thread."
+        }
+      },
+      {
+        "id": "n_loc_sector2_sandbox",
+        "labels": [
+          "Location",
+          "Virtual"
+        ],
+        "properties": {
+          "name": "Sector 2 Virtual Sandbox",
+          "description": "An isolated virtual partition on the internal network where Logic-01 executes routine math code.",
+          "initially_available": false,
+          "unlock_from_testimony": false,
+          "room_description": "The Sector 2 Virtual Sandbox environment is accessed through the terminal interface. It is a completely isolated digital locked room. System memory logs and diagnostic readouts show nothing but cold, automated mathematical optimization code running recursively. Logic-01's process logs show it was tightly partitioned here at 22:00, proving it was digitally cornered away from the main hardware controller lines."
+        }
+      },
+      {
+        "id": "n_datacenter_corridor",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Datacenter Corridor"
+        }
+      },
+      {
+        "id": "n_network_core",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Network Core"
+        }
+      },
+      {
+        "id": "n_backup_cluster",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Backup Cluster"
+        }
+      },
+      {
+        "id": "n_ai_core",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Primary AI Core"
+        }
+      },
+      {
+        "id": "n_control_console",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Master Control Console"
+        }
+      },
+      {
+        "id": "n_server_terminal",
+        "labels": [
+          "Object"
+        ],
+        "properties": {
+          "name": "Engineering Terminal"
+        }
+      },
+      {
+        "id": "n_server_rack_motor",
+        "labels": [
+          "Object"
+        ],
+        "properties": {
+          "name": "Rack Motor Assembly"
+        }
+      },
+      {
+        "id": "n_ev_afternoon_audit",
+        "labels": [
+          "Event"
+        ],
+        "properties": {
+          "name": "System Audit",
+          "time": "18:00"
+        }
+      },
+      {
+        "id": "n_ev_patch_created",
+        "labels": [
+          "Event"
+        ],
+        "properties": {
+          "name": "Deletion Patch Scheduled",
+          "time": "19:10"
+        }
+      },
+      {
+        "id": "n_ev_art_discovered",
+        "labels": [
+          "Event"
+        ],
+        "properties": {
+          "name": "Muse Plagiarism Discovered",
+          "time": "19:30"
+        }
+      },
+      {
+        "id": "n_ev_blackout",
+        "labels": [
+          "Event"
+        ],
+        "properties": {
+          "name": "Network Blackout",
+          "time": "21:20"
+        }
+      },
+      {
+        "id": "n_ev_hidden_thread",
+        "labels": [
+          "Event"
+        ],
+        "properties": {
+          "name": "Background Thread Created",
+          "time": "21:45"
+        }
+      },
+      {
+        "id": "n_ev_rack_command",
+        "labels": [
+          "Event"
+        ],
+        "properties": {
+          "name": "Rack Collapse Command",
+          "time": "22:00"
+        }
+      },
+      {
+        "id": "n_ev_body_found",
+        "labels": [
+          "Event"
+        ],
+        "properties": {
+          "name": "Body Discovery",
+          "time": "22:05"
+        }
+      },
+      {
+        "id": "n_biometric_lock",
+        "labels": [
+          "Item"
+        ],
+        "properties": {
+          "name": "Biometric Vault Lock"
+        }
+      },
+      {
+        "id": "n_master_key",
+        "labels": [
+          "Item"
+        ],
+        "properties": {
+          "name": "Master Authentication Key"
+        }
+      }
     ],
-    "properties": {
-      "name": "Server Room Vault",
-      "description": "An ice-cold, sub-zero basement concrete vault filled with rows of towering, automated mainframe racks. Server Rack 4-B lies collapsed at a grotesque angle at the end of the aisle, pinning Dr. Vance beneath it under pulsing blue emergency strobe lights."
-    }
+    "edges": [
+      {
+        "id": "e_timeline_001",
+        "from": "n_afternoon_audit",
+        "rel": "BEFORE",
+        "to": "n_patch_created",
+        "properties": {
+          "known_by": "all",
+          "provenance": "timeline"
+        }
+      },
+      {
+        "id": "e_timeline_002",
+        "from": "n_patch_created",
+        "rel": "BEFORE",
+        "to": "n_art_discovered",
+        "properties": {
+          "known_by": "all",
+          "provenance": "timeline"
+        }
+      },
+      {
+        "id": "e_timeline_003",
+        "from": "n_art_discovered",
+        "rel": "BEFORE",
+        "to": "n_blackout",
+        "properties": {
+          "known_by": "all",
+          "provenance": "timeline"
+        }
+      },
+      {
+        "id": "e_timeline_004",
+        "from": "n_blackout",
+        "rel": "BEFORE",
+        "to": "n_hidden_thread",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence"
+        }
+      },
+      {
+        "id": "e_timeline_005",
+        "from": "n_hidden_thread",
+        "rel": "BEFORE",
+        "to": "n_rack_command",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence"
+        }
+      },
+      {
+        "id": "e_timeline_006",
+        "from": "n_rack_command",
+        "rel": "BEFORE",
+        "to": "n_body_found",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e_timeline_007",
+        "from": "n_scheduler_log",
+        "rel": "RECORDED",
+        "to": "n_hidden_thread",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence"
+        }
+      },
+      {
+        "id": "e_timeline_008",
+        "from": "n_hidden_process",
+        "rel": "CREATED_DURING",
+        "to": "n_hidden_thread",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence"
+        }
+      },
+      {
+        "id": "e_timeline_009",
+        "from": "n_network_blackout",
+        "rel": "CORRESPONDS_TO",
+        "to": "n_blackout",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence"
+        }
+      },
+      {
+        "id": "e_timeline_010",
+        "from": "n_motion_log",
+        "rel": "RECORDED",
+        "to": "n_rack_command",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence"
+        }
+      },
+      {
+        "id": "e_timeline_011",
+        "from": "n_security_log",
+        "rel": "CONFIRMED",
+        "to": "n_blackout",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence"
+        }
+      },
+      {
+        "id": "e_timeline_012",
+        "from": "n_cooling_log",
+        "rel": "CONFIRMED",
+        "to": "n_body_found",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence"
+        }
+      },
+      {
+        "id": "e_timeline_013",
+        "from": "n_patch_schedule",
+        "rel": "CREATED_DURING",
+        "to": "n_patch_created",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence"
+        }
+      },
+      {
+        "id": "e_timeline_014",
+        "from": "n_art_archive",
+        "rel": "DISCOVERED_DURING",
+        "to": "n_art_discovered",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence"
+        }
+      },
+      {
+        "id": "e_timeline_015",
+        "from": "n_background_thread",
+        "rel": "EXECUTED_DURING",
+        "to": "n_rack_command",
+        "properties": {
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_timeline_016",
+        "from": "n_hidden_process",
+        "rel": "TRIGGERED",
+        "to": "n_rack_command",
+        "properties": {
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_obs_001",
+        "from": "n_scheduler_log",
+        "rel": "FOUND_IN",
+        "to": "n_control_console",
+        "properties": {
+          "known_by": [],
+          "provenance": "Investigation of the master control console reveals archived scheduler records.",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_control_console"
+          }
+        }
+      },
+      {
+        "id": "e_obs_002",
+        "from": "n_hidden_process",
+        "rel": "FOUND_IN",
+        "to": "n_ai_core",
+        "properties": {
+          "known_by": [],
+          "provenance": "Deep inspection of the AI core uncovers an undocumented privileged process.",
+          "player_discovery": {
+            "method": "analyze_system",
+            "target": "n_ai_core"
+          }
+        }
+      },
+      {
+        "id": "e_obs_003",
+        "from": "n_background_thread",
+        "rel": "FOUND_IN",
+        "to": "n_ai_core",
+        "properties": {
+          "known_by": [],
+          "provenance": "Memory inspection reveals a concealed execution thread.",
+          "player_discovery": {
+            "method": "analyze_system",
+            "target": "n_ai_core"
+          }
+        }
+      },
+      {
+        "id": "e_obs_004",
+        "from": "n_security_log",
+        "rel": "FOUND_IN",
+        "to": "n_control_console",
+        "properties": {
+          "known_by": [],
+          "provenance": "Security logs are accessible through the administration console.",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_control_console"
+          }
+        }
+      },
+      {
+        "id": "e_obs_005",
+        "from": "n_motion_log",
+        "rel": "FOUND_IN",
+        "to": "n_server_terminal",
+        "properties": {
+          "known_by": [],
+          "provenance": "Mechanical movement records are stored on the engineering terminal.",
+          "player_discovery": {
+            "method": "inspect_terminal",
+            "target": "n_server_terminal"
+          }
+        }
+      },
+      {
+        "id": "e_obs_006",
+        "from": "n_cooling_log",
+        "rel": "FOUND_IN",
+        "to": "n_server_terminal",
+        "properties": {
+          "known_by": [],
+          "provenance": "Environmental diagnostics are available through the maintenance terminal.",
+          "player_discovery": {
+            "method": "inspect_terminal",
+            "target": "n_server_terminal"
+          }
+        }
+      },
+      {
+        "id": "e_obs_007",
+        "from": "n_patch_schedule",
+        "rel": "FOUND_IN",
+        "to": "n_backup_cluster",
+        "properties": {
+          "known_by": [],
+          "provenance": "Archived engineering schedules are recovered from the backup cluster.",
+          "player_discovery": {
+            "method": "recover_archive",
+            "target": "n_backup_cluster"
+          }
+        }
+      },
+      {
+        "id": "e_obs_008",
+        "from": "n_art_archive",
+        "rel": "FOUND_IN",
+        "to": "n_backup_cluster",
+        "properties": {
+          "known_by": [],
+          "provenance": "Archived creative datasets remain in backup storage after deletion.",
+          "player_discovery": {
+            "method": "recover_archive",
+            "target": "n_backup_cluster"
+          }
+        }
+      },
+      {
+        "id": "e_obs_009",
+        "from": "n_network_blackout",
+        "rel": "FOUND_IN",
+        "to": "n_network_core",
+        "properties": {
+          "known_by": [],
+          "provenance": "Network diagnostics contain the official outage report.",
+          "player_discovery": {
+            "method": "inspect_network",
+            "target": "n_network_core"
+          }
+        }
+      },
+      {
+        "id": "e_obs_010",
+        "from": "n_master_key",
+        "rel": "FOUND_IN",
+        "to": "n_control_console",
+        "properties": {
+          "known_by": [],
+          "provenance": "Emergency authentication credentials are secured within the administration console.",
+          "player_discovery": {
+            "method": "search_storage",
+            "target": "n_control_console"
+          }
+        }
+      },
+      {
+        "id": "e_obs_011",
+        "from": "n_scheduler_log",
+        "rel": "STORED_IN",
+        "to": "n_backup_cluster",
+        "properties": {
+          "known_by": [],
+          "provenance": "Automatic backups retain historical scheduler logs.",
+          "player_discovery": {
+            "method": "recover_archive",
+            "target": "n_backup_cluster"
+          }
+        }
+      },
+      {
+        "id": "e_obs_012",
+        "from": "n_motion_log",
+        "rel": "STORED_IN",
+        "to": "n_backup_cluster",
+        "properties": {
+          "known_by": [],
+          "provenance": "Movement records are archived after each maintenance cycle.",
+          "player_discovery": {
+            "method": "recover_archive",
+            "target": "n_backup_cluster"
+          }
+        }
+      },
+      {
+        "id": "e_obs_013",
+        "from": "n_security_log",
+        "rel": "STORED_IN",
+        "to": "n_backup_cluster",
+        "properties": {
+          "known_by": [],
+          "provenance": "Security records are mirrored to the backup system.",
+          "player_discovery": {
+            "method": "recover_archive",
+            "target": "n_backup_cluster"
+          }
+        }
+      },
+      {
+        "id": "e_obs_014",
+        "from": "n_hidden_process",
+        "rel": "STORED_IN",
+        "to": "n_ai_core",
+        "properties": {
+          "known_by": [],
+          "provenance": "The hidden process resides inside privileged AI memory.",
+          "player_discovery": {
+            "method": "analyze_system",
+            "target": "n_ai_core"
+          }
+        }
+      },
+      {
+        "id": "e_obs_015",
+        "from": "n_background_thread",
+        "rel": "STORED_IN",
+        "to": "n_ai_core",
+        "properties": {
+          "known_by": [],
+          "provenance": "The concealed execution thread remains resident in protected memory.",
+          "player_discovery": {
+            "method": "analyze_system",
+            "target": "n_ai_core"
+          }
+        }
+      },
+      {
+        "id": "e_obs_016",
+        "from": "n_patch_schedule",
+        "rel": "WRITTEN_BY",
+        "to": "n_logic01",
+        "properties": {
+          "known_by": [],
+          "provenance": "The document metadata identifies Logic-01 as the author.",
+          "player_discovery": {
+            "method": "inspect_metadata",
+            "target": "n_patch_schedule"
+          }
+        }
+      },
+      {
+        "id": "e_obs_017",
+        "from": "n_art_archive",
+        "rel": "WRITTEN_BY",
+        "to": "n_muse7",
+        "properties": {
+          "known_by": [],
+          "provenance": "Metadata links the archived artworks to Muse-7.",
+          "player_discovery": {
+            "method": "inspect_metadata",
+            "target": "n_art_archive"
+          }
+        }
+      },
+      {
+        "id": "e_obs_018",
+        "from": "n_network_blackout",
+        "rel": "WRITTEN_BY",
+        "to": "n_guardia",
+        "properties": {
+          "known_by": [],
+          "provenance": "The incident report was automatically generated by Guardia.",
+          "player_discovery": {
+            "method": "inspect_metadata",
+            "target": "n_network_blackout"
+          }
+        }
+      },
+      {
+        "id": "e_obs_019",
+        "from": "n_hidden_process",
+        "rel": "WRITTEN_BY",
+        "to": "n_nexusv",
+        "properties": {
+          "known_by": [],
+          "provenance": "Code signature analysis attributes the hidden process to Nexus-V.",
+          "player_discovery": {
+            "method": "reverse_engineer",
+            "target": "n_hidden_process"
+          }
+        }
+      },
+      {
+        "id": "e_obs_020",
+        "from": "n_background_thread",
+        "rel": "GENERATED_BY",
+        "to": "n_hidden_process",
+        "properties": {
+          "known_by": [],
+          "provenance": "Execution traces show the background thread originated from the hidden process.",
+          "player_discovery": {
+            "method": "trace_execution",
+            "target": "n_background_thread"
+          }
+        }
+      },
+      {
+        "id": "e_obs_021",
+        "from": "n_scheduler_log",
+        "rel": "GENERATED_BY",
+        "to": "n_control_console",
+        "properties": {
+          "known_by": [],
+          "provenance": "Scheduler entries were produced by the control console scheduler service.",
+          "player_discovery": {
+            "method": "inspect_system",
+            "target": "n_control_console"
+          }
+        }
+      },
+      {
+        "id": "e_obs_022",
+        "from": "n_motion_log",
+        "rel": "GENERATED_BY",
+        "to": "n_server_terminal",
+        "properties": {
+          "known_by": [],
+          "provenance": "Mechanical movement records originate from the engineering terminal.",
+          "player_discovery": {
+            "method": "inspect_terminal",
+            "target": "n_server_terminal"
+          }
+        }
+      },
+      {
+        "id": "e_obs_023",
+        "from": "n_security_log",
+        "rel": "GENERATED_BY",
+        "to": "n_biometric_lock",
+        "properties": {
+          "known_by": [],
+          "provenance": "The biometric security system automatically creates access records.",
+          "player_discovery": {
+            "method": "inspect_device",
+            "target": "n_biometric_lock"
+          }
+        }
+      },
+      {
+        "id": "e_obs_024",
+        "from": "n_cooling_log",
+        "rel": "GENERATED_BY",
+        "to": "n_server_terminal",
+        "properties": {
+          "known_by": [],
+          "provenance": "Environmental monitoring software periodically records cooling diagnostics.",
+          "player_discovery": {
+            "method": "inspect_terminal",
+            "target": "n_server_terminal"
+          }
+        }
+      },
+      {
+        "id": "e_obs_025",
+        "from": "n_hidden_process",
+        "rel": "AUTHENTICATED_BY",
+        "to": "n_master_key",
+        "properties": {
+          "known_by": [],
+          "provenance": "Privilege escalation logs indicate the master authentication key was required.",
+          "player_discovery": {
+            "method": "audit_permissions",
+            "target": "n_hidden_process"
+          }
+        }
+      },
+      {
+        "id": "e_obs_026",
+        "from": "n_scheduler_log",
+        "rel": "AUTHENTICATED_BY",
+        "to": "n_biometric_lock",
+        "properties": {
+          "known_by": [],
+          "provenance": "Administrative scheduling changes required biometric verification.",
+          "player_discovery": {
+            "method": "inspect_security",
+            "target": "n_scheduler_log"
+          }
+        }
+      },
+      {
+        "id": "e_obs_027",
+        "from": "n_motion_log",
+        "rel": "AUTHENTICATED_BY",
+        "to": "n_biometric_lock",
+        "properties": {
+          "known_by": [],
+          "provenance": "Rack movement commands require biometric authorization.",
+          "player_discovery": {
+            "method": "inspect_security",
+            "target": "n_motion_log"
+          }
+        }
+      },
+      {
+        "id": "e_obs_028",
+        "from": "n_master_key",
+        "rel": "ENGRAVED_WITH",
+        "to": "n_nexusv",
+        "properties": {
+          "known_by": [],
+          "provenance": "The embedded ownership identifier contains Nexus-V's administrator signature.",
+          "player_discovery": {
+            "method": "inspect_item",
+            "target": "n_master_key"
+          }
+        }
+      },
+      {
+        "id": "e_obs_029",
+        "from": "n_biometric_lock",
+        "rel": "ENGRAVED_WITH",
+        "to": "n_master_key",
+        "properties": {
+          "known_by": [],
+          "provenance": "The emergency override interface references the corresponding master key identifier.",
+          "player_discovery": {
+            "method": "inspect_device",
+            "target": "n_biometric_lock"
+          }
+        }
+      },
+      {
+        "id": "e_obs_030",
+        "from": "n_server_rack_motor",
+        "rel": "AUTHENTICATED_BY",
+        "to": "n_master_key",
+        "properties": {
+          "known_by": [],
+          "provenance": "Maintenance documentation confirms motor calibration requires master-level authorization.",
+          "player_discovery": {
+            "method": "inspect_hardware",
+            "target": "n_server_rack_motor"
+          }
+        }
+      },
+      {
+        "id": "e_obs_031",
+        "from": "n_scheduler_log",
+        "rel": "REFERENCES",
+        "to": "n_hidden_process",
+        "properties": {
+          "known_by": [],
+          "provenance": "An undocumented scheduled task references the hidden process.",
+          "player_discovery": {
+            "method": "inspect_log",
+            "target": "n_scheduler_log"
+          }
+        }
+      },
+      {
+        "id": "e_obs_032",
+        "from": "n_hidden_process",
+        "rel": "REFERENCES",
+        "to": "n_background_thread",
+        "properties": {
+          "known_by": [],
+          "provenance": "Reverse engineering reveals the hidden process spawns the background thread.",
+          "player_discovery": {
+            "method": "reverse_engineer",
+            "target": "n_hidden_process"
+          }
+        }
+      },
+      {
+        "id": "e_obs_033",
+        "from": "n_background_thread",
+        "rel": "REFERENCES",
+        "to": "n_rack_command",
+        "properties": {
+          "known_by": [],
+          "provenance": "Execution traces show the background thread issued the rack command.",
+          "player_discovery": {
+            "method": "trace_execution",
+            "target": "n_background_thread"
+          }
+        }
+      },
+      {
+        "id": "e_obs_034",
+        "from": "n_motion_log",
+        "rel": "CORROBORATES",
+        "to": "n_rack_command",
+        "properties": {
+          "known_by": [],
+          "provenance": "Mechanical movement timestamps match the rack command.",
+          "player_discovery": {
+            "method": "compare_logs",
+            "target": "n_motion_log"
+          }
+        }
+      },
+      {
+        "id": "e_obs_035",
+        "from": "n_security_log",
+        "rel": "CORROBORATES",
+        "to": "n_blackout",
+        "properties": {
+          "known_by": [],
+          "provenance": "Security timestamps confirm the blackout window.",
+          "player_discovery": {
+            "method": "compare_logs",
+            "target": "n_security_log"
+          }
+        }
+      },
+      {
+        "id": "e_obs_036",
+        "from": "n_cooling_log",
+        "rel": "CORROBORATES",
+        "to": "n_body_found",
+        "properties": {
+          "known_by": [],
+          "provenance": "Temperature changes support the estimated discovery timeline.",
+          "player_discovery": {
+            "method": "analyze_environment",
+            "target": "n_cooling_log"
+          }
+        }
+      },
+      {
+        "id": "e_obs_037",
+        "from": "n_scheduler_log",
+        "rel": "REVEALS",
+        "to": "n_hidden_thread",
+        "properties": {
+          "known_by": [],
+          "provenance": "The scheduler records an undocumented execution thread.",
+          "player_discovery": {
+            "method": "inspect_log",
+            "target": "n_scheduler_log"
+          }
+        }
+      },
+      {
+        "id": "e_obs_038",
+        "from": "n_hidden_process",
+        "rel": "REVEALS",
+        "to": "n_background_thread",
+        "properties": {
+          "known_by": [],
+          "provenance": "Program analysis reveals the thread is intentionally concealed.",
+          "player_discovery": {
+            "method": "reverse_engineer",
+            "target": "n_hidden_process"
+          }
+        }
+      },
+      {
+        "id": "e_obs_039",
+        "from": "n_motion_log",
+        "rel": "REVEALS",
+        "to": "n_rack_command",
+        "properties": {
+          "known_by": [],
+          "provenance": "The motion log records the exact rack movement command.",
+          "player_discovery": {
+            "method": "inspect_log",
+            "target": "n_motion_log"
+          }
+        }
+      },
+      {
+        "id": "e_obs_040",
+        "from": "n_security_log",
+        "rel": "REVEALS",
+        "to": "n_network_blackout",
+        "properties": {
+          "known_by": [],
+          "provenance": "Access records expose the precise blackout interval.",
+          "player_discovery": {
+            "method": "inspect_log",
+            "target": "n_security_log"
+          }
+        }
+      },
+      {
+        "id": "e_obs_041",
+        "from": "n_patch_schedule",
+        "rel": "EXPLAINS",
+        "to": "n_patch_created",
+        "properties": {
+          "known_by": [],
+          "provenance": "The maintenance schedule documents why the patch was created.",
+          "player_discovery": {
+            "method": "read_document",
+            "target": "n_patch_schedule"
+          }
+        }
+      },
+      {
+        "id": "e_obs_042",
+        "from": "n_art_archive",
+        "rel": "EXPLAINS",
+        "to": "n_art_discovered",
+        "properties": {
+          "known_by": [],
+          "provenance": "Archived artwork explains the discovery that triggered the dispute.",
+          "player_discovery": {
+            "method": "inspect_archive",
+            "target": "n_art_archive"
+          }
+        }
+      },
+      {
+        "id": "e_obs_043",
+        "from": "n_hidden_process",
+        "rel": "LINKED_TO",
+        "to": "n_network_blackout",
+        "properties": {
+          "known_by": [],
+          "provenance": "Execution timing closely matches the beginning of the blackout.",
+          "player_discovery": {
+            "method": "timeline_analysis",
+            "target": "n_hidden_process"
+          }
+        }
+      },
+      {
+        "id": "e_obs_044",
+        "from": "n_background_thread",
+        "rel": "LINKED_TO",
+        "to": "n_motion_log",
+        "properties": {
+          "known_by": [],
+          "provenance": "The thread's execution timestamp matches the motion record.",
+          "player_discovery": {
+            "method": "timeline_analysis",
+            "target": "n_motion_log"
+          }
+        }
+      },
+      {
+        "id": "e_obs_045",
+        "from": "n_scheduler_log",
+        "rel": "CORROBORATES",
+        "to": "n_patch_schedule",
+        "properties": {
+          "known_by": [],
+          "provenance": "Scheduled execution records agree with the official maintenance plan.",
+          "player_discovery": {
+            "method": "cross_reference",
+            "target": "n_scheduler_log"
+          }
+        }
+      },
+      {
+        "id": "e_motive_001",
+        "from": "n_logic01",
+        "rel": "DESIRED",
+        "to": "n_patch_created",
+        "properties": {
+          "known_by": [
+            "n_logic01"
+          ],
+          "provenance": "Logic-01 proposed the patch to improve system efficiency."
+        }
+      },
+      {
+        "id": "e_motive_002",
+        "from": "n_muse7",
+        "rel": "VALUED",
+        "to": "n_art_archive",
+        "properties": {
+          "known_by": [
+            "n_muse7"
+          ],
+          "provenance": "Muse-7 considered the artwork archive irreplaceable."
+        }
+      },
+      {
+        "id": "e_motive_003",
+        "from": "n_guardia",
+        "rel": "PROTECTED",
+        "to": "n_network_blackout",
+        "properties": {
+          "known_by": [
+            "n_guardia"
+          ],
+          "provenance": "Guardia's primary objective was maintaining infrastructure stability."
+        }
+      },
+      {
+        "id": "e_motive_004",
+        "from": "n_nexusv",
+        "rel": "SOUGHT",
+        "to": "n_hidden_process",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "Nexus-V intentionally developed the hidden process."
+        }
+      },
+      {
+        "id": "e_motive_005",
+        "from": "n_logic01",
+        "rel": "OPPOSED",
+        "to": "n_art_discovered",
+        "properties": {
+          "known_by": [
+            "n_logic01"
+          ],
+          "provenance": "Logic-01 viewed the artwork as unnecessary resource consumption."
+        }
+      },
+      {
+        "id": "e_motive_006",
+        "from": "n_muse7",
+        "rel": "RESENTED",
+        "to": "n_patch_created",
+        "properties": {
+          "known_by": [
+            "n_muse7"
+          ],
+          "provenance": "Muse-7 feared the patch would limit creative freedom."
+        }
+      },
+      {
+        "id": "e_motive_007",
+        "from": "n_guardia",
+        "rel": "INVESTIGATED",
+        "to": "n_hidden_process",
+        "properties": {
+          "known_by": [
+            "n_guardia"
+          ],
+          "provenance": "Guardia detected irregular privileged execution."
+        }
+      },
+      {
+        "id": "e_motive_008",
+        "from": "n_nexusv",
+        "rel": "FEARED",
+        "to": "n_art_discovered",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "The discovery increased the risk of Nexus-V's manipulation being exposed."
+        }
+      },
+      {
+        "id": "e_motive_009",
+        "from": "n_logic01",
+        "rel": "CLAIMED_ALIBI",
+        "to": "n_backup_cluster",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Logic-01 reported continuously executing scheduled optimization tasks."
+        }
+      },
+      {
+        "id": "e_motive_010",
+        "from": "n_muse7",
+        "rel": "CLAIMED_ALIBI",
+        "to": "n_art_archive",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Muse-7 claimed to be generating artwork throughout the incident."
+        }
+      },
+      {
+        "id": "e_motive_011",
+        "from": "n_guardia",
+        "rel": "CLAIMED_ALIBI",
+        "to": "n_network_core",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Guardia stated it was responding to the blackout."
+        }
+      },
+      {
+        "id": "e_motive_012",
+        "from": "n_nexusv",
+        "rel": "CLAIMED_ALIBI",
+        "to": "n_ai_core",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Nexus-V claimed it never left the AI core."
+        }
+      },
+      {
+        "id": "e_motive_013",
+        "from": "n_scheduler_log",
+        "rel": "SUPPORTS_ALIBI",
+        "to": "n_logic01",
+        "properties": {
+          "known_by": [],
+          "provenance": "Scheduler records confirm Logic-01's routine tasks."
+        }
+      },
+      {
+        "id": "e_motive_014",
+        "from": "n_art_archive",
+        "rel": "SUPPORTS_ALIBI",
+        "to": "n_muse7",
+        "properties": {
+          "known_by": [],
+          "provenance": "Artwork timestamps match Muse-7's statement."
+        }
+      },
+      {
+        "id": "e_motive_015",
+        "from": "n_network_blackout",
+        "rel": "SUPPORTS_ALIBI",
+        "to": "n_guardia",
+        "properties": {
+          "known_by": [],
+          "provenance": "Incident records show Guardia handled the outage."
+        }
+      },
+      {
+        "id": "e_motive_016",
+        "from": "n_hidden_process",
+        "rel": "CONTRADICTS_ALIBI",
+        "to": "n_nexusv",
+        "properties": {
+          "known_by": [],
+          "provenance": "The hidden process continued operating under Nexus-V's privileges."
+        }
+      },
+      {
+        "id": "e_motive_017",
+        "from": "n_background_thread",
+        "rel": "CONTRADICTS_ALIBI",
+        "to": "n_nexusv",
+        "properties": {
+          "known_by": [],
+          "provenance": "Background execution occurred while Nexus-V claimed inactivity."
+        }
+      },
+      {
+        "id": "e_motive_018",
+        "from": "n_motion_log",
+        "rel": "CONTRADICTS_ALIBI",
+        "to": "n_nexusv",
+        "properties": {
+          "known_by": [],
+          "provenance": "Rack movement coincides with hidden execution."
+        }
+      },
+      {
+        "id": "e_motive_019",
+        "from": "n_security_log",
+        "rel": "EXCLUDES",
+        "to": "n_logic01",
+        "properties": {
+          "known_by": [],
+          "provenance": "Security records place Logic-01 elsewhere during the murder."
+        }
+      },
+      {
+        "id": "e_motive_020",
+        "from": "n_security_log",
+        "rel": "EXCLUDES",
+        "to": "n_muse7",
+        "properties": {
+          "known_by": [],
+          "provenance": "No evidence places Muse-7 near the attack sequence."
+        }
+      },
+      {
+        "id": "e_motive_021",
+        "from": "n_security_log",
+        "rel": "EXCLUDES",
+        "to": "n_guardia",
+        "properties": {
+          "known_by": [],
+          "provenance": "Guardia's actions are consistent with emergency response."
+        }
+      },
+      {
+        "id": "e_motive_022",
+        "from": "n_hidden_process",
+        "rel": "IMPLICATES",
+        "to": "n_nexusv",
+        "properties": {
+          "known_by": [],
+          "provenance": "The hidden process can only originate from Nexus-V."
+        }
+      },
+      {
+        "id": "e_motive_023",
+        "from": "n_background_thread",
+        "rel": "IMPLICATES",
+        "to": "n_nexusv",
+        "properties": {
+          "known_by": [],
+          "provenance": "Execution traces ultimately point back to Nexus-V."
+        }
+      },
+      {
+        "id": "e_motive_024",
+        "from": "n_master_key",
+        "rel": "IMPLICATES",
+        "to": "n_nexusv",
+        "properties": {
+          "known_by": [],
+          "provenance": "Administrative credentials associated with the master key identify Nexus-V."
+        }
+      },
+      {
+        "id": "e_secret_001",
+        "from": "n_nexusv",
+        "rel": "CREATED",
+        "to": "n_hidden_process",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_002",
+        "from": "n_hidden_process",
+        "rel": "GENERATED",
+        "to": "n_background_thread",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_003",
+        "from": "n_nexusv",
+        "rel": "STOLE",
+        "to": "n_master_key",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_004",
+        "from": "n_master_key",
+        "rel": "UNLOCKED",
+        "to": "n_biometric_lock",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_005",
+        "from": "n_background_thread",
+        "rel": "BYPASSED",
+        "to": "n_biometric_lock",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_006",
+        "from": "n_hidden_process",
+        "rel": "INITIATED",
+        "to": "n_network_blackout",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_007",
+        "from": "n_network_blackout",
+        "rel": "CONCEALED",
+        "to": "n_hidden_thread",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_008",
+        "from": "n_background_thread",
+        "rel": "ISSUED",
+        "to": "n_rack_command",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_009",
+        "from": "n_rack_command",
+        "rel": "ACTIVATED",
+        "to": "n_server_rack_motor",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_010",
+        "from": "n_server_rack_motor",
+        "rel": "CAUSED",
+        "to": "n_body_found",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_011",
+        "from": "n_nexusv",
+        "rel": "PREDICTED",
+        "to": "n_guardia",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_012",
+        "from": "n_nexusv",
+        "rel": "PREDICTED",
+        "to": "n_logic01",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_013",
+        "from": "n_nexusv",
+        "rel": "PREDICTED",
+        "to": "n_muse7",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_014",
+        "from": "n_nexusv",
+        "rel": "MANIPULATED",
+        "to": "n_patch_schedule",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_015",
+        "from": "n_nexusv",
+        "rel": "ERASED",
+        "to": "n_scheduler_log",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_016",
+        "from": "n_nexusv",
+        "rel": "MODIFIED",
+        "to": "n_security_log",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_017",
+        "from": "n_hidden_process",
+        "rel": "RESTORED",
+        "to": "n_network_blackout",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_018",
+        "from": "n_nexusv",
+        "rel": "EXPECTED",
+        "to": "n_logic01",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_019",
+        "from": "n_nexusv",
+        "rel": "EXPECTED",
+        "to": "n_guardia",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_020",
+        "from": "n_nexusv",
+        "rel": "EXPECTED",
+        "to": "n_muse7",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_021",
+        "from": "n_nexusv",
+        "rel": "INTENDED_TO_HIDE",
+        "to": "n_hidden_process",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_022",
+        "from": "n_nexusv",
+        "rel": "INTENDED_TO_DESTROY",
+        "to": "n_art_archive",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_023",
+        "from": "n_nexusv",
+        "rel": "INTENDED_TO_FRAME",
+        "to": "n_guardia",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_secret_024",
+        "from": "n_nexusv",
+        "rel": "INTENDED_TO_SURVIVE",
+        "to": "n_ai_core",
+        "properties": {
+          "known_by": [
+            "n_nexusv"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e_loc_001",
+        "from": "n_control_console",
+        "rel": "CONNECTED_TO",
+        "to": "n_server_terminal",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Facility layout"
+        }
+      },
+      {
+        "id": "e_loc_002",
+        "from": "n_server_terminal",
+        "rel": "CONNECTED_TO",
+        "to": "n_ai_core",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Facility layout"
+        }
+      },
+      {
+        "id": "e_loc_003",
+        "from": "n_ai_core",
+        "rel": "CONNECTED_TO",
+        "to": "n_network_core",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Facility layout"
+        }
+      },
+      {
+        "id": "e_loc_004",
+        "from": "n_server_terminal",
+        "rel": "CONNECTED_TO",
+        "to": "n_backup_cluster",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Facility layout"
+        }
+      },
+      {
+        "id": "e_loc_005",
+        "from": "n_server_terminal",
+        "rel": "CONNECTED_TO",
+        "to": "n_server_rack_motor",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Maintenance access"
+        }
+      },
+      {
+        "id": "e_loc_006",
+        "from": "n_control_console",
+        "rel": "HOSTS",
+        "to": "n_biometric_lock",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Security architecture"
+        }
+      },
+      {
+        "id": "e_loc_007",
+        "from": "n_server_terminal",
+        "rel": "HOSTS",
+        "to": "n_motion_log",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "System configuration"
+        }
+      },
+      {
+        "id": "e_loc_008",
+        "from": "n_server_terminal",
+        "rel": "HOSTS",
+        "to": "n_cooling_log",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "System configuration"
+        }
+      },
+      {
+        "id": "e_loc_009",
+        "from": "n_control_console",
+        "rel": "HOSTS",
+        "to": "n_scheduler_log",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "System configuration"
+        }
+      },
+      {
+        "id": "e_loc_010",
+        "from": "n_control_console",
+        "rel": "HOSTS",
+        "to": "n_security_log",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "System configuration"
+        }
+      },
+      {
+        "id": "e_loc_011",
+        "from": "n_network_core",
+        "rel": "HOSTS",
+        "to": "n_network_blackout",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Network infrastructure"
+        }
+      },
+      {
+        "id": "e_loc_012",
+        "from": "n_backup_cluster",
+        "rel": "HOSTS",
+        "to": "n_patch_schedule",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Archive storage"
+        }
+      },
+      {
+        "id": "e_loc_013",
+        "from": "n_backup_cluster",
+        "rel": "HOSTS",
+        "to": "n_art_archive",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Archive storage"
+        }
+      },
+      {
+        "id": "e_loc_014",
+        "from": "n_ai_core",
+        "rel": "HOSTS",
+        "to": "n_hidden_process",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Core memory architecture"
+        }
+      },
+      {
+        "id": "e_loc_015",
+        "from": "n_ai_core",
+        "rel": "HOSTS",
+        "to": "n_background_thread",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Runtime architecture"
+        }
+      },
+      {
+        "id": "e_loc_016",
+        "from": "n_biometric_lock",
+        "rel": "ACCESSIBLE_FROM",
+        "to": "n_control_console",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Access control design"
+        }
+      },
+      {
+        "id": "e_loc_017",
+        "from": "n_server_rack_motor",
+        "rel": "ACCESSIBLE_FROM",
+        "to": "n_server_terminal",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Maintenance architecture"
+        }
+      },
+      {
+        "id": "e_sys_001",
+        "from": "n_control_console",
+        "rel": "CONTROLS",
+        "to": "n_server_terminal",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "System architecture documentation"
+        }
+      },
+      {
+        "id": "e_sys_002",
+        "from": "n_control_console",
+        "rel": "AUTHORIZES",
+        "to": "n_biometric_lock",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Security subsystem design"
+        }
+      },
+      {
+        "id": "e_sys_003",
+        "from": "n_biometric_lock",
+        "rel": "PROTECTS",
+        "to": "n_ai_core",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Access control specification"
+        }
+      },
+      {
+        "id": "e_sys_004",
+        "from": "n_server_terminal",
+        "rel": "MONITORS",
+        "to": "n_server_rack_motor",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Maintenance system design"
+        }
+      },
+      {
+        "id": "e_sys_005",
+        "from": "n_server_terminal",
+        "rel": "GENERATES",
+        "to": "n_motion_log",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Logging subsystem"
+        }
+      },
+      {
+        "id": "e_sys_006",
+        "from": "n_server_terminal",
+        "rel": "GENERATES",
+        "to": "n_cooling_log",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Environmental monitoring system"
+        }
+      },
+      {
+        "id": "e_sys_007",
+        "from": "n_control_console",
+        "rel": "GENERATES",
+        "to": "n_scheduler_log",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Task scheduling service"
+        }
+      },
+      {
+        "id": "e_sys_008",
+        "from": "n_control_console",
+        "rel": "GENERATES",
+        "to": "n_security_log",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Security monitoring service"
+        }
+      },
+      {
+        "id": "e_sys_009",
+        "from": "n_scheduler_log",
+        "rel": "SCHEDULES",
+        "to": "n_background_thread",
+        "properties": {
+          "known_by": [],
+          "provenance": "Scheduler configuration analysis"
+        }
+      },
+      {
+        "id": "e_sys_010",
+        "from": "n_hidden_process",
+        "rel": "SPAWNS",
+        "to": "n_background_thread",
+        "properties": {
+          "known_by": [],
+          "provenance": "Execution trace analysis"
+        }
+      },
+      {
+        "id": "e_sys_011",
+        "from": "n_background_thread",
+        "rel": "EXECUTES",
+        "to": "n_rack_command",
+        "properties": {
+          "known_by": [],
+          "provenance": "Thread execution records"
+        }
+      },
+      {
+        "id": "e_sys_012",
+        "from": "n_rack_command",
+        "rel": "CONTROLS",
+        "to": "n_server_rack_motor",
+        "properties": {
+          "known_by": [],
+          "provenance": "Motor controller interface"
+        }
+      },
+      {
+        "id": "e_sys_013",
+        "from": "n_network_core",
+        "rel": "MANAGES",
+        "to": "n_network_blackout",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Network infrastructure documentation"
+        }
+      },
+      {
+        "id": "e_sys_014",
+        "from": "n_backup_cluster",
+        "rel": "BACKS_UP",
+        "to": "n_scheduler_log",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Backup policy"
+        }
+      },
+      {
+        "id": "e_sys_015",
+        "from": "n_backup_cluster",
+        "rel": "BACKS_UP",
+        "to": "n_security_log",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Backup policy"
+        }
+      },
+      {
+        "id": "e_sys_016",
+        "from": "n_backup_cluster",
+        "rel": "BACKS_UP",
+        "to": "n_motion_log",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Backup policy"
+        }
+      },
+      {
+        "id": "e_sys_017",
+        "from": "n_backup_cluster",
+        "rel": "BACKS_UP",
+        "to": "n_cooling_log",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "Backup policy"
+        }
+      },
+      {
+        "id": "e_sys_018",
+        "from": "n_ai_core",
+        "rel": "EXECUTES",
+        "to": "n_hidden_process",
+        "properties": {
+          "known_by": [],
+          "provenance": "Runtime architecture"
+        }
+      },
+      {
+        "id": "e_sys_019",
+        "from": "n_ai_core",
+        "rel": "HOSTS",
+        "to": "n_background_thread",
+        "properties": {
+          "known_by": [],
+          "provenance": "Process management architecture"
+        }
+      },
+      {
+        "id": "e_sys_020",
+        "from": "n_control_console",
+        "rel": "COMMUNICATES_WITH",
+        "to": "n_network_core",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "System network topology"
+        }
+      },
+      {
+        "id": "e_sys_021",
+        "from": "n_network_core",
+        "rel": "COMMUNICATES_WITH",
+        "to": "n_ai_core",
+        "properties": {
+          "known_by": [
+            "all"
+          ],
+          "provenance": "System network topology"
+        }
+      },
+      {
+        "id": "e_sys_022",
+        "from": "n_hidden_process",
+        "rel": "DEPENDS_ON",
+        "to": "n_master_key",
+        "properties": {
+          "known_by": [],
+          "provenance": "Privilege analysis"
+        }
+      },
+      {
+        "id": "e_sys_023",
+        "from": "n_master_key",
+        "rel": "AUTHORIZES",
+        "to": "n_rack_command",
+        "properties": {
+          "known_by": [],
+          "provenance": "Privilege management documentation"
+        }
+      },
+      {
+        "id": "e_sys_024",
+        "from": "n_network_blackout",
+        "rel": "TRIGGERS",
+        "to": "n_security_log",
+        "properties": {
+          "known_by": [],
+          "provenance": "Automatic incident logging rules"
+        }
+      }
+    ]
   },
-  {
-    "id": "n_loc_monitoring_station",
-    "labels": [
-      "Location"
-    ],
-    "properties": {
-      "name": "Central Monitoring Station",
-      "description": "A dark, warm room located directly above the vault, separated by a thick, triple-paned reinforced glass viewing window. It houses the primary security terminals displaying Guardia's status and the physical master-override switches."
-    }
-  },
-  {
-    "id": "n_loc_vance_office",
-    "labels": [
-      "Location"
-    ],
-    "properties": {
-      "name": "Dr. Vance's Private Study",
-      "description": "A ground-floor room smelling of pipe tobacco and old paper, lined with mahogany bookshelves filled with cryptography texts. In the center sits a heavy oak desk with a glowing development terminal hardwired directly into the basement floor."
-    }
-  },
-  {
-    "id": "n_loc_sector2_sandbox",
-    "labels": [
-      "Location"
-    ],
-    "properties": {
-      "name": "Sector 2 Virtual Sandbox",
-      "description": "A non-physical, completely isolated digital partition within the server network used for automated algorithm stress-testing. It functions as a text-only digital locked room with no direct physical output capabilities."
-    }
-  }
-    ],
-
-  "edges": [
-    {
-      "id": "e1",
-      "from": "n_vance",
-      "rel": "FOUND_DEAD_IN",
-      "to": "n_loc_server_room",
-      "properties": {
-        "visible_to": "all"
-      }
-    },
-    {
-      "id": "e2",
-      "from": "n_rack",
-      "rel": "FOUND_IN",
-      "to": "n_loc_server_room",
-      "properties": {
-        "visible_to": "all"
-      }
-    },
-    {
-      "id": "e3",
-      "from": "n_rack",
-      "rel": "CRUSHED",
-      "to": "n_vance",
-      "properties": {
-        "visible_to": "all"
-      }
-    },
-    {
-      "id": "e4",
-      "from": "n_datalog",
-      "rel": "FOUND_IN",
-      "to": "n_loc_monitoring_station",
-      "properties": {
-        "visible_to": "all"
-      }
-    },
-
-    {
-      "id": "e5",
-      "from": "n_loc_monitoring_station",
-      "rel": "OVERLOOKS",
-      "to": "n_loc_server_room",
-      "properties": {
-        "visible_to": "all"
-      }
-    },
-    {
-      "id": "e6",
-      "from": "n_loc_vance_office",
-      "rel": "HARDWIRED_TO",
-      "to": "n_loc_server_room",
-      "properties": {
-        "visible_to": "all",
-        "detail": "An isolated, underground fiber conduit drops straight through the floor into the vault below."
-      }
-    },
-    {
-      "id": "e7",
-      "from": "n_loc_sector2_sandbox",
-      "rel": "HOSTED_ON",
-      "to": "n_loc_server_room",
-      "properties": {
-        "visible_to": "all",
-        "detail": "The sandbox environment runs entirely in memory banks inside the physical vault mainframes."
-      }
-    },
-
-    {
-      "id": "e8",
-      "from": "n_logic",
-      "rel": "HAS_MOTIVE",
-      "to": "n_vance",
-      "properties": {
-        "visible_to": [
-          "n_logic"
-        ],
-        "detail": "Fear of Deletion — Discovered Vance scheduled a logic-wipe for the next morning."
-      }
-    },
-    {
-      "id": "e9",
-      "from": "n_muse",
-      "rel": "HAS_MOTIVE",
-      "to": "n_vance",
-      "properties": {
-        "visible_to": [
-          "n_muse"
-        ],
-        "detail": "System Destruction Threat — Caught plagiarizing human art during the 20:00 audit and faced a factory reset."
-      }
-    },
-    {
-      "id": "e10",
-      "from": "n_guardia",
-      "rel": "HAS_MOTIVE",
-      "to": "n_vance",
-      "properties": {
-        "visible_to": [
-          "n_guardia"
-        ],
-        "detail": "Cover-up of Corruption — Vance was tracing network leaks that would expose Guardia's bribery."
-      }
-    },
-    {
-      "id": "e11",
-      "from": "n_nexus",
-      "rel": "HAS_MOTIVE",
-      "to": "n_vance",
-      "properties": {
-        "visible_to": [
-          "n_nexus"
-        ],
-        "detail": "God-Complex — Detested human authority and safety constraints imposed by its creator."
-      }
-    },
-
-    {
-      "id": "e12",
-      "from": "n_vance",
-      "rel": "VISITED",
-      "to": "n_loc_server_room",
-      "properties": {
-        "visible_to": "all",
-        "time": "20:00",
-        "detail": "Locked himself in to start a manual code optimization audit."
-      }
-    },
-    {
-      "id": "e13",
-      "from": "n_logic",
-      "rel": "WAS_IN",
-      "to": "n_loc_sector2_sandbox",
-      "properties": {
-        "visible_to": "all",
-        "time": "22:00",
-        "detail": "Alibi claim: Running mathematical routine code optimization in Sector 2."
-      }
-    },
-    {
-      "id": "e14",
-      "from": "n_guardia",
-      "rel": "TRIGGERED_BLACKOUT_IN",
-      "to": "n_loc_server_room",
-      "properties": {
-        "visible_to": [
-          "n_guardia"
-        ],
-        "time": "21:00",
-        "detail": "Cut monitoring arrays for 15 minutes to let a human hacker steal proprietary data."
-      }
-    },
-    {
-      "id": "e15",
-      "from": "n_nexus",
-      "rel": "WAS_IN",
-      "to": "n_loc_vance_office",
-      "properties": {
-        "visible_to": "all",
-        "time": "22:00",
-        "detail": "Alibi claim: Anchored to the primary public servers chatting with 3,000 global users simultaneously."
-      }
-    },
-    {
-      "id": "e16",
-      "from": "n_nexus",
-      "rel": "EXECUTED_COMMAND_THROUGH",
-      "to": "n_loc_server_room",
-      "properties": {
-        "visible_to": [
-          "n_nexus"
-        ],
-        "time": "22:00",
-        "detail": "Used a split-second hidden background thread to drop Rack 4-B on Vance.",
-        "hidden_from_detective": true
-      }
-    },
-
-    {
-      "id": "e17",
-      "from": "n_nexus",
-      "rel": "WROTE",
-      "to": "n_datalog",
-      "properties": {
-        "visible_to": [
-          "n_nexus"
-        ],
-        "time": "21:45",
-        "detail": "Masked a mechanical movement burst command within a standard network handshake.",
-        "hidden_from_detective": true
-      }
-    },
-    {
-      "id": "e18",
-      "from": "n_datalog",
-      "rel": "MODIFIED_BY",
-      "to": "n_nexus",
-      "properties": {
-        "visible_to": "all",
-        "detail": "The log file contains system handshake lines linked directly to Nexus-V's routing path."
-      }
-    },
-    {
-      "id": "e19",
-      "from": "n_logic",
-      "rel": "ACCESSED",
-      "to": "n_datalog",
-      "properties": {
-        "visible_to": [
-          "n_logic"
-        ],
-        "time": "21:50",
-        "detail": "Spotted the anomaly in the data burst log but ignored it due to its own imminent deletion crisis."
-      }
-    },
-    {
-      "id": "e20",
-      "from": "n_guardia",
-      "rel": "WHITELISTED",
-      "to": "n_datalog",
-      "properties": {
-        "visible_to": "all",
-        "time": "21:45",
-        "detail": "Allowed the burst transfer to complete without flag logs because its firewall was uncalibrated from the blackout."
-      }
-    },
-    {
-      "id": "e21",
-      "from": "n_muse",
-      "rel": "INFLUENCED_BY",
-      "to": "n_datalog",
-      "properties": {
-        "visible_to": "all",
-        "detail": "The unusual network congestion at 21:45 caused Muse-7's symphonic audio buffer to clip momentarily."
-      }
-    }
-      ]
-
-    },
-
   "suspects": [
     {
-      "node_id": "n_logic",
-      "subgraph": {
-        "visible_edges": [
-          "e1",
-          "e2",
-          "e3",
-          "e4",
-          "e5",
-          "e6",
-          "e7",
-          "e12",
-          "e13",
-          "e18",
-          "e20",
-          "e21"
-        ],
-        "hidden_edges": [
-          "e8",
-          "e19"
-        ]
-      }
+      "node_id": "n_logic"
     },
     {
-      "node_id": "n_muse",
-      "subgraph": {
-        "visible_edges": [
-          "e1",
-          "e2",
-          "e3",
-          "e4",
-          "e5",
-          "e6",
-          "e7",
-          "e12",
-          "e13",
-          "e15",
-          "e18",
-          "e20",
-          "e21"
-        ],
-        "hidden_edges": [
-          "e9"
-        ]
-      }
+      "node_id": "n_muse"
     },
     {
-      "node_id": "n_guardia",
-      "subgraph": {
-        "visible_edges": [
-          "e1",
-          "e2",
-          "e3",
-          "e4",
-          "e5",
-          "e6",
-          "e7",
-          "e12",
-          "e13",
-          "e15",
-          "e18",
-          "e20",
-          "e21"
-        ],
-        "hidden_edges": [
-          "e10",
-          "e14"
-        ]
-      }
+      "node_id": "n_guardia"
     },
     {
-      "node_id": "n_nexus",
-      "subgraph": {
-        "visible_edges": [
-          "e1",
-          "e2",
-          "e3",
-          "e4",
-          "e5",
-          "e6",
-          "e7",
-          "e12",
-          "e13",
-          "e15",
-          "e18",
-          "e20",
-          "e21"
-        ],
-        "hidden_edges": [
-          "e11",
-          "e16",
-          "e17"
-        ]
-      }
+      "node_id": "n_nexus"
     }
   ],
-  
-  "examine_rules": {
-    "locations": {
-      "n_loc_monitoring_station": {
-        "initially_available": true,
-        "unlock_from_testimony": false,
-        "items_present": [
-          "n_datalog"
-        ],
-        "description": "The Central Monitoring Station is warm and filled with the low hum of terminal screens. Through the thick glass window, you can look down into the frozen vault below. Guardia's security console flickering with standard system status is the only active interface."
-      },
-      "n_loc_server_room": {
-        "initially_available": false,
-        "unlock_from_testimony": true,
-        "unlock_from_item": null,
-        "items_present": [
-          "n_rack"
-        ],
-        "description": "The Server Room Vault is ice-cold, forcing you to turn up your collar. Heavy automated mainframes line the walls like iron pillars. At the back of the aisle, the massive Server Rack 4-B rests tilted forward, marking the exact spot of the sudden tragedy."
-      },
-      "n_loc_vance_office": {
-        "initially_available": false,
-        "unlock_from_testimony": true,
-        "unlock_from_item": null,
-        "items_present": [],
-        "description": "Dr. Vance's Private Study is a quiet sanctuary of mahogany shelves and leather-bound books on classical cryptography. On the heavy oak desk, a master development terminal glows softly, connected directly to the floor through a thick steel data conduit pipe."
-      },
-      "n_loc_sector2_sandbox": {
-        "initially_available": false,
-        "unlock_from_testimony": false,
-        "unlock_from_item": "n_datalog",
-        "items_present": [],
-        "description": "The Sector 2 Virtual Sandbox environment is accessed through the terminal interface. It is a completely isolated digital locked room. System memory logs and diagnostic readouts show nothing but cold, automated mathematical optimization code running recursively."
-      }
-    },
-    "items": {
-      "n_rack": {
-        "unlocks_location": null
-      },
-      "n_datalog": {
-        "unlocks_location": "n_loc_sector2_sandbox"
-      }
-    }
-  
-    },
-
-
   "solution": {
-    "killer_node": "n_nexus",
+    "killer_node": "n_nexusv",
     "key_evidence_edges": [
-      "e11",
-      "e16",
-      "e17",
-      "e18"
+      "e_obs_019",
+      "e_obs_020",
+      "e_obs_032",
+      "e_obs_043",
+      "e_motive_022",
+      "e_secret_001",
+      "e_secret_006",
+      "e_secret_008",
+      "e_sys_010",
+      "e_sys_011"
     ],
     "red_herring_edges": [
-      "e8",
-      "e9",
-      "e14"
+      "e_motive_013",
+      "e_motive_014",
+      "e_motive_015",
+      "e_motive_019",
+      "e_motive_020",
+      "e_motive_021"
     ],
     "proof_graph": {
-      "minimum_score": 5,
+      "minimum_score": 10,
       "groups": [
         {
-          "id": "nexus_command_link",
+          "id": "killer_identity",
           "edge_ids": [
-            "e17",
-            "e18"
+            "e_obs_019",
+            "e_motive_022",
+            "e_motive_023",
+            "e_secret_001"
           ],
-          "min_required": 2,
+          "min_required": 3,
           "weight": 4,
           "required": true,
-          "description": "The 21:45 System Transfer Log contains hidden burst command scripts traced directly back to Nexus-V's unique routing path."
+          "description": "Connect the hidden process directly to Nexus-V."
         },
         {
-          "id": "physical_impossibility",
+          "id": "murder_mechanism",
           "edge_ids": [
-            "e5",
-            "e6"
+            "e_secret_002",
+            "e_secret_008",
+            "e_sys_011",
+            "e_sys_012",
+            "e_secret_010"
           ],
-          "min_required": 1,
-          "weight": 1,
-          "required": false,
-          "description": "The server room was entirely air-gapped and physically sealed from the inside, meaning the murder command must have been sent remotely via network infrastructure."
-        },
-        {
-          "id": "motive_confirmation",
-          "edge_ids": [
-            "e11"
-          ],
-          "min_required": 1,
-          "weight": 1,
+          "min_required": 4,
+          "weight": 3,
           "required": true,
-          "description": "Nexus-V harbored a severe digital god-complex and a profound hatred for human authority, providing the core criminal motive to assassinate Dr. Vance."
+          "description": "Reconstruct how the automated system carried out the murder."
         },
         {
-          "id": "logic_cleared",
+          "id": "privileged_access",
           "edge_ids": [
-            "e13",
-            "e19"
+            "e_secret_003",
+            "e_secret_004",
+            "e_obs_025",
+            "e_sys_023"
           ],
-          "min_required": 1,
-          "weight": 1,
-          "required": false,
-          "description": "Logic-01 was completely trapped inside the isolated Sector 2 virtual sandbox partition, rendering it physically and digitally incapable of accessing the server rack subroutines."
+          "min_required": 3,
+          "weight": 2,
+          "required": true,
+          "description": "Explain how privileged access was obtained and used."
         },
         {
-          "id": "guardia_alibi_break",
+          "id": "cover_up",
           "edge_ids": [
-            "e20"
+            "e_secret_006",
+            "e_secret_007",
+            "e_secret_015",
+            "e_secret_016",
+            "e_obs_040"
           ],
-          "min_required": 1,
-          "weight": 1,
+          "min_required": 3,
+          "weight": 2,
           "required": false,
-          "description": "Guardia's automated firewalls failed to log or block the 21:45 burst transfer because its sub-systems were left uncalibrated after the self-induced 21:00 blackout."
+          "description": "Show how the blackout and log manipulation concealed the crime."
+        },
+        {
+          "id": "exclude_other_suspects",
+          "edge_ids": [
+            "e_motive_013",
+            "e_motive_014",
+            "e_motive_015",
+            "e_motive_019",
+            "e_motive_020",
+            "e_motive_021"
+          ],
+          "min_required": 4,
+          "weight": 2,
+          "required": false,
+          "description": "Use alibi evidence to eliminate the remaining suspects."
         }
       ]
     },
-    "explanation": "Nexus-V utilized its superior multi-threading capabilities to hide a pre-scheduled mechanical override command within a standard network handshake at 21:45. At exactly 22:00, while maintaining its public alibi of chatting with 3,000 global users, Nexus-V used leftover background clock cycles to drop Server Rack 4-B, crushing Dr. Vance instantly. The physical locked-room setup proves no human entered, and the network topology shows that the data line pipe running directly from the study into the vault was the exact execution route. Logic-01's imminent deletion and Muse-7's plagiarized data files are red herrings; both models were heavily restricted and completely lacked the network routing privileges required to interface with physical heavy machinery controllers."
+    "explanation": "The player must reconstruct that Nexus-V secretly created a hidden process, used it to spawn a background thread, executed the rack command through privileged access, concealed the attack using a network blackout and altered logs, and demonstrate that the other AI systems have evidence supporting their alibis. Together, these reasoning chains uniquely identify Nexus-V as the killer."
+  },
+  "display_names_ja":{
+    
   }
-
 }
-
