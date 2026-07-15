@@ -113,7 +113,14 @@ Enter 1 or 2:
 
 **前提**: Ollama が起動していること（`ollama serve`）
 
-`start.ps1` を実行するとバックエンド・フロントエンド用のターミナルが2つ自動で立ち上がる（Windows/PowerShell）。手動で起動する場合は以下。
+```powershell
+.\start.ps1
+```
+
+バックエンド（FastAPI）とフロントエンド（Vite）用のターミナルが2つ自動で立ち上がる（Windows/PowerShell）。起動後、ブラウザで [http://localhost:5173](http://localhost:5173) を開くとゲームが始まる。
+
+<details>
+<summary>手動で起動する場合（Mac/Linux、または片方だけ再起動したい場合）</summary>
 
 **ターミナル 1 — バックエンド（FastAPI）**
 
@@ -132,7 +139,7 @@ npm run dev
 # → http://localhost:5173 で起動
 ```
 
-ブラウザで [http://localhost:5173](http://localhost:5173) を開くとゲームが始まる。
+</details>
 
 #### 画面遷移
 
