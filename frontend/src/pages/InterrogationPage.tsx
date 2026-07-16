@@ -173,28 +173,25 @@ export default function InterrogationPage() {
         })
       }
 
-      // The verdict check's network latency overlaps with the reply's
-      // typing animation, but the game only ever ends once BOTH have
-      // settled — otherwise the ending could cut the suspect's
-      // in-character reply off mid-sentence. res.message is the scenario's
-      // own case-solution explanation (third-person, written for the
-      // ending screen) — not something the suspect would say, so a fixed
-      // confession line plays as dialogue first and the explanation stays
-      // reserved for the ending screen.
-      const typingDone = new Promise<void>(resolve => {
-        deliverReply({ role: 'suspect', text: res.text }, resolve)
-      })
-      const verdict = interrogating
-        ? (() => {
-            accusationRef.current.push(messageText)
-            const reason = accusationRef.current.join('\n')
-            return callIndict(suspect.id, reason, lang)
-              .then(indictRes => (indictRes.won ? { message: indictRes.message } : null))
-              .catch(() => null) // background check — just try again next turn
-          })()
-        : Promise.resolve(null)
+      if (!interrogating) {
+        deliverReply({ role: 'suspect', text: res.text })
+        return
+      }
 
-      const [, win] = await Promise.all([typingDone, verdict])
+      // While pressing a suspect, hold the reply back until the verdict
+      // check has resolved: if it's already a win, showing the suspect's
+      // in-character denial first — only to immediately reverse it — reads
+      // as an odd non-sequitur. res.message is the scenario's own
+      // case-solution explanation (third-person, written for the ending
+      // screen) — not something the suspect would say, so a fixed
+      // confession line plays as dialogue instead, and the explanation
+      // stays reserved for the ending screen.
+      accusationRef.current.push(messageText)
+      const reason = accusationRef.current.join('\n')
+      const win = await callIndict(suspect.id, reason, lang)
+        .then(indictRes => (indictRes.won ? { message: indictRes.message } : null))
+        .catch(() => null) // background check — just try again next turn
+
       if (win) {
         appendHistory({
           type: 'indict',
@@ -208,6 +205,8 @@ export default function InterrogationPage() {
         deliverReply(confessionLine, () => {
           setTimeout(() => setIndictResult({ message: win.message }), 1200)
         })
+      } else {
+        deliverReply({ role: 'suspect', text: res.text })
       }
     } catch (err) {
       if (requestIdRef.current !== requestId) return
