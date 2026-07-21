@@ -177,6 +177,17 @@ npm run dev
 
 `scenarios/old/` や `scenarios/archive/` 配下、`scenarios/templates/` 配下、ファイル名に `template` を含むものはシナリオ一覧から除外される。
 
+### 新しいシナリオを追加したら
+
+事件概要（`/briefing`）の日本語訳は初回だけLLM翻訳が走り、バックエンド再起動直後は数十秒かかることがある。この待ち時間をプレイヤー側で発生させないため、`frontend/src/api/examine.ts` の `fetchBriefing()` は `frontend/src/data/briefingCache.json` に焼き込み済みの翻訳を優先して返す（無ければ従来通りAPIを叩き、localStorageにも積む）。
+
+新しいシナリオを追加したら、開発側で1回だけ以下を実行してその結果を `briefingCache.json` に追記し、コミットする：
+
+```bash
+curl "http://127.0.0.1:8000/briefing?lang=en"
+curl "http://127.0.0.1:8000/briefing?lang=ja"   # 初回は翻訳のため遅い
+```
+
 ### シナリオの構造
 
 ```json
