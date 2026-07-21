@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useGame } from '../contexts/GameContext'
+import { useScenario } from '../contexts/ScenarioContext'
 import { fetchBriefing, type BriefingResult } from '../api/examine'
 import './OpeningPage.css'
 
@@ -9,6 +10,7 @@ export default function OpeningPage() {
   const navigate = useNavigate()
   const { lang, t } = useLanguage()
   const { unlockedLocations } = useGame()
+  const { scenario, loading: scenarioLoading } = useScenario()
 
   const [briefing, setBriefing] = useState<BriefingResult | null>(null)
   const [loading, setLoading] = useState(true)
@@ -17,13 +19,21 @@ export default function OpeningPage() {
   const loadBriefing = () => {
     setLoading(true)
     setFetchError(false)
-    fetchBriefing(lang)
+    fetchBriefing(scenario?.scenarioId ?? '', lang)
       .then(b => { setBriefing(b); setFetchError(false) })
       .catch(() => { setBriefing(null); setFetchError(true) })
       .finally(() => setLoading(false))
   }
 
-  useEffect(() => { loadBriefing() }, [lang]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    // Wait for ScenarioContext's own fetch to settle first — otherwise this
+    // can race ahead with an empty scenario id (e.g. on a hard reload,
+    // before StrictMode's double-invoked effect has a scenario to read),
+    // which bypasses the briefing cache below entirely.
+    if (scenarioLoading) return
+    loadBriefing()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang, scenarioLoading, scenario?.scenarioId])
 
   const firstLocationId = unlockedLocations[0] ?? ''
 

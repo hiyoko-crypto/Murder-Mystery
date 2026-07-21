@@ -1,0 +1,64 @@
+{
+  "the_final_act": {
+    "en": {
+      "title": "The Final Act",
+      "setting": "The Meridian Theatre, downtown. Opening night of 'Shadows of Guilt'. The murder occurs during intermission at approximately 9:05 PM. The theatre holds 400 guests; cast and crew number around 30.",
+      "victim": "Marcus Vance was found dead in his private dressing room during intermission at approximately 9:05 PM. He had been struck with a brass candlestick. The room was locked from the inside.",
+      "time_of_murder": "approximately 9:05 PM",
+      "time_discovered": "9:20 PM",
+      "weapon": "Brass candlestick (found on the floor, bloodied)",
+      "scene": "Marcus's private dressing room, backstage at the Meridian Theatre.",
+      "suspects": [
+        { "id": "n_elena", "name": "Elena Rostova" },
+        { "id": "n_julian", "name": "Dr. Julian Wilde" },
+        { "id": "n_leo", "name": "Leo Cross" }
+      ]
+    },
+    "ja": {
+      "title": "最終幕",
+      "setting": "メリディアン劇場、市街地。『罪の影』初日公演。幕間の暗転中、午後 21 時 05 分頃殺人が発生した。観客は 400 名、キャストとクルー合わせて約 30 名がいた。",
+      "victim": "マーカス・ヴァンスは、幕間の間、午後 9 時 5 分頃には私設の楽屋で死体が発見されました。彼は真鍮の燭台で打たれ死亡しており、その部屋は内側から施錠されていました。",
+      "time_of_murder": "午後 21 時頃 5 分",
+      "time_discovered": "午後 9 時 20 分",
+      "weapon": "真鍮の燭台（床にあり、血が付いている）",
+      "scene": "マーカスの楽屋、メリディアン劇場舞台裏。",
+      "suspects": [
+        { "id": "n_elena", "name": "エレナ・ロストヴァ" },
+        { "id": "n_julian", "name": "ジュリアン・ワイルド博士" },
+        { "id": "n_leo", "name": "レオ・クロス" }
+      ]
+    }
+  },
+  "z_The_Four_Pillars_of_Murder": {
+    "en": {
+      "title": "Hercule Poirot: Ghost in the Machine",
+      "setting": "Bletchley Manor Server Room",
+      "victim": "Dr. Alistair Vance, the legendary AI pioneer, was found dead inside the sealed, sub-zero server room of Bletchley Manor, instantly crushed by a heavy, automated server rack.",
+      "time_of_murder": "22:00",
+      "time_discovered": "22:05",
+      "weapon": "Automated Server Rack 4-B",
+      "scene": "A high-security, temperature-controlled server vault filled with humming mainframes, accessible only via biometric scanning.",
+      "suspects": [
+        { "id": "n_logic", "name": "Logic-01" },
+        { "id": "n_muse", "name": "Muse-7" },
+        { "id": "n_guardia", "name": "Guardia" },
+        { "id": "n_nexus", "name": "Nexus-V" }
+      ]
+    },
+    "ja": {
+      "title": "エルキュール・ポアロ：機械の中の幽霊",
+      "setting": "ブレッチリー・マナー サーバー室",
+      "victim": "ブレッチリー邸の封鎖された零下サーバー室内で、伝説的な AI 先駆者だったドクター・アレクサンダー・ヴァンズが重く自動運転されるサーバーラックに瞬時に潰されて発見されました。",
+      "time_of_murder": "22 時 00 分",
+      "time_discovered": "22 時 05 分",
+      "weapon": "自動サーバーラック 4B",
+      "scene": "生体認証スキャンのみでアクセス可能な、高セキュリティかつ温度管理されたサーバー金庫。唸るメインフレームが並んでいる。",
+      "suspects": [
+        { "id": "n_logic", "name": "Logic-01" },
+        { "id": "n_muse", "name": "Muse-7" },
+        { "id": "n_guardia", "name": "Guardia" },
+        { "id": "n_nexus", "name": "Nexus-V" }
+      ]
+    }
+  }
+}

@@ -25,7 +25,7 @@ export default function LocationPage() {
   const navigate = useNavigate()
   const { foundItems, unlockedLocations, locationItemCatalog, refetchState, resetGame } = useGame()
   const { lang, t } = useLanguage()
-  const { locations: getLocations, items: getItems, suspects: getSuspects, locationBg } = useScenario()
+  const { scenario, locations: getLocations, items: getItems, suspects: getSuspects, locationBg } = useScenario()
   const { appendHistory } = useCaseNotes()
 
   const locations   = getLocations(lang)
@@ -137,7 +137,7 @@ export default function LocationPage() {
     if (!briefing && !briefingLoading) {
       setBriefingLoading(true)
       try {
-        const b = await fetchBriefing(lang)
+        const b = await fetchBriefing(scenario?.scenarioId ?? '', lang)
         setBriefing(b)
       } catch { /* ignore */ } finally {
         setBriefingLoading(false)

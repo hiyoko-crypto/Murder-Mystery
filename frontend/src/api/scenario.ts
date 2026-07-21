@@ -24,6 +24,7 @@ export interface ApiItem {
 }
 
 export interface ApiScenario {
+  scenarioId: string
   suspects: ApiSuspect[]
   locations: ApiLocation[]
   items: ApiItem[]
@@ -131,6 +132,7 @@ function parseKgFormat(raw: any): ApiScenario {
   }
 
   return {
+    scenarioId: raw.scenario_id ?? '',
     suspects: suspectNodes.map((s: any) => ({
       id: s.id,
       name: s.properties?.name ?? s.id,
@@ -167,7 +169,7 @@ export async function fetchScenario(): Promise<ApiScenario> {
   if (!res.ok) throw new Error(`scenario fetch failed: ${res.status}`)
   const raw = await res.json()
   if (raw.knowledge_graph) return parseKgFormat(raw)
-  return raw as ApiScenario
+  return { scenarioId: raw.scenario_id ?? '', ...raw } as ApiScenario
 }
 
 export interface ScenarioListEntry {
