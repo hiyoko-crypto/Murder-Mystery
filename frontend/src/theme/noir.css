@@ -35,11 +35,18 @@
   --nr-danger: #a8342f;
 
   /* Type */
-  --nr-font-ja: 'Shippori Mincho', 'Yu Mincho', 'Hiragino Mincho ProN', serif;
-  --nr-font-display: 'Cinzel', 'Shippori Mincho', serif;
-  --nr-font-en: 'Cormorant Garamond', 'Shippori Mincho', serif;
+  /* One gothic family for everything except the newspaper. */
+  --nr-font-ja: 'Zen Kaku Gothic New', 'Yu Gothic', 'Hiragino Kaku Gothic ProN', sans-serif;
+  --nr-font-display: 'Zen Kaku Gothic New', 'Yu Gothic', sans-serif;
+  --nr-font-en: 'Zen Kaku Gothic New', 'Yu Gothic', sans-serif;
+  /* How English sub-labels ("CASE FILE", "INVESTIGATE") are set */
+  --nr-en-style: normal;
+  --nr-en-case: uppercase;
+  --nr-en-tracking: 0.18em;
+  --nr-en-scale: 0.78;
+  --nr-logo-tracking: 0.28em;
   --nr-font-masthead: 'UnifrakturMaguntia', serif;
-  --nr-font-headline: 'Playfair Display', 'Shippori Mincho', serif;
+  --nr-font-headline: 'Playfair Display', serif;
 
   --nr-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .33 0 0 0 0 .22 0 0 0 0 .09 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
@@ -130,7 +137,7 @@
 .nr-corner--bl { bottom: -2px; left: -2px; border-bottom-width: 2px; border-left-width: 2px; }
 .nr-corner--br { bottom: -2px; right: -2px; border-bottom-width: 2px; border-right-width: 2px; }
 
-/* ── Section title: icon + Japanese + English italic, gold rule below ─── */
+/* ── Section title: icon + Japanese + English sub-label, gold rule below ─── */
 
 .nr-section-title {
   display: flex;
@@ -160,9 +167,11 @@
 
 .nr-section-title__en {
   font-family: var(--nr-font-en);
-  font-style: italic;
+  font-style: var(--nr-en-style);
+  text-transform: var(--nr-en-case);
+  letter-spacing: var(--nr-en-tracking);
   font-weight: 500;
-  font-size: 1rem;
+  font-size: calc(1rem * var(--nr-en-scale));
   color: var(--nr-text-dim);
 }
 
@@ -241,9 +250,10 @@
 
 .nr-btn__sub {
   font-family: var(--nr-font-en);
-  font-style: italic;
-  font-size: 0.72em;
-  letter-spacing: 0.04em;
+  font-style: var(--nr-en-style);
+  text-transform: var(--nr-en-case);
+  font-size: calc(0.72em * var(--nr-en-scale));
+  letter-spacing: var(--nr-en-tracking);
   color: var(--nr-text-dim);
 }
 
@@ -282,8 +292,8 @@
 .nr-logo__word {
   font-family: var(--nr-font-display);
   font-weight: 500;
-  font-size: 1.5rem;
-  letter-spacing: 0.06em;
+  font-size: 1.35rem;
+  letter-spacing: var(--nr-logo-tracking);
 }
 
 .nr-header__section {

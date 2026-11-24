@@ -88,10 +88,10 @@ export default function StyleGuidePage() {
 
           <Panel className="sg-fonts">
             <SectionTitle ja="フォント" en="Typography" />
-            <p style={{ fontFamily: 'var(--nr-font-ja)', fontWeight: 400 }}>Shippori Mincho 400 — あの時間、どこにいましたか？</p>
-            <p style={{ fontFamily: 'var(--nr-font-ja)', fontWeight: 800 }}>Shippori Mincho 800 — 犯人はあなただ</p>
-            <p style={{ fontFamily: 'var(--nr-font-display)', fontSize: '1.4rem' }}>Cinzel — POIROT · A Mystery Investigation</p>
-            <p style={{ fontFamily: 'var(--nr-font-en)', fontStyle: 'italic', fontSize: '1.2rem' }}>Cormorant Garamond Italic — Case File, Interrogation</p>
+            <p style={{ fontWeight: 400 }}>400 — あの時間、どこにいましたか？ Where were you at 9 PM?</p>
+            <p style={{ fontWeight: 700 }}>700 — 犯人はあなただ</p>
+            <p style={{ fontWeight: 900, fontSize: '1.4rem', letterSpacing: '0.2em' }}>900 — POIROT</p>
+            <p><span className="nr-section-title__en">Case File · Interrogation · Evidence</span></p>
           </Panel>
         </main>
       </div>

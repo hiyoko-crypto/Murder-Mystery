@@ -48,6 +48,10 @@
 
 .casefile__label em {
   font-family: var(--nr-font-en);
+  font-style: var(--nr-en-style);
+  text-transform: var(--nr-en-case);
+  letter-spacing: var(--nr-en-tracking);
+  font-size: calc(1em * var(--nr-en-scale));
   font-weight: 500;
 }
 

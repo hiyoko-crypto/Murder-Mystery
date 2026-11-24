@@ -46,7 +46,7 @@ export function Panel({ children, className = '', style }: { children: ReactNode
   )
 }
 
-/** Japanese heading with an English italic subtitle, e.g. 事件ファイル / Case File. */
+/** Japanese heading with an English sub-label, e.g. 事件ファイル / CASE FILE. */
 export function SectionTitle({ ja, en, icon, divider = true }: { ja: string; en?: string; icon?: ReactNode; divider?: boolean }) {
   return (
     <div className="nr-section-title">
@@ -60,13 +60,13 @@ export function SectionTitle({ ja, en, icon, divider = true }: { ja: string; en?
   )
 }
 
-// Japanese sub-labels must not get the English italic face (synthetic italic Mincho looks broken).
+// Japanese sub-labels skip the English letter-spaced caps styling.
 // eslint-disable-next-line no-control-regex
 const NON_ASCII = /[^\x00-\x7F]/
 
 interface GoldButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   label: ReactNode
-  /** Small English italic line under the label. */
+  /** Small sub-label under the label (English caps, or a Japanese hint). */
   sub?: string
   icon?: ReactNode
   chevron?: boolean
