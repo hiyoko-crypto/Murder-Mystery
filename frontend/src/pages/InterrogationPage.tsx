@@ -6,8 +6,9 @@ import { useScenario } from '../contexts/ScenarioContext'
 import { useCaseNotes } from '../contexts/CaseNotesContext'
 import { sendChat } from '../api/chat'
 import { callIndict } from '../api/examine'
-import { suspectAvatarEmoji } from '../utils/avatar'
+import { ArrowLeft, ChevronDown, ChevronUp, Gavel, Lock, Plus, Search, Send, X } from 'lucide-react'
 import NotebookLauncher from '../components/notebook/NotebookLauncher'
+import { AppHeader, DetectiveMark, GoldButton, OrnamentDivider, Panel, PaperCard, PortraitSilhouette } from '../components/ui/Noir'
 import type { Message } from '../types'
 import './InterrogationPage.css'
 
@@ -36,14 +37,14 @@ export default function InterrogationPage() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [showEvidencePanel, setShowEvidencePanel] = useState(false)
-  const [showLog, setShowLog] = useState(false)
+  const [showLog, setShowLog] = useState(true)
   const [selectedEvidence, setSelectedEvidence] = useState<typeof items[0] | null>(null)
 
   const [displayedText, setDisplayedText] = useState('')
   const [currentSuspectMsg, setCurrentSuspectMsg] = useState<Message | null>(null)
   const [isTyping, setIsTyping] = useState(false)
   const [lastPlayerText, setLastPlayerText] = useState('')
-  const [unlockNotice, setUnlockNotice] = useState<string | null>(null)
+  const [unlockNotice, setUnlockNotice] = useState<{ id: string; name: string } | null>(null)
   const [interrogating, setInterrogating] = useState(false)
   const [showIndictFlash, setShowIndictFlash] = useState(false)
   const [indictResult, setIndictResult] = useState<{ message: string } | null>(null)
@@ -118,15 +119,35 @@ export default function InterrogationPage() {
 
   if (!suspect) return <div>{t('not.found')}</div>
 
+  const suspectLocation = allLocations.find(l => l.suspects.includes(id ?? ''))
+  const bgLocationId = suspectLocation?.id ?? id ?? ''
+  const bgUrl = locationBg(bgLocationId)
+
   if (indictResult) {
     return (
-      <div className="interro-ending-page">
-        <div className="ending correct">
-          <p className="ending-label">{t('ending.confession')}</p>
-          <p className="ending-name">{suspect.name}</p>
-          <p className="ending-emotion">😨</p>
-          <p className="ending-text" style={{ whiteSpace: 'pre-line' }}>{indictResult.message}</p>
-          <button className="ending-btn" onClick={() => navigate('/')}>{t('ending.toTitle')}</button>
+      <div className="noir">
+        <div className="nr-scene iv-ending" style={{ backgroundImage: `url(${bgUrl})` }}>
+          <AppHeader sectionJa={tt('結末', 'Ending')} sectionEn={lang === 'ja' ? 'Ending' : undefined} />
+          <div className="iv-ending__body">
+            <div className="iv-ending__headline">
+              <h1 className="nr-gold-text">{tt('事件解決', 'Case Solved')}</h1>
+              <div className="iv-ending__sub">— CASE SOLVED —</div>
+              <OrnamentDivider style={{ width: 320, margin: '10px 0 0' }} />
+              <p className="iv-ending__label">
+                <span>{t('ending.confession')}</span>
+                <span>{suspect.name}</span>
+              </p>
+            </div>
+            <PaperCard className="iv-ending__paper">
+              <div className="iv-ending__masthead">The Daily Chronicle</div>
+              <div className="iv-ending__news">MURDER CASE SOLVED</div>
+              <OrnamentDivider />
+              <p className="iv-ending__truth">{indictResult.message}</p>
+            </PaperCard>
+          </div>
+          <div className="iv-ending__actions">
+            <GoldButton size="lg" variant="primary" label={t('ending.toTitle')} chevron onClick={() => navigate('/')} />
+          </div>
         </div>
       </div>
     )
@@ -164,7 +185,7 @@ export default function InterrogationPage() {
         const locName = allLocations.find(l => l.id === res.unlocked_location)?.name ?? res.unlocked_location
         const text = tt(`🗺️ 新しい場所が解放されました：${locName}`, `🗺️ New area unlocked: ${locName}`)
         setMessages(prev => [...prev, { role: 'system', text }])
-        setUnlockNotice(locName)
+        setUnlockNotice({ id: res.unlocked_location, name: locName })
         appendHistory({
           type: 'unlock_location',
           locationId: res.unlocked_location,
@@ -223,7 +244,6 @@ export default function InterrogationPage() {
     setInterrogating(true)
     accusationRef.current = []
     setShowEvidencePanel(false)
-    setShowLog(false)
     setShowIndictFlash(true)
     flashTimerRef.current = setTimeout(() => setShowIndictFlash(false), 1100)
 
@@ -293,199 +313,185 @@ export default function InterrogationPage() {
   }
 
   const isEmpty = !currentSuspectMsg && !loading
-
-  const suspectLocation = allLocations.find(l => l.suspects.includes(id ?? ''))
-  const bgLocationId = suspectLocation?.id ?? id ?? ''
-  const bgUrl = locationBg(bgLocationId)
+  const inputDisabled = loading || isTyping
 
   return (
-    <div className="interrogation-page">
-      {/* 背景レイヤー */}
-      {bgUrl && <div className="interro-bg" style={{ backgroundImage: `url(${bgUrl})` }} />}
-      <div className="interro-overlay" />
-
-      {showIndictFlash && (
-        <div className="indict-flash">
-          <span>⚖️ {tt('起訴！', 'Indictment!')}</span>
-        </div>
-      )}
-
-      <div className="interrogation-header">
-        <button className="back-btn" onClick={() => navigate(-1)}>← {tt('戻る', 'Back')}</button>
-        <span className="header-title">{suspect.name}</span>
-        <div className="header-actions">
-          <button
-            className={`log-btn${showLog ? ' active' : ''}`}
-            onClick={() => { setShowLog((v) => !v); setShowEvidencePanel(false) }}
-            title={t('interro.log')}
-          >
-            {tt('ログ', 'Log')}
-          </button>
-          <NotebookLauncher className="interro-notebook-btn" />
-        </div>
-      </div>
-
-      <div className="character-area">
-        <div className="character-badge">
-          <div className="character-avatar-display">{suspectAvatarEmoji(suspect.bio, suspect.id)}</div>
-          <div className="character-name-display">{suspect.name}</div>
-        </div>
-      </div>
-
+    <div className="noir">
       <div
-        className={`dialogue-box${isTyping ? ' typing' : ''}${isEmpty ? ' empty' : ''}`}
-        onClick={skipTyping}
+        className={`nr-scene iv${interrogating ? ' is-accusing' : ''}`}
+        style={{ backgroundImage: `url(${bgUrl})` }}
       >
-        <div className="dialogue-box-scroll" ref={dialogueScrollRef}>
-          {lastPlayerText && (
-            <div className="player-line">
-              {t('interro.detective')}：「{lastPlayerText}」
+        {showIndictFlash && (
+          <div className="iv-flash">
+            <span className="nr-gold-text">{tt('犯人はあなただ', "J'accuse!")}</span>
+          </div>
+        )}
+
+        <AppHeader
+          sectionJa={interrogating ? tt('追及', 'Accusation') : tt('尋問', 'Interrogation')}
+          sectionEn={lang === 'ja' ? (interrogating ? 'Accusation' : 'Interrogation') : undefined}
+          right={
+            <>
+              <GoldButton size="sm" label={tt('戻る', 'Back')} icon={<ArrowLeft size={16} />} onClick={() => navigate(-1)} />
+              <NotebookLauncher variant="noir" className="nr-btn--sm" />
+            </>
+          }
+        />
+
+        <div className="iv__body">
+          {/* ── Left: character + dialogue ── */}
+          <section className="iv__stage">
+            {interrogating && (
+              <div className="iv__accuse-title">
+                <span className="nr-gold-text">{tt('犯人はあなただ', 'You are the culprit')}</span>
+                <span className="iv__accuse-name">— {suspect.name} —</span>
+              </div>
+            )}
+
+            {/* Portrait slot: swap the emoji for a 2D portrait once the art exists. */}
+            <div className="iv__portrait" aria-hidden="true">
+              <PortraitSilhouette height={420} />
             </div>
-          )}
-          {isEmpty && <p className="dialogue-hint">{t('interro.hint')}</p>}
-          {loading && !isTyping && (
-            <div className="dialogue-loading-row">
-              <p className="dialogue-typing-indicator">{t('interro.typing')}</p>
+
+            <div className="iv__nameplate">{suspect.name}</div>
+
+            <Panel className={`iv__dialogue${isTyping ? ' is-typing' : ''}`}>
+              <div className="iv__dialogue-scroll" ref={dialogueScrollRef} onClick={skipTyping}>
+                {lastPlayerText && (
+                  <p className="iv__player-line">{t('interro.detective')}：「{lastPlayerText}」</p>
+                )}
+                {isEmpty && <p className="iv__hint">{t('interro.hint')}</p>}
+                {loading && !isTyping && (
+                  <div className="iv__loading">
+                    <span className="iv__typing-dots">{t('interro.typing')}</span>
+                    <button className="iv__cancel" onClick={(e) => { e.stopPropagation(); cancelSend() }}>
+                      <X size={14} /> {tt('取り消す', 'Cancel')}
+                    </button>
+                  </div>
+                )}
+                {currentSuspectMsg && (
+                  <p className="iv__line">
+                    「{displayedText}
+                    {isTyping && <span className="iv__cursor">|</span>}
+                    」
+                  </p>
+                )}
+              </div>
+              {isTyping && <span className="iv__skip">{t('interro.skip')}</span>}
+            </Panel>
+
+            {unlockNotice && !isTyping && (
+              <Panel className="iv__unlock">
+                <Lock size={20} className="iv__unlock-icon" />
+                <span>{tt(`新しい場所が解放されました：${unlockNotice.name}`, `New area unlocked: ${unlockNotice.name}`)}</span>
+                <GoldButton size="sm" label={tt('移動する', 'Go there')} chevron onClick={() => navigate(`/location/${unlockNotice.id}`)} />
+              </Panel>
+            )}
+          </section>
+
+          {/* ── Right: log, evidence, input ── */}
+          <Panel className="iv__side">
+            <button className="iv__side-head" onClick={() => setShowLog(v => !v)}>
+              <span className="nr-section-title__ja">{t('interro.log')}</span>
+              {showLog ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+            </button>
+
+            {showLog && (
+              <div className="iv__log">
+                {messages.length === 0 && <p className="iv__muted">{tt('まだ会話がない', 'No messages yet')}</p>}
+                {messages.map((msg, i) => (
+                  msg.role === 'system' ? (
+                    <p key={i} className="iv__log-system">{msg.text}</p>
+                  ) : (
+                    <div key={i} className={`iv__log-entry is-${msg.role}`}>
+                      <span className="iv__log-avatar">
+                        {msg.role === 'player' ? <DetectiveMark size={18} /> : suspect.name.charAt(0)}
+                      </span>
+                      <div>
+                        <span className="iv__log-role">{msg.role === 'player' ? t('interro.detective') : suspect.name}</span>
+                        <p>{msg.presentedItemId ? `${t('interro.present.fmt')}${msg.text}` : msg.text}</p>
+                      </div>
+                    </div>
+                  )
+                ))}
+                <div ref={logEndRef} />
+              </div>
+            )}
+
+            <div className="iv__evidence">
               <button
-                className="dialogue-cancel-btn"
-                onClick={(e) => { e.stopPropagation(); cancelSend() }}
-                title={tt('送信を取り消す', 'Cancel this question')}
+                className="iv__side-head"
+                onClick={() => setShowEvidencePanel(v => !v)}
+                disabled={inputDisabled}
               >
-                ✕ {tt('取り消す', 'Cancel')}
+                <span className="nr-section-title__ja">{t('interro.panel')}</span>
+                {showEvidencePanel ? <ChevronUp size={18} /> : <Plus size={18} />}
               </button>
-            </div>
-          )}
-          {currentSuspectMsg && (
-            <p className="dialogue-text">
-              「{displayedText}
-              {isTyping && <span className="cursor">|</span>}
-              」
-            </p>
-          )}
-        </div>
-        {isTyping && (
-          <span className="skip-hint">{t('interro.skip')}</span>
-        )}
-        {unlockNotice && !isTyping && (
-          <div className="interro-unlock-notice">
-            🗺️ {tt(`新しい場所が解放されました：${unlockNotice}`, `New area unlocked: ${unlockNotice}`)}
-          </div>
-        )}
-      </div>
-
-      {showEvidencePanel && (
-        <div className="evidence-panel">
-          <div className="evidence-panel-header">
-            <span>{t('interro.panel')}</span>
-            <button className="icon-btn-close" onClick={() => setShowEvidencePanel(false)}>✕</button>
-          </div>
-          {foundEvidenceItems.length === 0 ? (
-            <p className="evidence-panel-empty">{t('interro.noevidence')}</p>
-          ) : (
-            <div className="evidence-panel-list">
-              {foundEvidenceItems.map((item) => (
-                <button
-                  key={item.id}
-                  className={`evidence-panel-item${selectedEvidence?.id === item.id ? ' selected' : ''}`}
-                  onClick={() => handleSelectEvidence(item.id)}
-                >
-                  <span className="ep-emoji">{item.emoji}</span>
-                  <div className="ep-info">
-                    <span className="ep-name">{item.name}</span>
-                    {lang === 'en' && <span className="ep-detail">{item.detail}</span>}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {showLog && (
-        <div className="log-overlay" onClick={() => setShowLog(false)}>
-          <div className="log-panel" onClick={(e) => e.stopPropagation()}>
-            <div className="log-header">
-              <span>{t('interro.log')}</span>
-              <button className="icon-btn-close" onClick={() => setShowLog(false)}>✕</button>
-            </div>
-            <div className="log-list">
-              {messages.length === 0 && (
-                <p className="log-empty">{tt('まだ会話がない', 'No messages yet')}</p>
-              )}
-              {messages.map((msg, i) => (
-                msg.role === 'system' ? (
-                  <div key={i} className="log-entry system">
-                    <p className="log-system-text">{msg.text}</p>
-                  </div>
+              {showEvidencePanel && (
+                foundEvidenceItems.length === 0 ? (
+                  <p className="iv__muted">{t('interro.noevidence')}</p>
                 ) : (
-                  <div key={i} className={`log-entry ${msg.role}`}>
-                    <span className="log-role">
-                      {msg.role === 'player' ? t('interro.detective') : suspect.name}
-                    </span>
-                    <p className="log-text">
-                      {msg.presentedItemId ? `${t('interro.present.fmt')}${msg.text}` : msg.text}
-                    </p>
+                  <div className="iv__evidence-grid">
+                    {foundEvidenceItems.map((item) => (
+                      <button
+                        key={item.id}
+                        className={`iv__evidence-item${selectedEvidence?.id === item.id ? ' is-selected' : ''}`}
+                        onClick={() => handleSelectEvidence(item.id)}
+                        title={item.name}
+                      >
+                        <span className="iv__evidence-thumb">{item.emoji}</span>
+                        <span className="iv__evidence-name">{item.name}</span>
+                      </button>
+                    ))}
                   </div>
                 )
-              ))}
-              <div ref={logEndRef} />
+              )}
             </div>
-          </div>
-        </div>
-      )}
 
-      {interrogating ? (
-        <button
-          className="interro-accuse-btn return"
-          onClick={stopInterrogating}
-        >
-          🔎 {tt('尋問に戻る', 'Back to questioning')}
-        </button>
-      ) : (
-        <button
-          className="interro-accuse-btn"
-          onClick={startInterrogating}
-        >
-          {tt(`⚖️ ${suspect.name} を追及する`, `⚖️ Indict ${suspect.name}`)}
-        </button>
-      )}
+            {selectedEvidence && (
+              <div className="iv__chip">
+                <span>{selectedEvidence.emoji} {selectedEvidence.name}</span>
+                <button onClick={() => setSelectedEvidence(null)} title={tt('証拠を外す', 'Remove evidence')}>
+                  <X size={14} />
+                </button>
+              </div>
+            )}
 
-      <div className="chat-input-area">
-        {selectedEvidence && (
-          <div className="selected-evidence-chip">
-            <span>{selectedEvidence.emoji} {selectedEvidence.name}</span>
-            <button
-              className="icon-btn-close sm"
-              onClick={() => setSelectedEvidence(null)}
-              title={tt('証拠を外す', 'Remove evidence')}
-            >✕</button>
-          </div>
-        )}
-        <div className="chat-input-row">
-          <button
-            className={`evidence-btn${showEvidencePanel ? ' active' : ''}`}
-            onClick={() => { setShowEvidencePanel((v) => !v); setShowLog(false) }}
-            disabled={loading || isTyping}
-            title={t('interro.panel')}
-          >
-            {tt('証拠', 'Evidence')}
-          </button>
-          <input
-            className="chat-input"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && !e.nativeEvent.isComposing && handleSend()}
-            placeholder={selectedEvidence ? t('interro.comment') : t('interro.question')}
-            disabled={loading || isTyping}
-            autoFocus
-          />
-          <button
-            className="send-btn"
-            onClick={handleSend}
-            disabled={loading || isTyping || (!input.trim() && !selectedEvidence)}
-          >
-            {t('interro.send')}
-          </button>
+            <div className="iv__input-row">
+              <input
+                className="iv__input"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && !e.nativeEvent.isComposing && handleSend()}
+                placeholder={
+                  selectedEvidence
+                    ? t('interro.comment')
+                    : interrogating ? tt('あなたの推理を入力…', 'State your reasoning…') : t('interro.question')
+                }
+                disabled={inputDisabled}
+                autoFocus
+              />
+              <button
+                className="iv__send"
+                onClick={handleSend}
+                disabled={inputDisabled || (!input.trim() && !selectedEvidence)}
+                title={interrogating ? tt('推理を突きつける', 'Press your case') : t('interro.send')}
+              >
+                <Send size={18} />
+              </button>
+            </div>
+
+            {interrogating ? (
+              <GoldButton label={tt('尋問に戻る', 'Back to questioning')} icon={<Search size={18} />} onClick={stopInterrogating} />
+            ) : (
+              <GoldButton
+                variant="danger"
+                label={tt(`${suspect.name} を追及する`, `Accuse ${suspect.name}`)}
+                icon={<Gavel size={18} />}
+                onClick={startInterrogating}
+              />
+            )}
+          </Panel>
         </div>
       </div>
     </div>

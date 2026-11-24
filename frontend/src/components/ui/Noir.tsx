@@ -13,6 +13,27 @@ export function DetectiveMark({ size = 30 }: { size?: number }) {
   )
 }
 
+/** Head-and-shoulders silhouette used as a stand-in until 2D portraits exist. */
+export function PortraitSilhouette({ height = 360 }: { height?: number }) {
+  return (
+    <svg height={height} viewBox="0 0 200 240" aria-hidden="true" className="nr-silhouette">
+      <defs>
+        <linearGradient id="nr-silhouette-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#2a2016" />
+          <stop offset="100%" stopColor="#0b0806" />
+        </linearGradient>
+      </defs>
+      <path
+        fill="url(#nr-silhouette-fill)"
+        stroke="rgba(230, 198, 126, 0.45)"
+        strokeWidth="1.5"
+        d="M100 18 C124 18 140 38 140 64 C140 90 126 112 100 112 C74 112 60 90 60 64 C60 38 76 18 100 18 Z
+           M100 122 C140 122 178 140 190 176 L198 240 L2 240 L10 176 C22 140 60 122 100 122 Z"
+      />
+    </svg>
+  )
+}
+
 export function Logo({ size = 30 }: { size?: number }) {
   return (
     <span className="nr-logo">

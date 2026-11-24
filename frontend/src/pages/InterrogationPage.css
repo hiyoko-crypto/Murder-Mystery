@@ -1,701 +1,507 @@
-.interrogation-page {
+/* Interrogation: character + dialogue on the left, log / evidence / input on
+   the right. "Accusing" mode adds a spotlight and the 犯人はあなただ title. */
+
+.iv {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: transparent;
-  max-width: 700px;
-  margin: 0 auto;
   overflow: hidden;
-  position: relative;
 }
 
-/* 背景画像レイヤー */
-.interro-bg {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background-size: cover;
-  background-position: center;
-  z-index: 0;
-}
-
-/* 暗めオーバーレイ（文字が読めるよう） */
-.interro-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.68);
-  z-index: 1;
+/* Darker than the location screen so the character and text stand out */
+.iv::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(8, 6, 4, 0.45);
   pointer-events: none;
+  transition: background 0.4s;
 }
 
-/* ヘッダー：はっきりした箱にせず、写真に薄い影を落とすだけにする */
-.interrogation-header {
-  position: relative;
-  z-index: 2;
-  padding: 1.1rem 1.3rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.7rem;
-  flex-shrink: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, transparent 100%);
+/* Accusing: dim everything except a beam of light from above */
+.iv.is-accusing::after {
+  background:
+    radial-gradient(ellipse 28% 70% at 32% 0%, rgba(255, 228, 170, 0.22) 0%, transparent 70%),
+    rgba(4, 3, 2, 0.72);
 }
 
-.header-title {
+.iv__body {
   flex: 1;
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #f0e8d8;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr minmax(340px, 420px);
+  gap: 28px;
+  padding: 20px 32px 26px;
 }
 
-.header-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.7rem;
-}
+/* ── Left: stage ── */
 
-.log-btn {
-  background: var(--glass-panel-neutral);
-  border: 1.5px solid var(--border-neutral-strong);
-  color: var(--ink);
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.15s;
-  font-family: inherit;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-}
-
-.log-btn:hover {
-  border-color: var(--gold);
-  color: var(--gold-dark);
-}
-
-.log-btn.active {
-  border-color: var(--gold);
-  color: var(--gold-dark);
-  background: var(--gold-soft-strong);
-}
-
-/* Backボタンと全く同じ見た目でいい、という指示に合わせる */
-.interro-notebook-btn {
-  background: var(--paper-panel);
-  border: 1.5px solid var(--border-strong);
-  color: var(--ink);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-}
-
-.interro-notebook-btn:hover {
-  border-color: var(--gold);
-  color: var(--ink);
-  background: var(--paper-panel);
-}
-
-/* キャラクターエリア */
-.character-area {
+.iv__stage {
   position: relative;
-  z-index: 2;
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3.2rem 1rem 1.6rem;
-}
-
-/* 背景の板は無し。文字色とシャドウだけで明暗に対応する */
-.character-badge {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.character-avatar-display {
-  width: 5.2rem;
-  height: 5.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.8rem;
-  line-height: 1;
-  background: rgba(248, 240, 220, 0.9);
-  border: 3px solid rgba(255, 255, 255, 0.6);
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-}
-
-.character-name-display {
-  font-size: 1.6rem;
-  letter-spacing: 0.08em;
-}
-
-.character-name-display {
-  color: #f0e8d8;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
-}
-
-/* 台詞ボックス */
-.dialogue-box {
-  position: relative;
-  z-index: 2;
-  flex: 0 0 auto;
-  height: 24vh;
-  /* 余った分は上（キャラクターエリアとの間）に集めて、台詞ボックス自体は下寄せにする */
-  margin: auto 1.2rem 0.8rem;
-  background: rgba(240, 240, 235, 0.92);
-  border: 1px solid var(--border-neutral);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border-radius: 6px;
-  padding: 1.4rem 1.6rem;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  cursor: default;
-  overflow: hidden;
-  box-shadow: 0 8px 24px rgba(43, 32, 19, 0.15);
+  gap: 12px;
 }
 
-/* 長い台詞ではみ出た分はここでスクロールする（外側の高さは変えない） */
-.dialogue-box-scroll {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  /* justify-content: flex-end はここでは使わない — overflowしたスクロール
-     コンテナに対して指定すると「unsafe alignment」になり、はみ出た分に
-     scrollHeightが追従せずスクロールできなくなる。下寄せの見た目は
-     JS側の自動スクロール（dialogueScrollRef）で実現している */
-  gap: 0.8rem;
-  overflow-y: auto;
-  min-height: 0;
-}
-
-.dialogue-box.typing {
-  cursor: pointer;
-}
-
-.player-line {
-  font-size: 0.82rem;
-  color: var(--info);
-  font-style: italic;
-  border-top: 1px solid var(--border-neutral);
-  padding-top: 0.6rem;
-}
-
-.dialogue-hint {
-  color: var(--ink-faint);
-  font-style: italic;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-.dialogue-typing-indicator {
-  color: var(--ink-faint);
-  font-size: 1.2rem;
-  letter-spacing: 0.3em;
-  animation: pulse 1s infinite;
-}
-
-.dialogue-loading-row {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.dialogue-cancel-btn {
-  background: none;
-  border: 1px solid var(--border-strong);
-  color: var(--ink-faint);
-  font-size: 0.78rem;
-  padding: 4px 10px;
-  border-radius: 6px;
-  transition: all 0.15s;
-}
-
-.dialogue-cancel-btn:hover {
-  border-color: var(--danger);
-  color: var(--danger-text);
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
-}
-
-.dialogue-text {
-  color: var(--ink);
-  font-size: 1.05rem;
-  line-height: 1.9;
-  letter-spacing: 0.03em;
-}
-
-.cursor {
-  animation: blink 0.6s step-end infinite;
-  color: var(--gold-dark);
-  font-weight: bold;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-.skip-hint {
+.iv__accuse-title {
   position: absolute;
-  bottom: 0.6rem;
-  right: 1rem;
-  font-size: 0.72rem;
-  color: var(--ink-faint);
-  letter-spacing: 0.1em;
-}
-
-/* 証拠パネル */
-.evidence-panel {
-  position: relative;
-  z-index: 2;
-  flex-shrink: 0;
-  border-top: 1px solid var(--border-neutral);
-  background: rgba(240, 240, 235, 0.94);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  max-height: 220px;
-  overflow-y: auto;
-}
-
-.evidence-panel-header {
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  padding: 0.6rem 1.4rem;
-  font-size: 0.78rem;
-  letter-spacing: 0.15em;
-  color: var(--gold-dark);
-  border-bottom: 1px solid var(--border-neutral);
-}
-
-.evidence-panel-empty {
-  color: var(--ink-faint);
   text-align: center;
-  padding: 1rem;
-  font-size: 0.88rem;
-  font-style: italic;
 }
 
-.evidence-panel-list {
-  display: flex;
-  flex-direction: column;
+.iv__accuse-title .nr-gold-text {
+  font-weight: 900;
+  font-size: 2.6rem;
+  letter-spacing: 0.2em;
 }
 
-.evidence-panel-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.9rem;
-  padding: 0.8rem 1.4rem;
-  background: none;
-  border: none;
-  border-bottom: 1px solid var(--border-neutral);
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.15s;
-  font-family: inherit;
-  width: 100%;
+.iv__accuse-name {
+  color: var(--nr-gold-bright);
+  letter-spacing: 0.2em;
 }
 
-.evidence-panel-item:hover { background: var(--gold-soft); }
-.evidence-panel-item.selected {
-  background: var(--gold-soft);
-  border-left: 3px solid var(--gold);
-}
-
-.ep-emoji { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
-
-.ep-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.ep-name { color: var(--ink); font-size: 0.9rem; font-weight: bold; }
-.ep-detail { color: var(--ink-faint); font-size: 0.78rem; line-height: 1.5; }
-
-/* ログオーバーレイ */
-.log-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--overlay-strong);
-  z-index: 100;
+/* Portrait slot. Holds an emoji for now; a 2D portrait <img> will replace it. */
+.iv__portrait {
+  flex: 1;
+  min-height: 0;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  pointer-events: none;
 }
 
-.log-panel {
-  width: 100%;
-  max-width: 700px;
-  max-height: 70vh;
-  background: var(--glass-panel-neutral);
-  border-top: 1px solid var(--border-neutral);
-  border-radius: 12px 12px 0 0;
+.iv__portrait > * {
+  max-height: 100%;
+  width: auto;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.8));
+  transition: filter 0.4s;
+}
+
+.iv.is-accusing .iv__portrait > * {
+  filter: brightness(0.25) drop-shadow(0 0 24px rgba(230, 198, 126, 0.35));
+}
+
+.iv__nameplate {
+  align-self: flex-start;
+  padding: 6px 18px;
+  background: var(--nr-panel-solid);
+  border: 1px solid var(--nr-gold-line);
+  color: var(--nr-gold-bright);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.iv__dialogue {
+  height: 26vh;
+  min-height: 150px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  padding: 18px 24px 14px;
 }
 
-.log-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.1rem 1.4rem;
-  border-bottom: 1px solid var(--border-neutral);
-  font-size: 0.95rem;
-  letter-spacing: 0.15em;
-  color: var(--ink-soft);
-  flex-shrink: 0;
-}
-
-.log-list {
+.iv__dialogue-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 0.8rem 0;
+  cursor: pointer;
 }
 
-.log-empty {
-  color: var(--ink-faint);
-  text-align: center;
-  padding: 2rem;
-  font-style: italic;
+.iv__player-line {
+  color: var(--nr-text-dim);
+  font-size: 0.92rem;
+  margin-bottom: 8px;
+}
+
+.iv__hint {
+  color: var(--nr-text-faint);
+}
+
+.iv__line {
+  font-size: 1.2rem;
+  line-height: 1.85;
+  white-space: pre-wrap;
+}
+
+.iv__cursor {
+  color: var(--nr-gold-bright);
+  animation: iv-blink 0.8s steps(1) infinite;
+}
+
+@keyframes iv-blink {
+  50% { opacity: 0; }
+}
+
+.iv__loading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.iv__typing-dots {
+  color: var(--nr-gold-bright);
+  letter-spacing: 0.3em;
+  animation: iv-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes iv-pulse {
+  50% { opacity: 0.35; }
+}
+
+.iv__cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  background: transparent;
+  border: 1px solid var(--nr-gold-line);
+  color: var(--nr-text-dim);
+  font-size: 0.85rem;
+}
+
+.iv__cancel:hover {
+  color: var(--nr-text);
+  border-color: var(--nr-gold);
+}
+
+.iv__skip {
+  align-self: flex-end;
+  color: var(--nr-text-faint);
+  font-size: 0.78rem;
+}
+
+.iv__unlock {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+}
+
+.iv__unlock > span {
+  flex: 1;
+}
+
+.iv__unlock-icon {
+  color: var(--nr-gold-bright);
+}
+
+/* ── Right: side panel ── */
+
+.iv__side {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.iv__side-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 0 6px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--nr-gold-line);
+  color: var(--nr-gold-bright);
+}
+
+.iv__side-head .nr-section-title__ja {
+  font-size: 1.05rem;
+}
+
+.iv__side-head:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.iv__muted {
+  color: var(--nr-text-dim);
   font-size: 0.9rem;
 }
 
-.log-entry {
-  padding: 0.9rem 1.4rem;
-  border-bottom: 1px solid var(--border-neutral);
-}
-
-.log-entry.player { background: var(--info-soft); }
-.log-entry.suspect { background: var(--gold-soft); }
-
-.log-role {
-  display: block;
-  font-size: 0.82rem;
-  color: var(--ink-faint);
-  margin-bottom: 0.4rem;
-  letter-spacing: 0.08em;
-}
-
-.log-text {
-  color: var(--ink);
-  font-size: 1rem;
-  line-height: 1.8;
-}
-
-/* 告発ボタン */
-.interro-accuse-btn {
-  position: relative;
-  z-index: 2;
-  margin: 0 1.2rem 0.4rem;
-  background: var(--danger);
-  border: 2px solid var(--danger-text);
-  color: #fff;
-  padding: 17px;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  letter-spacing: 0.08em;
-  transition: all 0.15s;
-  font-family: inherit;
-  cursor: pointer;
-  flex-shrink: 0;
-  box-shadow: 0 2px 10px rgba(168, 52, 47, 0.35);
-}
-
-.interro-accuse-btn:hover {
-  background: var(--danger-text);
-  color: #fff;
-  border-color: var(--danger-text);
-  box-shadow: 0 2px 16px rgba(168, 52, 47, 0.5);
-}
-
-/* 入力エリア：背後に板を敷かず、写真の上に直接コントロールを浮かせる */
-.chat-input-area {
-  position: relative;
-  z-index: 2;
-  padding: 1rem 1.3rem 1.2rem;
-  background: none;
+.iv__log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 12px;
+  padding-right: 4px;
+}
+
+.iv__log-entry {
+  display: flex;
+  gap: 10px;
+  font-size: 0.92rem;
+}
+
+.iv__log-entry p {
+  white-space: pre-wrap;
+}
+
+.iv__log-avatar {
+  width: 34px;
+  height: 34px;
   flex-shrink: 0;
-}
-
-.chat-input-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  align-items: center;
-}
-
-/* 選択済み証拠チップ */
-.selected-evidence-chip {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  background: var(--gold-soft);
-  border: 1px solid var(--gold);
-  color: var(--gold-dark);
-  border-radius: 4px;
-  padding: 6px 10px 6px 14px;
+  justify-content: center;
+  background: var(--nr-bg-raised);
+  border: 1px solid var(--nr-gold-line);
+  color: var(--nr-gold-bright);
+  font-weight: 700;
+}
+
+.iv__log-role {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--nr-gold);
+}
+
+.iv__log-entry.is-player .iv__log-role {
+  color: var(--nr-text-dim);
+}
+
+.iv__log-system {
+  padding: 4px 10px;
+  border-left: 2px solid var(--nr-gold);
+  color: var(--nr-gold-bright);
   font-size: 0.85rem;
-  gap: 0.6rem;
-  animation: slideDown 0.15s ease;
 }
 
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+.iv__evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 8px;
 }
 
+.iv__evidence-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 4px;
+  background: transparent;
+  border: 1px solid var(--nr-gold-faint);
+  color: var(--nr-text);
+}
 
-.chat-input {
+.iv__evidence-item:hover {
+  border-color: var(--nr-gold-line);
+}
+
+.iv__evidence-item.is-selected {
+  border-color: var(--nr-gold-bright);
+  box-shadow: 0 0 12px var(--nr-gold-glow);
+}
+
+.iv__evidence-thumb {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  background: radial-gradient(circle at 50% 40%, #3a2a1c 0%, #120d09 80%);
+}
+
+.iv__evidence-name {
+  width: 100%;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+.iv__chip {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px 4px 12px;
+  border: 1px solid var(--nr-gold);
+  color: var(--nr-gold-bright);
+  font-size: 0.9rem;
+}
+
+.iv__chip button {
+  display: inline-flex;
+  background: transparent;
+  border: none;
+  color: var(--nr-text-dim);
+}
+
+.iv__input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.iv__input {
   flex: 1;
   min-width: 0;
-  background: var(--glass-white-neutral);
-  border: 1px solid var(--border-neutral-strong);
-  color: var(--ink);
-  padding: 18px 20px;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  font-family: inherit;
+  padding: 11px 14px;
+  background: rgba(8, 6, 4, 0.7);
+  border: 1px solid var(--nr-gold-line);
+  color: var(--nr-text);
+  font-family: var(--nr-font-ja);
+  font-size: 0.98rem;
+}
+
+.iv__input::placeholder {
+  color: var(--nr-text-faint);
+}
+
+.iv__input:focus {
   outline: none;
-  transition: border-color 0.15s;
+  border-color: var(--nr-gold-bright);
+  box-shadow: 0 0 10px var(--nr-gold-glow);
 }
 
-.chat-input:focus { border-color: var(--info); }
-
-.send-btn {
-  background: var(--glass-white-neutral);
-  border: 1px solid var(--info);
-  color: var(--info);
-  padding: 18px 26px;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  transition: all 0.15s;
-  font-family: inherit;
-}
-
-.send-btn:hover:not(:disabled) {
-  background: var(--info);
-  color: var(--paper-white);
-}
-
-.send-btn:disabled { opacity: 0.4; cursor: default; }
-
-/* 証拠提示ボタン：Logボタンと同じ見た目に揃える */
-.evidence-btn {
-  background: var(--glass-panel-neutral);
-  border: 1.5px solid var(--border-neutral-strong);
-  color: var(--ink);
-  padding: 18px 20px;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  white-space: nowrap;
-  transition: all 0.15s;
-  flex-shrink: 0;
-  font-family: inherit;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-}
-
-.evidence-btn:hover:not(:disabled) {
-  border-color: var(--gold);
-  color: var(--gold-dark);
-}
-
-.evidence-btn.active {
-  border-color: var(--gold);
-  background: var(--gold-soft-strong);
-  color: var(--gold-dark);
-}
-
-.evidence-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-
-/* 場所解放通知（台詞ボックス内） */
-.interro-unlock-notice {
-  align-self: center;
-  background: var(--success-soft);
-  border: 1px solid var(--success);
-  color: var(--success);
-  padding: 0.45rem 1.1rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-align: center;
-  animation: unlockPop 0.35s ease;
-}
-
-@keyframes unlockPop {
-  from { opacity: 0; transform: translateY(6px) scale(0.95); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.log-entry.system {
-  display: flex;
+.iv__send {
+  width: 46px;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  margin: 0.4rem 0;
+  background: linear-gradient(180deg, #251c13 0%, #120d09 100%);
+  border: 1px solid var(--nr-gold);
+  color: var(--nr-gold-bright);
 }
 
-.log-system-text {
-  background: var(--success-soft);
-  border: 1px solid var(--success);
-  color: var(--success);
-  padding: 0.35rem 0.9rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-align: center;
+.iv__send:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-/* 起訴！の一瞬のスタンプ演出（追及モードに入る瞬間だけ表示） */
-.indict-flash {
+.iv__side > .nr-btn {
+  width: 100%;
+}
+
+/* ── 犯人はあなただ flash when accusing starts ── */
+
+.iv-flash {
   position: fixed;
   inset: 0;
-  z-index: 500;
+  z-index: 60;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(4, 3, 2, 0.6);
   pointer-events: none;
-  background: rgba(0, 0, 0, 0.55);
-  animation: indictFlashFade 1.1s ease forwards;
+  animation: iv-flash-fade 1.1s ease-out forwards;
 }
 
-.indict-flash span {
-  font-size: 2.6rem;
-  font-weight: bold;
-  letter-spacing: 0.1em;
-  color: #fff;
-  text-shadow: 0 2px 20px rgba(168, 52, 47, 0.8);
-  animation: indictFlashPop 1.1s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+.iv-flash span {
+  font-weight: 900;
+  font-size: clamp(3rem, 9vw, 7rem);
+  letter-spacing: 0.25em;
+  animation: iv-flash-stamp 1.1s cubic-bezier(0.2, 1.4, 0.4, 1) forwards;
 }
 
-@keyframes indictFlashFade {
-  0%   { opacity: 0; }
-  15%  { opacity: 1; }
-  70%  { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-@keyframes indictFlashPop {
-  0%   { transform: scale(0.4); opacity: 0; }
-  20%  { transform: scale(1.15); opacity: 1; }
-  35%  { transform: scale(1); opacity: 1; }
+@keyframes iv-flash-stamp {
+  0% { transform: scale(1.8); opacity: 0; }
+  25% { transform: scale(1); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* 追及モードを抜けて通常の尋問に戻るボタン。追及ボタン（危険色）と同じ
-   形だが、危険なアクションではないので落ち着いた色に上書きする */
-.interro-accuse-btn.return {
-  background: var(--paper-white);
-  border-color: var(--border-strong);
-  color: var(--ink-soft);
+@keyframes iv-flash-fade {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
-.interro-accuse-btn.return:hover {
-  background: var(--paper-panel);
-  border-color: var(--gold);
-  color: var(--ink);
-}
+/* ── Ending (confession) ── */
 
-/* 起訴結果（自白）画面 */
-.interro-ending-page {
-  height: 100vh;
+.iv-ending {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  max-width: 700px;
-  margin: 0 auto;
-  overflow: hidden;
 }
 
-.ending {
+.iv-ending::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(8, 6, 4, 0.55);
+}
+
+.iv-ending__body {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
-  justify-content: center;
-  gap: 1.2rem;
-  padding: 2rem;
-  text-align: center;
-  animation: endingFadeIn 0.6s ease;
+  gap: 40px;
+  padding: 32px 56px;
 }
 
-@keyframes endingFadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+.iv-ending__headline h1 {
+  font-weight: 900;
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  letter-spacing: 0.2em;
+  line-height: 1.2;
 }
 
-.ending.correct { background: linear-gradient(180deg, var(--paper) 0%, #ecdfbd 100%); }
-
-.ending-label {
-  font-size: 0.85rem;
-  letter-spacing: 0.3em;
+.iv-ending__sub {
+  color: var(--nr-gold-bright);
+  letter-spacing: 0.35em;
+  font-size: 1.2rem;
 }
 
-.ending.correct .ending-label { color: var(--danger-text); }
-
-.ending-name {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: var(--ink);
-  letter-spacing: 0.05em;
-}
-
-.ending-emotion { font-size: 1.8rem; }
-
-.ending-text {
-  color: var(--ink-soft);
-  font-size: 1rem;
-  line-height: 2;
-  max-width: 420px;
-}
-
-.ending-actions {
+.iv-ending__label {
   display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
+  gap: 16px;
+  margin-top: 18px;
+  color: var(--nr-text-dim);
+  letter-spacing: 0.1em;
 }
 
-.ending-btn {
-  background: var(--danger);
-  border: none;
-  color: #fff;
-  padding: 14px 30px;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s;
-  margin-top: 0.5rem;
+.iv-ending__paper {
+  transform: rotate(2deg);
+  text-align: center;
 }
 
-.ending-btn:hover { background: var(--danger-text); }
-
-.ending-btn.secondary {
-  background: none;
-  border: 1px solid var(--border-neutral-strong);
-  color: var(--ink-soft);
+.iv-ending__masthead {
+  font-family: var(--nr-font-masthead);
+  font-size: 2.4rem;
+  line-height: 1.1;
 }
 
-.ending-btn.secondary:hover {
-  border-color: var(--ink-soft);
-  color: var(--ink);
+.iv-ending__news {
+  font-family: var(--nr-font-headline);
+  font-weight: 800;
+  font-size: 2.2rem;
+  transform: scaleY(1.15);
+  margin: 6px 0 10px;
+}
+
+.iv-ending__truth {
+  margin-top: 14px;
+  text-align: left;
+  white-space: pre-line;
+  line-height: 1.9;
+}
+
+.iv-ending__actions {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 40px;
+}
+
+@media (max-width: 900px) {
+  .iv__body,
+  .iv-ending__body {
+    grid-template-columns: 1fr;
+  }
 }
