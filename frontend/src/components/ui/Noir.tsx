@@ -60,6 +60,10 @@ export function SectionTitle({ ja, en, icon, divider = true }: { ja: string; en?
   )
 }
 
+// Japanese sub-labels must not get the English italic face (synthetic italic Mincho looks broken).
+// eslint-disable-next-line no-control-regex
+const NON_ASCII = /[^\x00-\x7F]/
+
 interface GoldButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   label: ReactNode
   /** Small English italic line under the label. */
@@ -79,7 +83,7 @@ export function GoldButton({ label, sub, icon, chevron, size = 'md', variant = '
       {icon && <span className="nr-btn__icon">{icon}</span>}
       <span className="nr-btn__text">
         <span>{label}</span>
-        {sub && <span className="nr-btn__sub">{sub}</span>}
+        {sub && <span className={NON_ASCII.test(sub) ? 'nr-btn__sub nr-btn__sub--ja' : 'nr-btn__sub'}>{sub}</span>}
       </span>
       {chevron && (
         <span className="nr-btn__chevron">

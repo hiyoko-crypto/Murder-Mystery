@@ -247,6 +247,13 @@
   color: var(--nr-text-dim);
 }
 
+.nr-btn__sub--ja {
+  font-family: var(--nr-font-ja);
+  font-style: normal;
+  font-size: 0.68em;
+  letter-spacing: 0.06em;
+}
+
 .nr-btn__chevron {
   display: inline-flex;
   margin-left: 4px;
@@ -350,4 +357,77 @@
   -webkit-mask-composite: xor;
   mask-image: var(--nr-noise), linear-gradient(#000, #000);
   mask-composite: exclude;
+}
+
+/* ── Close button (✕) ───────────────────────────────────────────────────── */
+
+.nr-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--nr-gold-line);
+  color: var(--nr-gold-bright);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.nr-close:hover {
+  border-color: var(--nr-gold-bright);
+  box-shadow: 0 0 12px var(--nr-gold-glow);
+}
+
+/* ── Scrim for full-screen overlays ─────────────────────────────────────── */
+
+.nr-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: rgba(8, 6, 4, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+/* ── Shared dialogs restyled when shown inside a noir page ─────────────── */
+
+.noir .confirm-overlay {
+  background: rgba(8, 6, 4, 0.72);
+}
+
+.noir .confirm-dialog {
+  background: var(--nr-panel-solid);
+  border: 1px solid var(--nr-gold-line);
+  border-radius: 0;
+  box-shadow: inset 0 0 0 3px var(--nr-panel-solid), inset 0 0 0 4px var(--nr-gold-faint), 0 16px 40px rgba(0, 0, 0, 0.6);
+}
+
+.noir .confirm-dialog p {
+  color: var(--nr-text);
+  white-space: pre-line;
+}
+
+.noir .confirm-cancel-btn,
+.noir .confirm-ok-btn {
+  border-radius: 0;
+  font-family: var(--nr-font-ja);
+  background: transparent;
+  border: 1px solid var(--nr-gold-line);
+  color: var(--nr-text-dim);
+}
+
+.noir .confirm-ok-btn {
+  border-color: var(--nr-gold);
+  color: var(--nr-gold-bright);
+}
+
+.noir .confirm-ok-btn:hover,
+.noir .confirm-cancel-btn:hover {
+  background: transparent;
+  color: #fff3d0;
+  box-shadow: 0 0 12px var(--nr-gold-glow);
 }

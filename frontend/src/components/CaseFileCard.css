@@ -1,0 +1,97 @@
+.casefile {
+  display: flex;
+  gap: 32px;
+  overflow: hidden;
+}
+
+.casefile__photo {
+  position: relative;
+  flex-shrink: 0;
+  padding-top: 10px;
+}
+
+/* Paper clip drawn with two nested rounded outlines */
+.casefile__clip {
+  position: absolute;
+  top: -6px;
+  left: 28px;
+  z-index: 1;
+  width: 16px;
+  height: 46px;
+  border: 2px solid #8d8a83;
+  border-radius: 8px;
+  transform: rotate(-12deg);
+}
+.casefile__clip::after {
+  content: '';
+  position: absolute;
+  inset: 6px 3px 10px;
+  border: 2px solid #8d8a83;
+  border-radius: 6px;
+}
+
+.casefile__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.casefile__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--nr-ink-soft);
+}
+
+.casefile__label em {
+  font-family: var(--nr-font-en);
+  font-weight: 500;
+}
+
+.casefile__title {
+  font-weight: 800;
+  font-size: 1.6rem;
+  line-height: 1.35;
+}
+
+.casefile__setting {
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(90, 70, 48, 0.35);
+}
+
+.casefile__facts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.casefile__fact {
+  display: grid;
+  grid-template-columns: 7.5em 1fr;
+  gap: 8px;
+}
+
+.casefile__fact dt {
+  color: var(--nr-ink-soft);
+}
+
+.casefile__fact dt::after {
+  content: '：';
+}
+
+.casefile__crime-stamp {
+  position: absolute;
+  left: 18px;
+  bottom: 14px;
+  padding: 2px 10px;
+  border: 2px solid rgba(90, 70, 48, 0.35);
+  color: rgba(90, 70, 48, 0.35);
+  font-family: var(--nr-font-display);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  transform: rotate(-10deg);
+  pointer-events: none;
+}
