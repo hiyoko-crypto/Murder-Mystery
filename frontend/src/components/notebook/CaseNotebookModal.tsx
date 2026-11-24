@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
+import { NotebookPen, X } from 'lucide-react'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { useCaseNotes } from '../../contexts/CaseNotesContext'
+import { useGame } from '../../contexts/GameContext'
+import { useScenario } from '../../contexts/ScenarioContext'
 import { renderMiniMarkdown } from '../../utils/miniMarkdown'
 import RelationshipBoard from './RelationshipBoard'
 import TimelineBoard from './TimelineBoard'
 import HistoryList from './HistoryList'
 import './CaseNotebookModal.css'
 
-type Tab = 'history' | 'relationships' | 'timeline' | 'memo'
+type Tab = 'history' | 'evidence' | 'relationships' | 'timeline' | 'memo'
 
 function MemoTab() {
   const { lang } = useLanguage()
@@ -52,42 +55,91 @@ function MemoTab() {
   )
 }
 
+/** Found evidence: list on the left page, the selected item on the right. */
+function EvidenceTab() {
+  const { lang } = useLanguage()
+  const { foundItems } = useGame()
+  const { items } = useScenario()
+  const found = items(lang).filter(item => foundItems.includes(item.id))
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const selected = found.find(item => item.id === selectedId) ?? found[0]
+
+  if (found.length === 0) {
+    return <p className="nb-empty">{lang === 'ja' ? 'まだ証拠を見つけていません。' : 'No evidence found yet.'}</p>
+  }
+
+  return (
+    <div className="nb-evidence">
+      <ul className="nb-evidence__list">
+        {found.map(item => (
+          <li key={item.id}>
+            <button
+              className={`nb-evidence__row${item.id === selected?.id ? ' is-active' : ''}`}
+              onClick={() => setSelectedId(item.id)}
+            >
+              <span className="nb-evidence__thumb">{item.emoji}</span>
+              <span>{item.name}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      {selected && (
+        <div className="nb-evidence__detail">
+          <h3>{selected.name}</h3>
+          <div className="nb-evidence__photo">{selected.emoji}</div>
+          <p>{selected.detail || selected.discoveryText}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function CaseNotebookModal({ onClose }: { onClose: () => void }) {
   const { lang } = useLanguage()
   const [tab, setTab] = useState<Tab>('history')
+  const ja = lang === 'ja'
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: 'history', label: lang === 'ja' ? '📜 記録' : '📜 History' },
-    { key: 'relationships', label: lang === 'ja' ? '🕸️ 関係図' : '🕸️ Relationships' },
-    { key: 'timeline', label: lang === 'ja' ? '🕐 タイムライン' : '🕐 Timeline' },
-    { key: 'memo', label: lang === 'ja' ? '📝 メモ' : '📝 Memo' },
+    { key: 'history', label: ja ? '記録' : 'Log' },
+    { key: 'evidence', label: ja ? '証拠' : 'Evidence' },
+    { key: 'relationships', label: ja ? '人物相関図' : 'Relationships' },
+    { key: 'timeline', label: ja ? 'タイムライン' : 'Timeline' },
+    { key: 'memo', label: ja ? 'メモ' : 'Memo' },
   ]
 
   // Rendered via a portal straight into document.body: this modal gets
-  // triggered from inside headers that use backdrop-filter (e.g.
-  // InterrogationPage), and backdrop-filter creates a new containing block
-  // for position:fixed descendants — without the portal, the overlay would
-  // center itself inside that small header instead of the viewport.
+  // triggered from inside headers that use backdrop-filter, and
+  // backdrop-filter creates a new containing block for position:fixed
+  // descendants — without the portal, the overlay would center itself inside
+  // that small header instead of the viewport. The portal sits outside any
+  // `.noir` page, so it carries the theme tokens itself (nr-tokens).
   return createPortal(
-    <div className="confirm-overlay notebook-overlay" onClick={onClose}>
-      <div className="confirm-dialog notebook-panel" onClick={(e) => e.stopPropagation()}>
-        <div className="notebook-header">
-          <span className="notebook-title">{lang === 'ja' ? '— 捜査ノート —' : '— Case Notebook —'}</span>
-          <button className="icon-btn-close lg" onClick={onClose}>✕</button>
+    <div className="nr-tokens nb-overlay" onClick={onClose}>
+      <div className="nb-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="nb-header">
+          <NotebookPen size={22} className="nb-header__icon" />
+          <span className="nr-section-title__ja">{ja ? '捜査ノート' : 'Case Notebook'}</span>
+          {ja && <span className="nr-section-title__en">Case Notebook</span>}
+          <button className="nr-close nb-header__close" onClick={onClose} aria-label={ja ? '閉じる' : 'Close'}>
+            <X size={18} />
+          </button>
         </div>
-        <div className="notebook-tabs">
+        <div className="nb-tabs" role="tablist">
           {tabs.map(({ key, label }) => (
             <button
               key={key}
-              className={`notebook-tab-btn${tab === key ? ' active' : ''}`}
+              role="tab"
+              aria-selected={tab === key}
+              className={`nb-tab${tab === key ? ' is-active' : ''}`}
               onClick={() => setTab(key)}
             >
               {label}
             </button>
           ))}
         </div>
-        <div className="notebook-body">
+        <div className="nb-page">
           {tab === 'history' && <HistoryList />}
+          {tab === 'evidence' && <EvidenceTab />}
           {tab === 'relationships' && <RelationshipBoard />}
           {tab === 'timeline' && <TimelineBoard />}
           {tab === 'memo' && <MemoTab />}

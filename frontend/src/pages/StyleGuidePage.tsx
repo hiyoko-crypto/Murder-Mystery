@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { BookOpen, DoorOpen, FolderOpen, Menu, MessageSquare, NotebookPen, Search } from 'lucide-react'
 import { BG_LIBRARY } from '../utils/backgroundMatch'
 import { AppHeader, GoldButton, OrnamentDivider, Panel, PaperCard, Polaroid, SectionTitle, Stamp } from '../components/ui/Noir'
+import CaseNotebookModal from '../components/notebook/CaseNotebookModal'
 import './StyleGuidePage.css'
 
 // Dev-only preview of the noir theme's building blocks (/style-guide).
@@ -12,6 +13,8 @@ const sampleClues = ['真鍮の燭台', '破られた手紙', '銀のコンパ�
 
 export default function StyleGuidePage() {
   const navigate = useNavigate()
+  // /style-guide?notebook opens the notebook modal on load (for screenshots).
+  const showNotebook = new URLSearchParams(window.location.search).has('notebook')
 
   return (
     <div className="noir">
@@ -94,6 +97,7 @@ export default function StyleGuidePage() {
             <p><span className="nr-section-title__en">Case File · Interrogation · Evidence</span></p>
           </Panel>
         </main>
+        {showNotebook && <CaseNotebookModal onClose={() => navigate('/style-guide')} />}
       </div>
     </div>
   )

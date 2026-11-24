@@ -1,10 +1,12 @@
 /*
- * Noir theme: dark umber background, thin gold frames, Mincho type, aged paper.
+ * Noir theme: dark umber background, thin gold frames, gothic type, aged paper.
  * Everything is scoped under `.noir` so pages that have not been redesigned yet
- * keep their old light theme.
+ * keep their old light theme. `.nr-tokens` carries only the variables and type,
+ * for content portaled outside a `.noir` page (e.g. the notebook modal).
  */
 
-.noir {
+.noir,
+.nr-tokens {
   /* Background */
   --nr-bg: #0e0b08;
   --nr-bg-raised: #1a140e;
@@ -50,11 +52,14 @@
 
   --nr-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .33 0 0 0 0 .22 0 0 0 0 .09 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
-  background: var(--nr-bg);
   color: var(--nr-text);
   font-family: var(--nr-font-ja);
-  min-height: 100vh;
   line-height: 1.7;
+}
+
+.noir {
+  background: var(--nr-bg);
+  min-height: 100vh;
 }
 
 /* ── Scene: full-bleed background image with vignette ─────────────────── */

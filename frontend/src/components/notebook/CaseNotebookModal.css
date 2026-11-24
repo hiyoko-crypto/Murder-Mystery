@@ -1,75 +1,179 @@
-/* レイアウトは index.css の .confirm-overlay / .confirm-dialog を流用し、
-   このモーダル特有の差分（サイズ・z-index・padding上書き）のみ定義する */
-.notebook-overlay {
+/* Notebook shell: dark gold-framed panel, tabs, and an aged-paper page.
+   The tab contents (history, relationships, timeline, memo) keep their own
+   cream "paper" styling, which sits naturally on the page. */
+
+.nb-overlay {
+  position: fixed;
+  inset: 0;
   z-index: 2000;
-}
-
-.notebook-panel {
-  background: var(--paper-panel);
-  width: 100%;
-  max-width: 760px;
-  height: min(680px, 90vh);
-  padding: 0;
-  gap: 0;
-  overflow: hidden;
-}
-
-.notebook-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.3rem;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba(8, 6, 4, 0.75);
+  backdrop-filter: blur(3px);
 }
 
-.notebook-title {
-  font-size: 1rem;
-  letter-spacing: 0.2em;
-  color: var(--gold-dark);
-}
-
-.notebook-tabs {
-  display: flex;
-  flex-shrink: 0;
-  border-bottom: 1px solid var(--border);
-  overflow-x: auto;
-}
-
-.notebook-tab-btn {
-  background: none;
-  border: none;
-  border-bottom: 3px solid transparent;
-  color: var(--ink-soft);
-  padding: 0.9rem 1.2rem;
-  font-size: 0.95rem;
-  font-weight: bold;
-  white-space: nowrap;
-  transition: all 0.15s;
-  font-family: inherit;
-}
-
-.notebook-tab-btn:hover {
-  color: var(--ink);
-}
-
-.notebook-tab-btn.active {
-  color: var(--gold-dark);
-  border-bottom-color: var(--gold);
-}
-
-.notebook-body {
-  flex: 1;
-  min-height: 0;
-  padding: 1rem 1.2rem;
-  overflow: hidden;
+.nb-panel {
+  width: 100%;
+  max-width: 1040px;
+  height: min(760px, 90vh);
   display: flex;
   flex-direction: column;
+  background: var(--nr-panel-solid);
+  border: 1px solid var(--nr-gold-line);
+  box-shadow:
+    inset 0 0 0 3px var(--nr-panel-solid),
+    inset 0 0 0 4px var(--nr-gold-faint),
+    0 18px 48px rgba(0, 0, 0, 0.7);
+  padding: 18px 22px 22px;
+}
+
+.nb-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+.nb-header__icon {
+  align-self: center;
+  color: var(--nr-gold);
+}
+
+.nb-header__close {
+  margin-left: auto;
+  align-self: center;
+}
+
+.nb-tabs {
+  display: flex;
+  gap: 6px;
+  padding-left: 18px;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.nb-tab {
+  padding: 8px 22px 7px;
+  background: linear-gradient(180deg, #2a2016, #1a140e);
+  border: 1px solid var(--nr-gold-line);
+  border-bottom: none;
+  color: var(--nr-text-dim);
+  font-family: var(--nr-font-ja);
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+
+.nb-tab:hover {
+  color: var(--nr-text);
+}
+
+.nb-tab.is-active {
+  background: #e3d0a8;
+  border-color: #e3d0a8;
+  color: var(--nr-ink);
+  font-weight: 700;
+}
+
+.nb-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 20px;
+  overflow: hidden;
+  background-color: #e3d0a8;
+  background-image:
+    radial-gradient(ellipse at center, transparent 60%, rgba(92, 60, 24, 0.35) 100%),
+    var(--nr-noise);
+  color: var(--nr-ink);
+}
+
+.nb-empty {
+  color: var(--nr-ink-soft);
+}
+
+/* ── Evidence tab ── */
+
+.nb-evidence {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) 1fr;
+  gap: 24px;
+}
+
+.nb-evidence__list {
+  list-style: none;
+  overflow-y: auto;
+  border-right: 1px solid rgba(90, 70, 48, 0.3);
+  padding-right: 12px;
+}
+
+.nb-evidence__row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom-color: rgba(90, 70, 48, 0.2);
+  color: var(--nr-ink);
+  font-family: var(--nr-font-ja);
+  font-size: 0.98rem;
+  text-align: left;
+}
+
+.nb-evidence__row:hover {
+  background: rgba(176, 141, 87, 0.15);
+}
+
+.nb-evidence__row.is-active {
+  background: rgba(176, 141, 87, 0.28);
+  border-color: rgba(138, 106, 58, 0.6);
+}
+
+.nb-evidence__thumb {
+  width: 52px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 40%, #4a3524 0%, #130e09 80%);
+  font-size: 1.3rem;
+}
+
+.nb-evidence__detail {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.nb-evidence__detail h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.nb-evidence__photo {
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+  background: radial-gradient(circle at 50% 40%, #4a3524 0%, #130e09 80%);
+  border: 8px solid #f1e8d4;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
 }
 
 /* 記録タブ: HistoryList自体のスタイルは HistoryList.css で定義。
    ここではモーダル本文いっぱいに広げてスクロールさせるための上書きのみ。 */
-.notebook-body .history-list {
+.nb-page .history-list {
   flex: 1;
   overflow-y: auto;
 }
@@ -160,8 +264,6 @@
 .memo-preview h2 { font-size: 1.15rem; }
 .memo-preview h3 { font-size: 1.02rem; }
 
-/* .confirm-dialog p (index.css) は text-align: center — プレビューでは
-   Markdownの見た目として左寄せに上書きする */
 .memo-preview p {
   margin: 0 0 0.7rem;
   text-align: left;
