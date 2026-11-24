@@ -66,8 +66,13 @@ function briefingCacheKey(scenarioId: string, lang: string): string {
   return `holmes_briefing_${scenarioId}_${lang}`
 }
 
+/** Briefing shipped in briefingCache.json, if this scenario has been baked. */
+export function bakedBriefing(scenarioId: string, lang: string): BriefingResult | undefined {
+  return (bakedBriefings as Record<string, Record<string, BriefingResult>>)[scenarioId]?.[lang]
+}
+
 export async function fetchBriefing(scenarioId: string, lang = 'ja'): Promise<BriefingResult> {
-  const baked = (bakedBriefings as Record<string, Record<string, BriefingResult>>)[scenarioId]?.[lang]
+  const baked = bakedBriefing(scenarioId, lang)
   if (baked) return baked
 
   const cached = scenarioId ? loadJson<BriefingResult | null>(briefingCacheKey(scenarioId, lang), null) : null

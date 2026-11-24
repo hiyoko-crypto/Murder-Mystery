@@ -1,103 +1,90 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useGame } from '../contexts/GameContext'
 import { useScenario } from '../contexts/ScenarioContext'
 import { fetchBriefing, type BriefingResult } from '../api/examine'
+import CaseFileCard from '../components/CaseFileCard'
+import { AppHeader, GoldButton } from '../components/ui/Noir'
 import './OpeningPage.css'
 
 export default function OpeningPage() {
   const navigate = useNavigate()
-  const { lang, t } = useLanguage()
+  const { lang } = useLanguage()
   const { unlockedLocations } = useGame()
-  const { scenario, loading: scenarioLoading } = useScenario()
+  const { scenario, loading: scenarioLoading, locations, locationBg } = useScenario()
+  const tt = (ja: string, en: string) => (lang === 'ja' ? ja : en)
 
-  const [briefing, setBriefing] = useState<BriefingResult | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [fetchError, setFetchError] = useState(false)
-
-  const loadBriefing = () => {
-    setLoading(true)
-    setFetchError(false)
-    fetchBriefing(scenario?.scenarioId ?? '', lang)
-      .then(b => { setBriefing(b); setFetchError(false) })
-      .catch(() => { setBriefing(null); setFetchError(true) })
-      .finally(() => setLoading(false))
-  }
+  // Each fetch is tagged with the (scenario, lang, attempt) it was made for,
+  // so "loading" is derived instead of set synchronously inside the effect.
+  const [attempt, setAttempt] = useState(0)
+  const requestKey = `${scenario?.scenarioId ?? ''}|${lang}|${attempt}`
+  const [result, setResult] = useState<{ key: string; briefing: BriefingResult | null }>({ key: '', briefing: null })
 
   useEffect(() => {
     // Wait for ScenarioContext's own fetch to settle first — otherwise this
-    // can race ahead with an empty scenario id (e.g. on a hard reload,
-    // before StrictMode's double-invoked effect has a scenario to read),
-    // which bypasses the briefing cache below entirely.
+    // can race ahead with an empty scenario id (e.g. on a hard reload),
+    // which bypasses the briefing cache entirely.
     if (scenarioLoading) return
-    loadBriefing()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lang, scenarioLoading, scenario?.scenarioId])
+    let cancelled = false
+    fetchBriefing(scenario?.scenarioId ?? '', lang)
+      .then(b => { if (!cancelled) setResult({ key: requestKey, briefing: b }) })
+      .catch(() => { if (!cancelled) setResult({ key: requestKey, briefing: null }) })
+    return () => { cancelled = true }
+  }, [requestKey, scenarioLoading, scenario?.scenarioId, lang])
+
+  const loading = result.key !== requestKey
+  const briefing = loading ? null : result.briefing
 
   const firstLocationId = unlockedLocations[0] ?? ''
-
-  const ja = lang === 'ja'
+  const firstLocation = locations(lang).find(l => l.id === firstLocationId)
 
   return (
-    <div className="opening-page">
-      <div className="opening-content">
-        {loading ? (
-          <p className="opening-text" style={{ opacity: 0.5 }}>
-            {ja ? '読み込み中...（シナリオ切替直後は時間がかかることがあります）' : 'Loading... (can take a while right after switching scenarios)'}
-          </p>
-        ) : briefing ? (
-          <div className="briefing-card">
-            <p className="briefing-eyebrow">{ja ? '事件報告書' : 'CASE FILE'}</p>
-            <h2 className="briefing-title">{briefing.title}</h2>
-            <div className="briefing-divider" />
+    <div className="noir">
+      <div
+        className="nr-scene opening"
+        style={firstLocationId ? { backgroundImage: `url(${locationBg(firstLocationId)})` } : undefined}
+      >
+        <AppHeader
+          sectionJa={tt('事件ファイル', 'Case File')}
+          sectionEn={lang === 'ja' ? 'Case File' : undefined}
+          right={<GoldButton size="sm" label={tt('シナリオ選択', 'Scenarios')} icon={<ArrowLeft size={16} />} onClick={() => navigate('/scenario-select')} />}
+        />
 
-            <p className="briefing-setting">{briefing.setting}</p>
-
-            <div className="briefing-victim-block">
-              <span className="briefing-victim-label">{ja ? '被害者' : 'VICTIM'}</span>
-              <p className="briefing-victim-text">{briefing.victim}</p>
-            </div>
-
-            <div className="briefing-facts">
-              <div className="briefing-fact">
-                <span className="briefing-fact-icon">⏰</span>
-                <span className="briefing-fact-label">{ja ? '死亡推定' : 'Time of Death'}</span>
-                <span className="briefing-fact-value">{briefing.time_of_murder}</span>
-              </div>
-              <div className="briefing-fact">
-                <span className="briefing-fact-icon">🔍</span>
-                <span className="briefing-fact-label">{ja ? '発見時刻' : 'Discovered'}</span>
-                <span className="briefing-fact-value">{briefing.time_discovered}</span>
-              </div>
-              <div className="briefing-fact">
-                <span className="briefing-fact-icon">🗡️</span>
-                <span className="briefing-fact-label">{ja ? '凶器' : 'Weapon'}</span>
-                <span className="briefing-fact-value">{briefing.weapon}</span>
-              </div>
-            </div>
-
-            <p className="briefing-scene">📍 {briefing.scene}</p>
-          </div>
-        ) : fetchError ? (
-          <div className="opening-error">
-            <p className="opening-text">
-              {ja
-                ? '事件の詳細を読み込めませんでした。'
-                : 'Could not load case details.'}
+        <main className="opening__main">
+          {loading && (
+            <p className="opening__status">
+              {tt('読み込み中…（シナリオ切替直後は時間がかかることがあります）', 'Loading… (can take a while right after switching scenarios)')}
             </p>
-            <button className="opening-retry-btn" onClick={loadBriefing}>
-              {ja ? '再試行' : 'Retry'}
-            </button>
-          </div>
-        ) : null}
-        <button
-          className="opening-btn"
-          onClick={() => navigate(`/location/${firstLocationId}`)}
-          disabled={!firstLocationId}
-        >
-          {t('opening.next')}
-        </button>
+          )}
+          {!loading && !briefing && (
+            <div className="opening__status">
+              <p>{tt('事件の詳細を読み込めませんでした。', 'Could not load case details.')}</p>
+              <GoldButton size="sm" label={tt('再試行', 'Retry')} onClick={() => setAttempt(a => a + 1)} />
+            </div>
+          )}
+          {briefing && (
+            <div className="opening__file">
+              <CaseFileCard
+                briefing={briefing}
+                lang={lang}
+                photoUrl={firstLocationId ? locationBg(firstLocationId) : undefined}
+                photoCaption={firstLocation?.name}
+              />
+            </div>
+          )}
+
+          <GoldButton
+            size="lg"
+            variant="primary"
+            label={tt('捜査開始', 'Begin Investigation')}
+            sub={lang === 'ja' ? 'Start Investigation' : undefined}
+            chevron
+            onClick={() => navigate(`/location/${firstLocationId}`)}
+            disabled={!firstLocationId}
+          />
+        </main>
       </div>
     </div>
   )

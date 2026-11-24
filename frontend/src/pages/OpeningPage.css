@@ -1,181 +1,36 @@
-.opening-page {
-  min-height: 100vh;
+.opening {
   display: flex;
+  flex-direction: column;
+}
+
+.opening::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(8, 6, 4, 0.6);
+}
+
+.opening__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--paper);
-  padding: 2rem;
+  gap: 32px;
+  padding: 32px 40px 48px;
 }
 
-.opening-content {
-  max-width: 600px;
-  text-align: center;
+.opening__file {
+  width: 100%;
+  max-width: 940px;
+  transform: rotate(-0.5deg);
 }
 
-.opening-text {
-  font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
-  font-size: 1.05rem;
-  line-height: 2.2;
-  color: var(--ink-soft);
-  white-space: pre-wrap;
-  text-align: left;
-  border-left: 3px solid var(--gold);
-  padding-left: 1.5rem;
-  margin-bottom: 3rem;
-}
-
-.opening-btn {
-  background: none;
-  border: 2px solid var(--gold);
-  color: var(--gold-dark);
-  font-size: 1.15rem;
-  padding: 14px 52px;
-  letter-spacing: 0.15em;
-  border-radius: 2px;
-  transition: all 0.2s;
-}
-
-.opening-btn:hover {
-  background: var(--gold);
-  color: var(--paper-white);
-}
-
-.opening-error {
+.opening__status {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.opening-retry-btn {
-  background: none;
-  border: 1px solid var(--border-strong);
-  color: var(--ink-soft);
-  padding: 8px 20px;
-  border-radius: 4px;
-  font-size: 0.88rem;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.opening-retry-btn:hover {
-  border-color: var(--gold);
-  color: var(--gold-dark);
-}
-
-.briefing-card {
-  width: 100%;
-  max-width: 620px;
-  background: var(--paper-white);
-  border: 1px solid var(--border);
-  border-top: 3px solid var(--gold);
-  border-radius: 4px;
-  padding: 2rem 2.4rem 2.2rem;
-  margin-bottom: 2rem;
-  text-align: left;
-  box-shadow: 0 8px 24px rgba(43, 32, 19, 0.15);
-}
-
-.briefing-eyebrow {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.25em;
-  color: var(--ink-faint);
-  text-transform: uppercase;
-  margin: 0 0 0.5rem;
-}
-
-.briefing-title {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 1.8rem;
-  color: var(--gold-dark);
-  letter-spacing: 0.04em;
-  margin: 0 0 1rem;
-  text-wrap: balance;
-}
-
-.briefing-divider {
-  border: none;
-  border-top: 1px solid var(--border);
-  margin-bottom: 1.2rem;
-}
-
-.briefing-setting {
-  font-size: 0.9rem;
-  color: var(--ink-soft);
-  line-height: 1.6;
-  margin: 0 0 1.4rem;
-}
-
-/* 被害者ブロック - 最も目立たせる */
-.briefing-victim-block {
-  border-left: 3px solid var(--danger);
-  padding: 0.8rem 1rem;
-  background: var(--danger-soft);
-  border-radius: 0 4px 4px 0;
-  margin-bottom: 1.4rem;
-}
-
-.briefing-victim-label {
-  display: block;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  color: var(--danger-text);
-  text-transform: uppercase;
-  margin-bottom: 0.4rem;
-}
-
-.briefing-victim-text {
-  font-size: 1rem;
-  color: var(--ink);
-  line-height: 1.6;
-  margin: 0;
-}
-
-/* 主要ファクト - バッジ3列 */
-.briefing-facts {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.6rem;
-  margin-bottom: 1.2rem;
-}
-
-.briefing-fact {
-  background: var(--paper-panel);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0.7rem 0.8rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.briefing-fact-icon {
-  font-size: 1rem;
-}
-
-.briefing-fact-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--ink-faint);
-  text-transform: uppercase;
-}
-
-.briefing-fact-value {
-  font-size: 0.85rem;
-  color: var(--gold-dark);
-  font-variant-numeric: tabular-nums;
-  line-height: 1.4;
-}
-.briefing-scene {
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-  line-height: 1.5;
-  margin: 0;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border);
+  gap: 14px;
+  color: var(--nr-text-dim);
 }
