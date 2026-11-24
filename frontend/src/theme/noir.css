@@ -1,0 +1,353 @@
+/*
+ * Noir theme: dark umber background, thin gold frames, Mincho type, aged paper.
+ * Everything is scoped under `.noir` so pages that have not been redesigned yet
+ * keep their old light theme.
+ */
+
+.noir {
+  /* Background */
+  --nr-bg: #0e0b08;
+  --nr-bg-raised: #1a140e;
+  --nr-panel: rgba(14, 11, 8, 0.78);
+  --nr-panel-solid: #15100b;
+
+  /* Gold */
+  --nr-gold: #b08d57;
+  --nr-gold-bright: #e6c67e;
+  --nr-gold-deep: #8a6a3a;
+  --nr-gold-line: rgba(176, 141, 87, 0.55);
+  --nr-gold-faint: rgba(176, 141, 87, 0.22);
+  --nr-gold-glow: rgba(230, 198, 126, 0.35);
+
+  /* Text on dark */
+  --nr-text: #efe6d2;
+  --nr-text-dim: #b8ab92;
+  --nr-text-faint: #857964;
+
+  /* Paper */
+  --nr-paper: #d8c29a;
+  --nr-paper-dark: #b89b6a;
+  --nr-ink: #2a1f14;
+  --nr-ink-soft: #5a4630;
+
+  /* Accents */
+  --nr-stamp: #3d6b4a;
+  --nr-danger: #a8342f;
+
+  /* Type */
+  --nr-font-ja: 'Shippori Mincho', 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+  --nr-font-display: 'Cinzel', 'Shippori Mincho', serif;
+  --nr-font-en: 'Cormorant Garamond', 'Shippori Mincho', serif;
+  --nr-font-masthead: 'UnifrakturMaguntia', serif;
+  --nr-font-headline: 'Playfair Display', 'Shippori Mincho', serif;
+
+  --nr-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .33 0 0 0 0 .22 0 0 0 0 .09 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  background: var(--nr-bg);
+  color: var(--nr-text);
+  font-family: var(--nr-font-ja);
+  min-height: 100vh;
+  line-height: 1.7;
+}
+
+/* ── Scene: full-bleed background image with vignette ─────────────────── */
+
+.nr-scene {
+  position: relative;
+  min-height: 100vh;
+  background-color: var(--nr-bg);
+  background-size: cover;
+  background-position: center;
+  isolation: isolate;
+}
+
+.nr-scene::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at center, transparent 35%, rgba(8, 6, 4, 0.85) 100%),
+    linear-gradient(180deg, rgba(8, 6, 4, 0.55) 0%, transparent 18%, transparent 70%, rgba(8, 6, 4, 0.8) 100%);
+  pointer-events: none;
+}
+
+/* ── Gold text and ornaments ───────────────────────────────────────────── */
+
+.nr-gold-text {
+  background: linear-gradient(180deg, #f6e3a8 0%, #d9b46a 48%, #9c7436 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.nr-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--nr-gold);
+}
+
+.nr-divider__line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--nr-gold-line) 12%, var(--nr-gold-line) 88%, transparent);
+}
+
+.nr-divider__diamond {
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--nr-gold);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+/* ── Panel: translucent dark box, double gold rule, L-shaped corners ───── */
+
+.nr-panel {
+  position: relative;
+  background: var(--nr-panel);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--nr-gold-line);
+  box-shadow:
+    inset 0 0 0 3px rgba(14, 11, 8, 0.9),
+    inset 0 0 0 4px var(--nr-gold-faint),
+    0 12px 32px rgba(0, 0, 0, 0.55);
+  padding: 20px 22px;
+}
+
+.nr-corner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--nr-gold-bright);
+  border-style: solid;
+  border-width: 0;
+  pointer-events: none;
+}
+.nr-corner--tl { top: -2px; left: -2px; border-top-width: 2px; border-left-width: 2px; }
+.nr-corner--tr { top: -2px; right: -2px; border-top-width: 2px; border-right-width: 2px; }
+.nr-corner--bl { bottom: -2px; left: -2px; border-bottom-width: 2px; border-left-width: 2px; }
+.nr-corner--br { bottom: -2px; right: -2px; border-bottom-width: 2px; border-right-width: 2px; }
+
+/* ── Section title: icon + Japanese + English italic, gold rule below ─── */
+
+.nr-section-title {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nr-section-title__row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.nr-section-title__icon {
+  align-self: center;
+  color: var(--nr-gold);
+  display: inline-flex;
+}
+
+.nr-section-title__ja {
+  font-family: var(--nr-font-ja);
+  font-weight: 600;
+  font-size: 1.35rem;
+  letter-spacing: 0.08em;
+  color: var(--nr-text);
+}
+
+.nr-section-title__en {
+  font-family: var(--nr-font-en);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--nr-text-dim);
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────────── */
+
+.nr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 26px;
+  background: linear-gradient(180deg, #251c13 0%, #120d09 100%);
+  border: 1px solid var(--nr-gold);
+  box-shadow:
+    inset 0 0 0 3px #120d09,
+    inset 0 0 0 4px var(--nr-gold-faint);
+  color: var(--nr-gold-bright);
+  font-family: var(--nr-font-ja);
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  transition: box-shadow 0.2s, border-color 0.2s, color 0.2s, transform 0.1s;
+}
+
+.nr-btn:hover:not(:disabled) {
+  border-color: var(--nr-gold-bright);
+  color: #fff3d0;
+  box-shadow:
+    inset 0 0 0 3px #120d09,
+    inset 0 0 0 4px var(--nr-gold-line),
+    0 0 18px var(--nr-gold-glow);
+}
+
+.nr-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.nr-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.nr-btn--lg {
+  padding: 16px 40px;
+  font-size: 1.3rem;
+}
+
+.nr-btn--sm {
+  padding: 7px 14px;
+  font-size: 0.9rem;
+  gap: 8px;
+}
+
+.nr-btn--primary {
+  box-shadow:
+    inset 0 0 0 3px #120d09,
+    inset 0 0 0 4px var(--nr-gold-line),
+    0 0 14px var(--nr-gold-glow);
+}
+
+.nr-btn--danger {
+  border-color: #c0605a;
+  color: #f1c4b8;
+}
+
+.nr-btn__icon {
+  display: inline-flex;
+  color: var(--nr-gold);
+}
+
+.nr-btn__text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.25;
+}
+
+.nr-btn__sub {
+  font-family: var(--nr-font-en);
+  font-style: italic;
+  font-size: 0.72em;
+  letter-spacing: 0.04em;
+  color: var(--nr-text-dim);
+}
+
+.nr-btn__chevron {
+  display: inline-flex;
+  margin-left: 4px;
+  opacity: 0.8;
+}
+
+/* ── App header: logo + section name, gold rule ─────────────────────────── */
+
+.nr-header {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--nr-gold-line);
+  background: linear-gradient(180deg, rgba(8, 6, 4, 0.85), rgba(8, 6, 4, 0.35));
+}
+
+.nr-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--nr-gold);
+  text-decoration: none;
+}
+
+.nr-logo__word {
+  font-family: var(--nr-font-display);
+  font-weight: 500;
+  font-size: 1.5rem;
+  letter-spacing: 0.06em;
+}
+
+.nr-header__section {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.nr-header__right {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+}
+
+/* ── Paper: aged sheet with speckle and burnt edges ─────────────────────── */
+
+.nr-paper {
+  position: relative;
+  background-color: var(--nr-paper);
+  background-image:
+    radial-gradient(ellipse at 45% 40%, rgba(255, 248, 226, 0.4) 0%, transparent 60%),
+    radial-gradient(ellipse at center, transparent 55%, rgba(92, 60, 24, 0.5) 100%),
+    var(--nr-noise);
+  color: var(--nr-ink);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.65);
+  padding: 28px 32px;
+}
+
+/* ── Polaroid photo ─────────────────────────────────────────────────────── */
+
+.nr-polaroid {
+  display: inline-block;
+  background: #efe7d4;
+  padding: 10px 10px 34px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+  transform: rotate(var(--nr-tilt, -3deg));
+}
+
+.nr-polaroid img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.25) contrast(1.05);
+}
+
+.nr-polaroid__caption {
+  display: block;
+  margin-top: 6px;
+  text-align: center;
+  font-family: var(--nr-font-ja);
+  font-size: 0.85rem;
+  color: var(--nr-ink-soft);
+}
+
+/* ── Rubber stamp ("証拠に追加済み") ─────────────────────────────────────── */
+
+.nr-stamp {
+  display: inline-block;
+  padding: 4px 14px;
+  border: 3px double currentColor;
+  color: var(--nr-stamp);
+  font-family: var(--nr-font-ja);
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  transform: rotate(var(--nr-tilt, -8deg));
+  opacity: 0.85;
+  mix-blend-mode: multiply;
+  -webkit-mask-image: var(--nr-noise), linear-gradient(#000, #000);
+  -webkit-mask-composite: xor;
+  mask-image: var(--nr-noise), linear-gradient(#000, #000);
+  mask-composite: exclude;
+}

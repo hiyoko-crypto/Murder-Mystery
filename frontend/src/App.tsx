@@ -8,6 +8,7 @@ import LocationPage from './pages/LocationPage'
 import ItemDetailPage from './pages/ItemDetailPage'
 import InterrogationPage from './pages/InterrogationPage'
 import EvidencePage from './pages/EvidencePage'
+import StyleGuidePage from './pages/StyleGuidePage'
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/item/:id" element={<ItemDetailPage />} />
         <Route path="/interrogate/:id" element={<InterrogationPage />} />
         <Route path="/evidence" element={<EvidencePage />} />
+        {import.meta.env.DEV && <Route path="/style-guide" element={<StyleGuidePage />} />}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>

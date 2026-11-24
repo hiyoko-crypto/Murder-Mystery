@@ -1,0 +1,166 @@
+.sg-scene {
+  background-attachment: fixed;
+}
+
+.sg-main {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 28px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.sg-hero {
+  text-align: center;
+}
+
+.sg-hero__ja {
+  font-family: var(--nr-font-ja);
+  font-weight: 800;
+  font-size: 4.5rem;
+  letter-spacing: 0.2em;
+  line-height: 1.2;
+}
+
+.sg-hero__en {
+  font-family: var(--nr-font-en);
+  font-style: italic;
+  font-size: 1.6rem;
+  letter-spacing: 0.15em;
+  color: var(--nr-gold-bright);
+}
+
+.sg-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 28px;
+  align-items: start;
+}
+
+.sg-casefile {
+  display: flex;
+  gap: 28px;
+  transform: rotate(-0.6deg);
+}
+
+.sg-casefile__photo {
+  flex-shrink: 0;
+  padding-top: 8px;
+}
+
+.sg-casefile__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sg-casefile__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--nr-ink-soft);
+}
+
+.sg-casefile__label em {
+  font-family: var(--nr-font-en);
+  font-weight: 500;
+}
+
+.sg-casefile h2 {
+  font-weight: 800;
+  font-size: 1.5rem;
+}
+
+.sg-casefile dl {
+  display: grid;
+  grid-template-columns: 7em 1fr;
+  row-gap: 4px;
+}
+
+.sg-casefile dt {
+  color: var(--nr-ink-soft);
+}
+
+.sg-casefile .nr-stamp {
+  align-self: flex-end;
+}
+
+.sg-clues {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sg-clues ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.sg-clues li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--nr-gold-faint);
+}
+
+.sg-clues__thumb {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--nr-gold-line);
+  background: var(--nr-bg-raised);
+}
+
+.sg-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.sg-actions__sep {
+  width: 1px;
+  align-self: stretch;
+  background: var(--nr-gold-line);
+  margin: 0 8px;
+}
+
+.sg-row {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.sg-newspaper {
+  max-width: 620px;
+  transform: rotate(-2deg);
+  text-align: center;
+}
+
+.sg-newspaper__masthead {
+  font-family: var(--nr-font-masthead);
+  font-size: 2.6rem;
+  line-height: 1.1;
+}
+
+.sg-newspaper__headline {
+  font-family: var(--nr-font-headline);
+  font-weight: 800;
+  font-size: 2.6rem;
+  letter-spacing: 0.02em;
+  transform: scaleY(1.15);
+  margin: 6px 0 10px;
+}
+
+.sg-newspaper p {
+  margin-top: 12px;
+  text-align: left;
+}
+
+.sg-fonts p {
+  margin-top: 10px;
+}
