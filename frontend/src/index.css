@@ -83,7 +83,7 @@ button {
   padding: 12px 0;
 }
 
-/* ── アイテム入手済みバッジ（ItemDetailPage / LocationPage 共通） ── */
+/* ── アイテム入手済みバッジ（LocationPage） ── */
 .evidence-added-badge {
   display: inline-flex;
   align-items: center;
