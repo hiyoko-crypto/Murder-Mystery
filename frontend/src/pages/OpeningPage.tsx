@@ -11,10 +11,9 @@ import './OpeningPage.css'
 
 export default function OpeningPage() {
   const navigate = useNavigate()
-  const { lang } = useLanguage()
+  const { lang, tt } = useLanguage()
   const { unlockedLocations } = useGame()
   const { scenario, loading: scenarioLoading, locations, locationBg } = useScenario()
-  const tt = (ja: string, en: string) => (lang === 'ja' ? ja : en)
 
   // Each fetch is tagged with the (scenario, lang, attempt) it was made for,
   // so "loading" is derived instead of set synchronously inside the effect.
@@ -68,7 +67,6 @@ export default function OpeningPage() {
             <div className="opening__file">
               <CaseFileCard
                 briefing={briefing}
-                lang={lang}
                 photoUrl={firstLocationId ? locationBg(firstLocationId) : undefined}
                 photoCaption={firstLocation?.name}
               />

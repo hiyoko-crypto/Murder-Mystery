@@ -5,6 +5,7 @@ import { useLanguage } from '../../contexts/LanguageContext'
 import { useCaseNotes } from '../../contexts/CaseNotesContext'
 import { useGame } from '../../contexts/GameContext'
 import { useScenario } from '../../contexts/ScenarioContext'
+import { SectionTitle } from '../ui/Noir'
 import { renderMiniMarkdown } from '../../utils/miniMarkdown'
 import RelationshipBoard from './RelationshipBoard'
 import TimelineBoard from './TimelineBoard'
@@ -111,16 +112,18 @@ export default function CaseNotebookModal({ onClose }: { onClose: () => void }) 
   // triggered from inside headers that use backdrop-filter, and
   // backdrop-filter creates a new containing block for position:fixed
   // descendants — without the portal, the overlay would center itself inside
-  // that small header instead of the viewport. The portal sits outside any
-  // `.noir` page, so it carries the theme tokens itself (nr-tokens).
+  // that small header instead of the viewport.
   return createPortal(
-    <div className="nr-tokens nb-overlay" onClick={onClose}>
+    <div className="nr-scrim nb-overlay" onClick={onClose}>
       <div className="nb-panel" onClick={(e) => e.stopPropagation()}>
         <div className="nb-header">
-          <NotebookPen size={22} className="nb-header__icon" />
-          <span className="nr-section-title__ja">{ja ? '捜査ノート' : 'Case Notebook'}</span>
-          {ja && <span className="nr-section-title__en">Case Notebook</span>}
-          <button className="nr-close nb-header__close" onClick={onClose} aria-label={ja ? '閉じる' : 'Close'}>
+          <SectionTitle
+            icon={<NotebookPen size={22} />}
+            ja={ja ? '捜査ノート' : 'Case Notebook'}
+            en={ja ? 'Case Notebook' : undefined}
+            divider={false}
+          />
+          <button className="nr-close" onClick={onClose} aria-label={ja ? '閉じる' : 'Close'}>
             <X size={18} />
           </button>
         </div>

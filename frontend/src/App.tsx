@@ -1,10 +1,13 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import TitlePage from './pages/TitlePage'
 import ScenarioSelectPage from './pages/ScenarioSelectPage'
 import OpeningPage from './pages/OpeningPage'
 import LocationPage from './pages/LocationPage'
 import InterrogationPage from './pages/InterrogationPage'
-import StyleGuidePage from './pages/StyleGuidePage'
+
+// Dev-only preview page; the import is dropped from production builds.
+const StyleGuidePage = import.meta.env.DEV ? lazy(() => import('./pages/StyleGuidePage')) : null
 
 export default function App() {
   return (
@@ -15,7 +18,7 @@ export default function App() {
         <Route path="/opening" element={<OpeningPage />} />
         <Route path="/location/:id" element={<LocationPage />} />
         <Route path="/interrogate/:id" element={<InterrogationPage />} />
-        {import.meta.env.DEV && <Route path="/style-guide" element={<StyleGuidePage />} />}
+        {StyleGuidePage && <Route path="/style-guide" element={<Suspense><StyleGuidePage /></Suspense>} />}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>

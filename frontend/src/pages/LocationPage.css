@@ -204,7 +204,7 @@
   align-items: center;
   justify-content: center;
   font-size: 6rem;
-  background: radial-gradient(circle at 50% 40%, #4a3524 0%, #130e09 75%);
+  background: var(--nr-item-bg);
   border: 10px solid #efe7d4;
   border-bottom-width: 30px;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
@@ -255,11 +255,6 @@
   right: 14px;
 }
 
-.loc-item__close {
-  color: var(--nr-ink);
-  border-color: rgba(42, 31, 20, 0.45);
-}
-
 .loc-item__unlock {
   display: flex;
   align-items: center;
@@ -284,10 +279,6 @@
   max-width: 900px;
 }
 
-.loc-casefile__close {
-  color: var(--nr-ink);
-  border-color: rgba(42, 31, 20, 0.45);
-}
 
 @media (max-width: 900px) {
   .loc__body {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Users } from 'lucide-react'
 import { fetchScenarioList, selectScenario, type ScenarioListEntry } from '../api/scenario'
@@ -6,7 +6,7 @@ import { bakedBriefing } from '../api/examine'
 import { useScenario } from '../contexts/ScenarioContext'
 import { useGame } from '../contexts/GameContext'
 import { useLanguage } from '../contexts/LanguageContext'
-import { matchBackground } from '../utils/backgroundMatch'
+import { matchBackground, thumbnailUrl } from '../utils/backgroundMatch'
 import { AppHeader, GoldButton } from '../components/ui/Noir'
 import './ScenarioSelectPage.css'
 
@@ -21,8 +21,7 @@ export default function ScenarioSelectPage() {
   const navigate = useNavigate()
   const { refetchScenario } = useScenario()
   const { refetchState } = useGame()
-  const { lang } = useLanguage()
-  const tt = (ja: string, en: string) => (lang === 'ja' ? ja : en)
+  const { lang, tt } = useLanguage()
 
   const [scenarios, setScenarios] = useState<ScenarioListEntry[]>([])
   const [loading, setLoading] = useState(true)
@@ -35,6 +34,14 @@ export default function ScenarioSelectPage() {
       .catch(() => setError(true))
       .finally(() => setLoading(false))
   }, [])
+
+  // Card text and thumbnail only depend on the list and language, not on
+  // which card is currently being selected.
+  const cards = useMemo(() => scenarios.map((s) => {
+    const info = bakedBriefing(s.id, lang)
+    const thumb = thumbnailUrl(matchBackground(info?.scene ?? s.id, info?.setting ?? '').url)
+    return { ...s, info, thumb }
+  }), [scenarios, lang])
 
   const handleSelect = async (id: string) => {
     if (selecting) return
@@ -70,9 +77,7 @@ export default function ScenarioSelectPage() {
 
           {!loading && !error && (
             <div className="scn__grid">
-              {scenarios.map((s) => {
-                const info = bakedBriefing(s.id, lang)
-                const thumb = matchBackground(info?.scene ?? s.id, info?.setting ?? '').url
+              {cards.map(({ info, thumb, ...s }) => {
                 return (
                   <button
                     key={s.id}

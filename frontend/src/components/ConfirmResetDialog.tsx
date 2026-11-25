@@ -1,4 +1,5 @@
 import { useLanguage } from '../contexts/LanguageContext'
+import { GoldButton, Panel } from './ui/Noir'
 
 interface Props {
   open: boolean
@@ -8,26 +9,26 @@ interface Props {
 }
 
 export default function ConfirmResetDialog({ open, resetting, onCancel, onConfirm }: Props) {
-  const { lang } = useLanguage()
+  const { tt } = useLanguage()
   if (!open) return null
   return (
-    <div className="confirm-overlay" onClick={onCancel}>
-      <div className="confirm-dialog" onClick={e => e.stopPropagation()}>
-        <p>
-          {lang === 'ja'
-            ? '進行状況は保存されません。\nよろしいですか？'
-            : 'Your progress will not be saved.\nAre you sure?'}
-        </p>
-        <div className="confirm-actions">
-          <button className="confirm-cancel-btn" onClick={onCancel}>
-            {lang === 'ja' ? 'キャンセル' : 'Cancel'}
-          </button>
-          <button className="confirm-ok-btn" onClick={onConfirm} disabled={resetting}>
-            {resetting
-              ? (lang === 'ja' ? 'リセット中...' : 'Resetting...')
-              : (lang === 'ja' ? 'メニューへ戻る' : 'Return to Menu')}
-          </button>
-        </div>
+    <div className="nr-scrim nr-dialog-scrim" onClick={onCancel}>
+      <div onClick={e => e.stopPropagation()}>
+        <Panel className="nr-dialog">
+          <p className="nr-dialog__text">
+            {tt('進行状況は保存されません。\nよろしいですか？', 'Your progress will not be saved.\nAre you sure?')}
+          </p>
+          <div className="nr-dialog__actions">
+            <GoldButton size="sm" label={tt('キャンセル', 'Cancel')} onClick={onCancel} />
+            <GoldButton
+              size="sm"
+              variant="primary"
+              label={resetting ? tt('リセット中…', 'Resetting…') : tt('メニューへ戻る', 'Return to Menu')}
+              onClick={onConfirm}
+              disabled={resetting}
+            />
+          </div>
+        </Panel>
       </div>
     </div>
   )

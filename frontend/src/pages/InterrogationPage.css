@@ -314,7 +314,7 @@
   align-items: center;
   justify-content: center;
   font-size: 1.8rem;
-  background: radial-gradient(circle at 50% 40%, #3a2a1c 0%, #120d09 80%);
+  background: var(--nr-item-bg);
 }
 
 .iv__evidence-name {

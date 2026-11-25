@@ -40,56 +40,14 @@
 }
 
 .sg-casefile {
-  display: flex;
-  gap: 28px;
+  position: relative;
   transform: rotate(-0.6deg);
 }
 
-.sg-casefile__photo {
-  flex-shrink: 0;
-  padding-top: 8px;
-}
-
-.sg-casefile__body {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.sg-casefile__label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  color: var(--nr-ink-soft);
-}
-
-.sg-casefile__label em {
-  font-family: var(--nr-font-en);
-  font-style: var(--nr-en-style);
-  text-transform: var(--nr-en-case);
-  letter-spacing: var(--nr-en-tracking);
-  font-size: calc(1em * var(--nr-en-scale));
-  font-weight: 500;
-}
-
-.sg-casefile h2 {
-  font-weight: 800;
-  font-size: 1.5rem;
-}
-
-.sg-casefile dl {
-  display: grid;
-  grid-template-columns: 7em 1fr;
-  row-gap: 4px;
-}
-
-.sg-casefile dt {
-  color: var(--nr-ink-soft);
-}
-
 .sg-casefile .nr-stamp {
-  align-self: flex-end;
+  position: absolute;
+  top: 26px;
+  right: 28px;
 }
 
 .sg-clues {

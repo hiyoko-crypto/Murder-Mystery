@@ -16,10 +16,9 @@ export default function InterrogationPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { foundItems, refetchState, getConversation, setConversation } = useGame()
-  const { lang, t } = useLanguage()
+  const { lang, t, tt } = useLanguage()
   const { suspects: getSuspects, items: getItems, locations: getLocations, locationBg } = useScenario()
   const { appendHistory } = useCaseNotes()
-  const tt = (ja: string, en: string) => (lang === 'ja' ? ja : en)
 
   const suspects     = getSuspects(lang)
   const items        = getItems(lang)
@@ -333,7 +332,7 @@ export default function InterrogationPage() {
           right={
             <>
               <GoldButton size="sm" label={tt('戻る', 'Back')} icon={<ArrowLeft size={16} />} onClick={() => navigate(-1)} />
-              <NotebookLauncher variant="noir" className="nr-btn--sm" />
+              <NotebookLauncher className="nr-btn--sm" />
             </>
           }
         />
@@ -348,7 +347,7 @@ export default function InterrogationPage() {
               </div>
             )}
 
-            {/* Portrait slot: swap the emoji for a 2D portrait once the art exists. */}
+            {/* Portrait slot: silhouette until the 2D portraits exist. */}
             <div className="iv__portrait" aria-hidden="true">
               <PortraitSilhouette height={420} />
             </div>

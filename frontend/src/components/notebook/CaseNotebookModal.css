@@ -2,16 +2,9 @@
    The tab contents (history, relationships, timeline, memo) keep their own
    cream "paper" styling, which sits naturally on the page. */
 
+/* .nr-scrim provides the backdrop; the notebook only needs to sit above dialogs */
 .nb-overlay {
-  position: fixed;
-  inset: 0;
   z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  background: rgba(8, 6, 4, 0.75);
-  backdrop-filter: blur(3px);
 }
 
 .nb-panel {
@@ -22,28 +15,16 @@
   flex-direction: column;
   background: var(--nr-panel-solid);
   border: 1px solid var(--nr-gold-line);
-  box-shadow:
-    inset 0 0 0 3px var(--nr-panel-solid),
-    inset 0 0 0 4px var(--nr-gold-faint),
-    0 18px 48px rgba(0, 0, 0, 0.7);
+  box-shadow: var(--nr-frame), 0 18px 48px rgba(0, 0, 0, 0.7);
   padding: 18px 22px 22px;
 }
 
 .nb-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
   padding-bottom: 12px;
-}
-
-.nb-header__icon {
-  align-self: center;
-  color: var(--nr-gold);
-}
-
-.nb-header__close {
-  margin-left: auto;
-  align-self: center;
 }
 
 .nb-tabs {
@@ -144,7 +125,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 50% 40%, #4a3524 0%, #130e09 80%);
+  background: var(--nr-item-bg);
   font-size: 1.3rem;
 }
 
@@ -166,7 +147,7 @@
   align-items: center;
   justify-content: center;
   font-size: 5rem;
-  background: radial-gradient(circle at 50% 40%, #4a3524 0%, #130e09 80%);
+  background: var(--nr-item-bg);
   border: 8px solid #f1e8d4;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
 }

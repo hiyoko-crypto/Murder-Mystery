@@ -7,6 +7,7 @@ import { useScenario } from '../contexts/ScenarioContext'
 import { useCaseNotes } from '../contexts/CaseNotesContext'
 import { examineLocation, examineItem, fetchBriefing, type BriefingResult } from '../api/examine'
 import { suspectAvatarEmoji } from '../utils/avatar'
+import { thumbnailUrl } from '../utils/backgroundMatch'
 import ConfirmResetDialog from '../components/ConfirmResetDialog'
 import NotebookLauncher from '../components/notebook/NotebookLauncher'
 import BgCredit from '../components/BgCredit'
@@ -34,10 +35,9 @@ export default function LocationPage() {
 function LocationView({ id }: { id: string }) {
   const navigate = useNavigate()
   const { foundItems, unlockedLocations, locationItemCatalog, refetchState, resetGame } = useGame()
-  const { lang, t } = useLanguage()
+  const { lang, t, tt } = useLanguage()
   const { scenario, locations: getLocations, items: getItems, suspects: getSuspects, locationBg } = useScenario()
   const { appendHistory } = useCaseNotes()
-  const tt = (ja: string, en: string) => (lang === 'ja' ? ja : en)
 
   const locations   = getLocations(lang)
   const items       = getItems(lang)
@@ -45,8 +45,9 @@ function LocationView({ id }: { id: string }) {
 
   const [panel, setPanel] = useState<SidePanel>('clues')
   const [examining, setExamining] = useState(false)
-  const [discoveries, setDiscoveries] = useState<Discovery[]>([])
-  const [examined, setExamined] = useState(false)
+  // null until the location has been examined
+  const [discoveries, setDiscoveries] = useState<Discovery[] | null>(null)
+  const examined = discoveries !== null
 
   // Item detail overlay
   const [selectedItem, setSelectedItem] = useState<Discovery | null>(null)
@@ -85,7 +86,6 @@ function LocationView({ id }: { id: string }) {
         emoji: items.find(i => i.id === backendItem.id)?.emoji ?? '📦',
         name: backendItem.name,
       })))
-      setExamined(true)
       if (result.newly_found.length > 0) {
         appendHistory({
           type: 'examine_location',
@@ -183,9 +183,9 @@ function LocationView({ id }: { id: string }) {
                     {examining ? tt('現場を調べている…', 'Searching the scene…') : tt('まだ調べていない。「調べる」で現場を探そう。', 'Not examined yet. Use "Examine" to search the scene.')}
                   </p>
                 )}
-                {examined && discoveries.length === 0 && <p className="loc__side-empty">{t('loc.examine.done0')}</p>}
+                {discoveries?.length === 0 && <p className="loc__side-empty">{t('loc.examine.done0')}</p>}
                 <ul className="loc__list">
-                  {discoveries.map((d) => (
+                  {discoveries?.map((d) => (
                     <li key={d.itemId}>
                       <button className="loc__row" onClick={() => handleItemClick(d)}>
                         <span className="loc__thumb">{d.emoji}</span>
@@ -227,7 +227,7 @@ function LocationView({ id }: { id: string }) {
                           onClick={() => navigate(`/location/${loc.id}`)}
                           disabled={isCurrent}
                         >
-                          <span className="loc__dest-thumb" style={{ backgroundImage: `url(${locationBg(loc.id)})` }} />
+                          <span className="loc__dest-thumb" style={{ backgroundImage: `url(${thumbnailUrl(locationBg(loc.id))})` }} />
                           <span className="loc__row-name">{loc.name}</span>
                           {isCurrent && <span className="loc__here">{tt('現在地', 'Here')}</span>}
                         </button>
@@ -252,7 +252,7 @@ function LocationView({ id }: { id: string }) {
           <GoldButton label={tt('移動', 'Move')} sub={tt('別の場所へ', 'Go elsewhere')} icon={<DoorOpen size={24} />} onClick={() => setPanel('move')} />
           <span className="loc__actions-sep" />
           <GoldButton label={tt('事件概要', 'Case File')} icon={<BookOpen size={20} />} onClick={handleOpenCaseFile} />
-          <NotebookLauncher variant="noir" />
+          <NotebookLauncher />
         </Panel>
 
         {/* ── Item detail ── */}
@@ -273,7 +273,7 @@ function LocationView({ id }: { id: string }) {
                     <Stamp>{tt('証拠に追加済み', 'Added to Evidence')}</Stamp>
                   </div>
                 </div>
-                <button className="nr-close loc-item__close" onClick={() => setSelectedItem(null)} aria-label={tt('閉じる', 'Close')}>
+                <button className="nr-close nr-close--paper loc-item__close" onClick={() => setSelectedItem(null)} aria-label={tt('閉じる', 'Close')}>
                   <X size={18} />
                 </button>
               </PaperCard>
@@ -295,8 +295,8 @@ function LocationView({ id }: { id: string }) {
             <div className="loc-casefile" onClick={e => e.stopPropagation()}>
               {briefingLoading && <p className="loc__side-empty">{tt('読み込み中…', 'Loading…')}</p>}
               {!briefingLoading && !briefing && <p className="loc__side-empty">{tt('事件概要を読み込めませんでした。', 'Could not load the case file.')}</p>}
-              {briefing && <CaseFileCard briefing={briefing} lang={lang} />}
-              <button className="nr-close loc-casefile__close" onClick={() => setShowCaseFile(false)} aria-label={tt('閉じる', 'Close')}>
+              {briefing && <CaseFileCard briefing={briefing} />}
+              <button className="nr-close nr-close--paper loc-casefile__close" onClick={() => setShowCaseFile(false)} aria-label={tt('閉じる', 'Close')}>
                 <X size={18} />
               </button>
             </div>
@@ -317,12 +317,13 @@ function LocationView({ id }: { id: string }) {
 }
 
 function SidePanelFrame({ title, sub, onClose, children }: { title: string; sub?: string; onClose?: () => void; children: ReactNode }) {
+  const { tt } = useLanguage()
   return (
     <div className="loc__side-inner">
       <div className="loc__side-head">
         <SectionTitle ja={title} en={sub} />
         {onClose && (
-          <button className="nr-close" onClick={onClose} aria-label="close">
+          <button className="nr-close" onClick={onClose} aria-label={tt('閉じる', 'Close')}>
             <X size={16} />
           </button>
         )}

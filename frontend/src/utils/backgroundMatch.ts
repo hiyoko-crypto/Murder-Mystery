@@ -170,6 +170,11 @@ function containsKeyword(text: string, keyword: string): boolean {
   return text.includes(keyword)
 }
 
+/** Smaller variant of a library photo, for thumbnails (library URLs are w=1200). */
+export function thumbnailUrl(url: string): string {
+  return url.replace('w=1200', 'w=400')
+}
+
 export function matchBackground(name: string, description: string): BgMatch {
   const nameText = name.toLowerCase()
   const descText = description.toLowerCase()

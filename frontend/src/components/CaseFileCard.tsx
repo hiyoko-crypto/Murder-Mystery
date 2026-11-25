@@ -1,17 +1,17 @@
 import { FolderOpen } from 'lucide-react'
 import type { BriefingResult } from '../api/examine'
-import type { Lang } from '../i18n'
+import { useLanguage } from '../contexts/LanguageContext'
 import { PaperCard, Polaroid } from './ui/Noir'
 import './CaseFileCard.css'
 
 /** Aged-paper dossier showing the case briefing. Used by the opening screen
  *  and the in-game "Case File" overlay. */
-export default function CaseFileCard({ briefing, lang, photoUrl, photoCaption }: {
+export default function CaseFileCard({ briefing, photoUrl, photoCaption }: {
   briefing: BriefingResult
-  lang: Lang
   photoUrl?: string
   photoCaption?: string
 }) {
+  const { lang } = useLanguage()
   const ja = lang === 'ja'
   const facts: [string, string][] = [
     [ja ? '被害者' : 'Victim', briefing.victim],

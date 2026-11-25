@@ -1,12 +1,9 @@
 /*
  * Noir theme: dark umber background, thin gold frames, gothic type, aged paper.
- * Everything is scoped under `.noir` so pages that have not been redesigned yet
- * keep their old light theme. `.nr-tokens` carries only the variables and type,
- * for content portaled outside a `.noir` page (e.g. the notebook modal).
+ * Tokens live on :root so portaled content (e.g. the notebook modal) gets them too.
  */
 
-.noir,
-.nr-tokens {
+:root {
   /* Background */
   --nr-bg: #0e0b08;
   --nr-bg-raised: #1a140e;
@@ -16,7 +13,6 @@
   /* Gold */
   --nr-gold: #b08d57;
   --nr-gold-bright: #e6c67e;
-  --nr-gold-deep: #8a6a3a;
   --nr-gold-line: rgba(176, 141, 87, 0.55);
   --nr-gold-faint: rgba(176, 141, 87, 0.22);
   --nr-gold-glow: rgba(230, 198, 126, 0.35);
@@ -28,13 +24,17 @@
 
   /* Paper */
   --nr-paper: #d8c29a;
-  --nr-paper-dark: #b89b6a;
   --nr-ink: #2a1f14;
   --nr-ink-soft: #5a4630;
 
   /* Accents */
   --nr-stamp: #3d6b4a;
-  --nr-danger: #a8342f;
+
+  /* Shared surfaces */
+  /* Double gold rule inside a dark frame (panels, cards, dialogs) */
+  --nr-frame: inset 0 0 0 3px rgba(14, 11, 8, 0.9), inset 0 0 0 4px var(--nr-gold-faint);
+  /* Dark backdrop behind an item emoji / photo */
+  --nr-item-bg: radial-gradient(circle at 50% 40%, #4a3524 0%, #130e09 80%);
 
   /* Type */
   /* One gothic family for everything except the newspaper. */
@@ -121,10 +121,7 @@
   background: var(--nr-panel);
   backdrop-filter: blur(6px);
   border: 1px solid var(--nr-gold-line);
-  box-shadow:
-    inset 0 0 0 3px rgba(14, 11, 8, 0.9),
-    inset 0 0 0 4px var(--nr-gold-faint),
-    0 12px 32px rgba(0, 0, 0, 0.55);
+  box-shadow: var(--nr-frame), 0 12px 32px rgba(0, 0, 0, 0.55);
   padding: 20px 22px;
 }
 
@@ -394,6 +391,12 @@
   box-shadow: 0 0 12px var(--nr-gold-glow);
 }
 
+/* On a paper card */
+.nr-close--paper {
+  color: var(--nr-ink);
+  border-color: rgba(42, 31, 20, 0.45);
+}
+
 /* ── Scrim for full-screen overlays ─────────────────────────────────────── */
 
 .nr-scrim {
@@ -408,41 +411,28 @@
   backdrop-filter: blur(3px);
 }
 
-/* ── Shared dialogs restyled when shown inside a noir page ─────────────── */
+/* ── Small confirm dialog ───────────────────────────────────────────────── */
 
-.noir .confirm-overlay {
-  background: rgba(8, 6, 4, 0.72);
+.nr-dialog-scrim {
+  z-index: 1000;
 }
 
-.noir .confirm-dialog {
+.nr-dialog {
+  max-width: 380px;
+  padding: 28px 28px 22px;
   background: var(--nr-panel-solid);
-  border: 1px solid var(--nr-gold-line);
-  border-radius: 0;
-  box-shadow: inset 0 0 0 3px var(--nr-panel-solid), inset 0 0 0 4px var(--nr-gold-faint), 0 16px 40px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
 }
 
-.noir .confirm-dialog p {
-  color: var(--nr-text);
+.nr-dialog__text {
+  text-align: center;
   white-space: pre-line;
 }
 
-.noir .confirm-cancel-btn,
-.noir .confirm-ok-btn {
-  border-radius: 0;
-  font-family: var(--nr-font-ja);
-  background: transparent;
-  border: 1px solid var(--nr-gold-line);
-  color: var(--nr-text-dim);
-}
-
-.noir .confirm-ok-btn {
-  border-color: var(--nr-gold);
-  color: var(--nr-gold-bright);
-}
-
-.noir .confirm-ok-btn:hover,
-.noir .confirm-cancel-btn:hover {
-  background: transparent;
-  color: #fff3d0;
-  box-shadow: 0 0 12px var(--nr-gold-glow);
+.nr-dialog__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
 }
