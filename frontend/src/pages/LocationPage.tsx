@@ -7,6 +7,7 @@ import { useScenario } from '../contexts/ScenarioContext'
 import { useCaseNotes } from '../contexts/CaseNotesContext'
 import { examineLocation, examineItem, fetchBriefing, type BriefingResult } from '../api/examine'
 import { suspectAvatarEmoji } from '../utils/avatar'
+import { suspectIconUrl } from '../utils/portraits'
 import { thumbnailUrl } from '../utils/backgroundMatch'
 import ConfirmResetDialog from '../components/ConfirmResetDialog'
 import NotebookLauncher from '../components/notebook/NotebookLauncher'
@@ -205,7 +206,11 @@ function LocationView({ id }: { id: string }) {
                   {suspectsHere.map((s) => (
                     <li key={s.id}>
                       <button className="loc__row" onClick={() => navigate(`/interrogate/${s.id}`)}>
-                        <span className="loc__thumb loc__thumb--round">{suspectAvatarEmoji(s.bio, s.id)}</span>
+                        <span className="loc__thumb loc__thumb--round">
+                          {suspectIconUrl(s.id)
+                            ? <img src={suspectIconUrl(s.id)} alt="" />
+                            : suspectAvatarEmoji(s.bio, s.id)}
+                        </span>
                         <span className="loc__row-name">{s.name}</span>
                         <ChevronRight size={18} className="loc__row-chevron" />
                       </button>

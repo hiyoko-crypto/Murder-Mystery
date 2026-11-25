@@ -51,7 +51,7 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -70,13 +70,29 @@
 }
 
 /* Portrait slot. Holds an emoji for now; a 2D portrait <img> will replace it. */
+/* The portrait fills the stage and runs down behind the name plate and
+   dialogue box, so the figure is cut at the waist by the box (visual-novel
+   style) instead of floating above it. */
 .iv__portrait {
-  flex: 1;
-  min-height: 0;
+  position: absolute;
+  top: 8%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 75%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 75%, transparent 100%);
+}
+
+.iv__nameplate,
+.iv__dialogue,
+.iv__unlock {
+  position: relative;
+  z-index: 1;
 }
 
 .iv__portrait > * {
@@ -86,8 +102,31 @@
   transition: filter 0.4s;
 }
 
-.iv.is-accusing .iv__portrait > * {
+/* Silhouette stand-in turns into a dark shape when accused */
+.iv.is-accusing .iv__portrait > svg {
   filter: brightness(0.25) drop-shadow(0 0 24px rgba(230, 198, 126, 0.35));
+}
+
+/* 2D portraits: the three expressions are stacked and cross-faded */
+.iv__portrait > .iv__portrait-img {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: bottom;
+  transform: translateX(-50%);
+  transition: opacity 0.35s, filter 0.4s;
+}
+
+.iv__portrait > .iv__portrait-img.is-hidden {
+  opacity: 0;
+}
+
+/* Under the spotlight while accused */
+.iv.is-accusing .iv__portrait > .iv__portrait-img {
+  filter: contrast(1.1) brightness(0.92) drop-shadow(0 0 28px rgba(230, 198, 126, 0.3));
 }
 
 .iv__nameplate {
@@ -258,6 +297,13 @@
   border: 1px solid var(--nr-gold-line);
   color: var(--nr-gold-bright);
   font-weight: 700;
+  overflow: hidden;
+}
+
+.iv__log-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .iv__log-role {
@@ -484,6 +530,25 @@
   font-size: 2.2rem;
   transform: scaleY(1.15);
   margin: 6px 0 10px;
+}
+
+/* Newspaper photo of the culprit (grayscale, like newsprint) */
+.iv-ending__photo {
+  float: right;
+  width: 38%;
+  margin: 14px 0 8px 18px;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: #cbb892;
+  border: 1px solid rgba(42, 31, 20, 0.5);
+}
+
+.iv-ending__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  filter: grayscale(1) sepia(0.35) contrast(1.15);
 }
 
 .iv-ending__truth {

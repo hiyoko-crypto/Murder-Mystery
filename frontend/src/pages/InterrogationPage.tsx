@@ -9,6 +9,7 @@ import { callIndict } from '../api/examine'
 import { ArrowLeft, ChevronDown, ChevronUp, Gavel, Lock, Plus, Search, Send, X } from 'lucide-react'
 import NotebookLauncher from '../components/notebook/NotebookLauncher'
 import { AppHeader, DetectiveMark, GoldButton, OrnamentDivider, Panel, PaperCard, PortraitSilhouette } from '../components/ui/Noir'
+import { EXPRESSIONS, portraitUrl, suspectIconUrl, type Expression } from '../utils/portraits'
 import type { Message } from '../types'
 import './InterrogationPage.css'
 
@@ -45,6 +46,8 @@ export default function InterrogationPage() {
   const [lastPlayerText, setLastPlayerText] = useState('')
   const [unlockNotice, setUnlockNotice] = useState<{ id: string; name: string } | null>(null)
   const [interrogating, setInterrogating] = useState(false)
+  // True from the moment the verdict check succeeds (drives the resigned face)
+  const [confessing, setConfessing] = useState(false)
   const [showIndictFlash, setShowIndictFlash] = useState(false)
   const [indictResult, setIndictResult] = useState<{ message: string } | null>(null)
 
@@ -122,6 +125,13 @@ export default function InterrogationPage() {
   const bgLocationId = suspectLocation?.id ?? id ?? ''
   const bgUrl = locationBg(bgLocationId)
 
+  // Face shown in the portrait slot: calm while questioned, shaken while
+  // accused, resigned once the confession starts.
+  const expression: Expression = confessing ? 'resigned' : interrogating ? 'nervous' : 'neutral'
+  const hasPortrait = portraitUrl(suspect.id, 'neutral') !== undefined
+  const suspectIcon = suspectIconUrl(suspect.id)
+  const resignedPortrait = portraitUrl(suspect.id, 'resigned')
+
   if (indictResult) {
     return (
       <div className="noir">
@@ -141,6 +151,11 @@ export default function InterrogationPage() {
               <div className="iv-ending__masthead">The Daily Chronicle</div>
               <div className="iv-ending__news">MURDER CASE SOLVED</div>
               <OrnamentDivider />
+              {resignedPortrait && (
+                <div className="iv-ending__photo">
+                  <img src={resignedPortrait} alt={suspect.name} />
+                </div>
+              )}
               <p className="iv-ending__truth">{indictResult.message}</p>
             </PaperCard>
           </div>
@@ -222,6 +237,7 @@ export default function InterrogationPage() {
           '……もう、ごまかせないみたいですね。……私が、やりました。',
           "……There's no point pretending anymore. …I did it.",
         )
+        setConfessing(true)
         deliverReply(confessionLine, () => {
           setTimeout(() => setIndictResult({ message: win.message }), 1200)
         })
@@ -349,7 +365,19 @@ export default function InterrogationPage() {
 
             {/* Portrait slot: silhouette until the 2D portraits exist. */}
             <div className="iv__portrait" aria-hidden="true">
-              <PortraitSilhouette height={420} />
+              {hasPortrait ? (
+                // All expressions stay mounted so switching is an instant cross-fade
+                EXPRESSIONS.map(expr => (
+                  <img
+                    key={expr}
+                    src={portraitUrl(suspect.id, expr)}
+                    alt=""
+                    className={`iv__portrait-img${expr === expression ? '' : ' is-hidden'}`}
+                  />
+                ))
+              ) : (
+                <PortraitSilhouette height={420} />
+              )}
             </div>
 
             <div className="iv__nameplate">{suspect.name}</div>
@@ -404,7 +432,9 @@ export default function InterrogationPage() {
                   ) : (
                     <div key={i} className={`iv__log-entry is-${msg.role}`}>
                       <span className="iv__log-avatar">
-                        {msg.role === 'player' ? <DetectiveMark size={18} /> : suspect.name.charAt(0)}
+                        {msg.role === 'player'
+                          ? <DetectiveMark size={18} />
+                          : suspectIcon ? <img src={suspectIcon} alt="" /> : suspect.name.charAt(0)}
                       </span>
                       <div>
                         <span className="iv__log-role">{msg.role === 'player' ? t('interro.detective') : suspect.name}</span>
