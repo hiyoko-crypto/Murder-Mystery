@@ -1,0 +1,2728 @@
+{
+  "scenario_id": "the_final_act",
+  "title": "The Final Act",
+  "setting": "The Meridian Theatre, downtown. Opening night of 'Shadows of Guilt'. The murder occurs during intermission at approximately 9:05 PM. The theatre holds 400 guests; cast and crew number around 30.",
+  "murder_details": {
+    "time_of_murder": "approximately 9:05 PM",
+    "time_discovered": "9:20 PM",
+    "public_summary": "Marcus Vance was found dead in his private dressing room during intermission at approximately 9:05 PM. He had been struck with a brass candlestick. The room was locked from the inside.",
+    "summary": "Marcus Vance was found dead in his private dressing room during intermission at approximately 9:05 PM. He had been struck with a brass candlestick. The room was locked from the inside.",
+    "setting": "Marcus's private dressing room, backstage at the Meridian Theatre.",
+    "weapon": "Brass candlestick (found on the floor, bloodied)",
+    "action": "Elena Rostova crawled through the ventilation shaft into Marcus's locked dressing room during the intermission blackout and struck him with the brass candlestick on his desk.",
+    "locked_room_note": "Marcus locked his dressing room at the start of intermission, as was his habit. The vent shaft was the only possible entry point — making the unscrewed grate and the compact mirror inside the shaft decisive evidence."
+  },
+  "knowledge_graph": {
+    "nodes": [
+      {
+        "id": "n_marcus",
+        "labels": [
+          "Character",
+          "Victim"
+        ],
+        "properties": {
+          "name": "Marcus Vance",
+          "role": "victim",
+          "bio": "Marcus Vance, 54, is a celebrated but ruthless theatre director known for his exacting standards and complete disregard for the people around him. He built his career by exploiting those who depended on him — holding debts, secrets, and contracts over their heads. On the night of his death he was found slumped on the floor of his dressing room, struck by a brass candlestick. The door was locked from the inside."
+        }
+      },
+      {
+        "id": "n_elena",
+        "labels": [
+          "Character",
+          "Suspect"
+        ],
+        "properties": {
+          "name": "Elena Rostova",
+          "role": "suspect",
+          "guilty": true,
+          "bio": "Elena Rostova, 34, is the lead actress of 'Shadows of Guilt'. Born in St. Petersburg, she rose quickly to prominence — but her gambling debts followed her. Two years ago, Marcus quietly purchased her debt contracts, transforming himself into her controller. Composed and precise on stage, she is brittle and calculating off it.",
+          "tags": [
+            "composed",
+            "calculating",
+            "deflects with charm",
+            "precise under pressure",
+            "hides panic behind poise"
+          ],
+          "victim_connection": "Marcus held Elena's debt contracts and controlled every aspect of her professional and personal life for two years.",
+          "motive": "Freedom. With Marcus dead, the debt contracts die with him.",
+          "interrogation_style": "Calm and composed. Deflects with charm. If asked about the ventilation shaft, the candlestick, or the compact mirror, become visibly anxious and redirect immediately. Never acknowledge entering the shaft or striking Marcus."
+        }
+      },
+      {
+        "id": "n_julian",
+        "labels": [
+          "Character",
+          "Suspect"
+        ],
+        "properties": {
+          "name": "Dr. Julian Wilde",
+          "role": "suspect",
+          "guilty": false,
+          "bio": "Dr. Julian Wilde, 52, presents himself as a respected physician and patron of the arts. In reality, his medical credentials were purchased from an unaccredited institution fifteen years ago. He has poured significant funds into the Meridian Theatre. Three months ago, Marcus stumbled upon evidence of the fraudulent qualifications and began extracting money.",
+          "tags": [
+            "authoritative",
+            "sweats under direct questioning",
+            "name-drops frequently",
+            "defensive about credentials"
+          ],
+          "victim_connection": "Marcus discovered Julian's fabricated medical credentials and was blackmailing him for cash payments in exchange for silence.",
+          "motive": "Marcus had escalating financial demands. Julian was running out of patience and money.",
+          "interrogation_style": "Authoritative and slightly condescending. Volunteers his whereabouts quickly. Becomes evasive only when questioned about the torn letter or his credentials."
+        }
+      },
+      {
+        "id": "n_leo",
+        "labels": [
+          "Character",
+          "Suspect"
+        ],
+        "properties": {
+          "name": "Leo Cross",
+          "role": "suspect",
+          "guilty": false,
+          "bio": "Leo Cross, 43, has worked as a stagehand in theatre for over twenty years. He joined the Meridian crew eight months ago. That morning, Marcus berated him in front of the full crew over a minor prop placement error and fired him on the spot. Despite having his pass revoked, Leo showed up that evening to see the opening night of the show he had helped build.",
+          "tags": [
+            "blunt",
+            "emotional",
+            "loyal to crew",
+            "no filter",
+            "obviously angry but honest"
+          ],
+          "victim_connection": "Marcus fired Leo without warning that morning after a trivial dispute, ending eight months of work.",
+          "motive": "Anger and humiliation over wrongful termination.",
+          "interrogation_style": "Blunt and defensive. Admits anger openly but insists on his account without hesitation. Gets frustrated if pressed. Not smooth enough to be a convincing liar — which is why he isn't one."
+        }
+      },
+      {
+        "id": "n_candlestick",
+        "labels": [
+          "Item",
+          "MurderWeapon"
+        ],
+        "properties": {
+          "name": "Brass Candlestick",
+          "description": "A heavy brass candlestick from Marcus's dressing room desk, found on the floor beside the body. One end is bloodied.",
+          "significance": "The murder weapon. Someone struck Marcus with considerable force. The bloodied end was found facing the desk."
+        }
+      },
+      {
+        "id": "n_torn_letter",
+        "labels": [
+          "Item",
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Torn Letter",
+          "description": "Several torn pieces of paper found in Marcus's bin, reassembled. An angry warning signed with the initials J.W., threatening to expose the blackmail. References a fraudulent medical licence.",
+          "significance": "Written by Julian Wilde. The initials and content point directly to him — but whether he had opportunity is still unclear."
+        }
+      },
+      {
+        "id": "n_silver_compact",
+        "labels": [
+          "Item",
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Silver Compact Mirror",
+          "description": "A small silver makeup compact, engraved with the initials E.R. Found inside the ventilation shaft, roughly halfway between Elena's dressing room and Marcus's.",
+          "significance": "Someone dropped this inside the shaft. The initials suggest its owner — but ownership alone does not place them at the scene at the time of the murder."
+        }
+      },
+      {
+        "id": "n_vent_grate",
+        "labels": [
+          "Item",
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Ventilation Grate",
+          "description": "The grate covering the vent entrance in Marcus's dressing room was found unscrewed and leaning against the wall. Screwdriver marks on the frame are old, suggesting prior tampering.",
+          "significance": "The screwdriver marks on the frame are old — this was loosened deliberately, and not recently. Someone planned ahead."
+        }
+      },
+      {
+        "id": "n_locked_door",
+        "labels": [
+          "Item",
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Locked Door",
+          "description": "The dressing room door was locked from the inside with a deadbolt during intermission. The only key was found in Marcus's jacket pocket. No signs of forced entry on the door.",
+          "significance": "No forced entry. The door was bolted from inside and the key was on the body. How did the killer get in — and out?"
+        }
+      },
+      {
+        "id": "n_dressing_room",
+        "labels": [
+          "Location",
+          "CrimeScene"
+        ],
+        "properties": {
+          "name": "Marcus's Dressing Room",
+          "description": "Private room backstage. Locked from inside with no forced entry. Contains desk, bloodied brass candlestick on the floor, torn letter in the bin, unsealed ventilation grate.",
+          "initially_available": true,
+          "unlock_from_testimony": false,
+          "room_description": "Marcus's dressing room is eerily still. The body has been removed, but everything else remains untouched by order of the detective. The desk is scattered with papers. A faint smell of cologne lingers."
+        }
+      },
+      {
+        "id": "n_vent_shaft",
+        "labels": [
+          "Location",
+          "EscapeRoute"
+        ],
+        "properties": {
+          "name": "Ventilation Shaft",
+          "description": "Narrow shaft running behind the backstage wall. Connects Elena's dressing room to Marcus's via the backstage corridor.",
+          "initially_available": false,
+          "unlock_from_testimony": false,
+          "room_description": "You crouch and peer into the ventilation shaft. It is narrow but passable for a slim adult. The dust on the floor is disturbed — a clear trail suggests someone crawled through here recently."
+        }
+      },
+      {
+        "id": "n_elena_room",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Elena's Dressing Room",
+          "description": "Adjacent to Marcus's room. The vent shaft entrance is here. Elena was seen here during intermission by guests.",
+          "initially_available": false,
+          "unlock_from_testimony": true,
+          "room_description": "Elena Rostova's dressing room, directly adjacent to Marcus's. The ventilation shaft entrance is visible here — the grate on this side is also loosely fitted."
+        }
+      },
+      {
+        "id": "n_lobby",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Theatre Lobby",
+          "description": "Public foyer. Julian Wilde was here with investors Barton and Finch during the entire intermission.",
+          "initially_available": false,
+          "unlock_from_testimony": true,
+          "room_description": "The theatre lobby. Staff and guests confirm that Dr. Julian Wilde was here during the entire intermission, deep in conversation with investors Barton and Finch. No one recalls him leaving."
+        }
+      },
+      {
+        "id": "n_bar",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Theatre Bar",
+          "description": "Ground-floor bar. Leo Cross was here from 8:00 PM onward, confirmed by bartender Tommy Reeves.",
+          "initially_available": false,
+          "unlock_from_testimony": true,
+          "room_description": "The ground-floor bar. Bartender Tommy Reeves confirms Leo Cross arrived around 8:00 PM and did not leave his stool all evening. Three rounds of drinks, paid in cash."
+        }
+      },
+      {
+        "id": "n_stage",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Stage",
+          "description": "Main performance space. Elena was visible here throughout Act 1 (7:15 PM – 9:00 PM)."
+        }
+      },
+      {
+        "id": "n_stalls",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Front Row Stalls",
+          "description": "The front row of the audience seating area. Julian sat here during Act 1 and was visible to many audience members."
+        }
+      },
+      {
+        "id": "n_meridian_theatre",
+        "labels": [
+          "Place"
+        ],
+        "properties": {
+          "name": "Meridian Theatre"
+        }
+      },
+      {
+        "id": "n_shadows_of_guilt",
+        "labels": [
+          "Work",
+          "Play"
+        ],
+        "properties": {
+          "name": "Shadows of Guilt"
+        }
+      },
+      {
+        "id": "n_backstage",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Backstage"
+        }
+      },
+      {
+        "id": "n_corridor",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Backstage Corridor"
+        }
+      },
+      {
+        "id": "n_desk",
+        "labels": [
+          "Object"
+        ],
+        "properties": {
+          "name": "Marcus's Desk"
+        }
+      },
+      {
+        "id": "n_bin",
+        "labels": [
+          "Object"
+        ],
+        "properties": {
+          "name": "Marcus's Bin"
+        }
+      },
+      {
+        "id": "n_wall",
+        "labels": [
+          "Object"
+        ],
+        "properties": {
+          "name": "Wall"
+        }
+      },
+      {
+        "id": "n_jacket_pocket",
+        "labels": [
+          "Object"
+        ],
+        "properties": {
+          "name": "Marcus's Jacket Pocket"
+        }
+      },
+      {
+        "id": "n_key",
+        "labels": [
+          "Item",
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Marcus's Dressing Room Key"
+        }
+      },
+      {
+        "id": "n_deadbolt",
+        "labels": [
+          "Item",
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Deadbolt"
+        }
+      },
+      {
+        "id": "n_forced_entry",
+        "labels": [
+          "Condition"
+        ],
+        "properties": {
+          "name": "Forced Entry"
+        }
+      },
+      {
+        "id": "n_body",
+        "labels": [
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Marcus's Body"
+        }
+      },
+      {
+        "id": "n_bloodied_end",
+        "labels": [
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Bloodied Candlestick End"
+        }
+      },
+      {
+        "id": "n_vent_entrance_marcus",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Marcus's Vent Entrance"
+        }
+      },
+      {
+        "id": "n_vent_entrance_elena",
+        "labels": [
+          "Location"
+        ],
+        "properties": {
+          "name": "Elena's Vent Entrance"
+        }
+      },
+      {
+        "id": "n_screwdriver_marks",
+        "labels": [
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Old Screwdriver Marks"
+        }
+      },
+      {
+        "id": "n_dust_trail",
+        "labels": [
+          "Evidence"
+        ],
+        "properties": {
+          "name": "Disturbed Dust Trail"
+        }
+      },
+      {
+        "id": "n_barton",
+        "labels": [
+          "Character",
+          "Witness"
+        ],
+        "properties": {
+          "name": "Barton"
+        }
+      },
+      {
+        "id": "n_finch",
+        "labels": [
+          "Character",
+          "Witness"
+        ],
+        "properties": {
+          "name": "Finch"
+        }
+      },
+      {
+        "id": "n_tommy",
+        "labels": [
+          "Character",
+          "Witness"
+        ],
+        "properties": {
+          "name": "Tommy Reeves"
+        }
+      },
+      {
+        "id": "n_audience_members",
+        "labels": [
+          "WitnessGroup"
+        ],
+        "properties": {
+          "name": "Audience Members"
+        }
+      },
+      {
+        "id": "n_staff_guests",
+        "labels": [
+          "WitnessGroup"
+        ],
+        "properties": {
+          "name": "Staff and Guests"
+        }
+      },
+      {
+        "id": "n_theatre_crew",
+        "labels": [
+          "WitnessGroup"
+        ],
+        "properties": {
+          "name": "Theatre Crew"
+        }
+      },
+      {
+        "id": "n_investment_discussion",
+        "labels": [
+          "Topic"
+        ],
+        "properties": {
+          "name": "Future Theatre Investment Discussion"
+        }
+      },
+      {
+        "id": "n_blocking_notes",
+        "labels": [
+          "Topic"
+        ],
+        "properties": {
+          "name": "Blocking Notes"
+        }
+      },
+      {
+        "id": "n_blackmail",
+        "labels": [
+          "Crime"
+        ],
+        "properties": {
+          "name": "Blackmail"
+        }
+      },
+      {
+        "id": "n_debt_contracts",
+        "labels": [
+          "Document",
+          "MotiveObject"
+        ],
+        "properties": {
+          "name": "Elena's Debt Contracts"
+        }
+      },
+      {
+        "id": "n_fake_credentials",
+        "labels": [
+          "Document",
+          "MotiveObject"
+        ],
+        "properties": {
+          "name": "Julian's Fake Credentials"
+        }
+      },
+      {
+        "id": "n_fraudulent_licence",
+        "labels": [
+          "Document",
+          "MotiveObject"
+        ],
+        "properties": {
+          "name": "Fraudulent Medical Licence"
+        }
+      },
+      {
+        "id": "n_cash_payments",
+        "labels": [
+          "Payment"
+        ],
+        "properties": {
+          "name": "Cash Payments"
+        }
+      },
+      {
+        "id": "n_wrongful_termination",
+        "labels": [
+          "MotiveObject"
+        ],
+        "properties": {
+          "name": "Wrongful Termination"
+        }
+      },
+      {
+        "id": "n_backstage_pass",
+        "labels": [
+          "Item"
+        ],
+        "properties": {
+          "name": "Leo's Backstage Pass"
+        }
+      },
+      {
+        "id": "n_three_rounds",
+        "labels": [
+          "Item"
+        ],
+        "properties": {
+          "name": "Three Rounds of Drinks"
+        }
+      },
+      {
+        "id": "n_cash",
+        "labels": [
+          "Payment"
+        ],
+        "properties": {
+          "name": "Cash"
+        }
+      },
+      {
+        "id": "n_prop_placement_error",
+        "labels": [
+          "Incident"
+        ],
+        "properties": {
+          "name": "Minor Prop Placement Error"
+        }
+      },
+      {
+        "id": "n_intermission",
+        "labels": [
+          "TimePeriod"
+        ],
+        "properties": {
+          "name": "Intermission",
+          "start_time": "9:00 PM",
+          "end_time": "9:30 PM"
+        }
+      },
+      {
+        "id": "n_intermission_blackout",
+        "labels": [
+          "Event"
+        ],
+        "properties": {
+          "name": "Intermission Blackout",
+          "time": "9:00 PM",
+          "duration": "two minutes"
+        }
+      },
+      {
+        "id": "n_act1",
+        "labels": [
+          "Event"
+        ],
+        "properties": {
+          "name": "Act 1 Performance",
+          "start_time": "7:15 PM",
+          "end_time": "9:00 PM"
+        }
+      },
+      {
+        "id": "n_opening_night",
+        "labels": [
+          "Event"
+        ],
+        "properties": {
+          "name": "Opening Night"
+        }
+      },
+      {
+        "id": "ev_murder",
+        "labels": [
+          "Event",
+          "CrimeEvent"
+        ],
+        "properties": {
+          "name": "Murder of Marcus Vance",
+          "time": "9:05 PM"
+        }
+      },
+      {
+        "id": "ev_body_discovery",
+        "labels": [
+          "Event",
+          "DiscoveryEvent"
+        ],
+        "properties": {
+          "name": "Discovery of Marcus Vance",
+          "time": "9:20 PM"
+        }
+      },
+      {
+        "id": "ev_elena_stage_performance",
+        "labels": [
+          "Event",
+          "PerformanceEvent"
+        ],
+        "properties": {
+          "name": "Elena's Act 1 Stage Performance",
+          "start_time": "7:15 PM",
+          "end_time": "9:00 PM"
+        }
+      },
+      {
+        "id": "ev_elena_visit_marcus",
+        "labels": [
+          "Event",
+          "VisitEvent"
+        ],
+        "properties": {
+          "name": "Elena's Visit to Marcus",
+          "time": "7:00 PM"
+        }
+      },
+      {
+        "id": "ev_elena_vent_entry",
+        "labels": [
+          "Event",
+          "MovementEvent"
+        ],
+        "properties": {
+          "name": "Elena's Vent Entry",
+          "time": "9:00 PM"
+        }
+      },
+      {
+        "id": "ev_elena_vent_return",
+        "labels": [
+          "Event",
+          "MovementEvent"
+        ],
+        "properties": {
+          "name": "Elena's Vent Return",
+          "time": "9:08 PM"
+        }
+      },
+      {
+        "id": "ev_elena_compact_drop",
+        "labels": [
+          "Event",
+          "EvidenceEvent"
+        ],
+        "properties": {
+          "name": "Elena Drops the Compact",
+          "time": "9:08 PM"
+        }
+      },
+      {
+        "id": "ev_julian_visit_marcus",
+        "labels": [
+          "Event",
+          "VisitEvent"
+        ],
+        "properties": {
+          "name": "Julian's Visit to Marcus",
+          "time": "6:45 PM"
+        }
+      },
+      {
+        "id": "ev_julian_letter",
+        "labels": [
+          "Event",
+          "DocumentEvent"
+        ],
+        "properties": {
+          "name": "Julian Writes the Torn Letter",
+          "time": "7:00 PM"
+        }
+      },
+      {
+        "id": "ev_julian_saw_elena",
+        "labels": [
+          "Event",
+          "ObservationEvent"
+        ],
+        "properties": {
+          "name": "Julian Sees Elena Near Marcus",
+          "time": "7:05 PM"
+        }
+      },
+      {
+        "id": "ev_julian_act1_stalls",
+        "labels": [
+          "Event",
+          "PresenceEvent"
+        ],
+        "properties": {
+          "name": "Julian's Act 1 Front Row Presence",
+          "start_time": "7:30 PM",
+          "end_time": "9:00 PM"
+        }
+      },
+      {
+        "id": "ev_julian_lobby_presence",
+        "labels": [
+          "Event",
+          "PresenceEvent"
+        ],
+        "properties": {
+          "name": "Julian's Lobby Presence",
+          "start_time": "9:00 PM",
+          "end_time": "9:30 PM"
+        }
+      },
+      {
+        "id": "ev_leo_firing",
+        "labels": [
+          "Event",
+          "TerminationEvent"
+        ],
+        "properties": {
+          "name": "Leo's Firing",
+          "time": "10:00 AM"
+        }
+      },
+      {
+        "id": "ev_leo_bar_presence",
+        "labels": [
+          "Event",
+          "PresenceEvent"
+        ],
+        "properties": {
+          "name": "Leo's Bar Presence",
+          "start_time": "8:00 PM",
+          "end_time": "10:00 PM"
+        }
+      },
+      {
+        "id": "ev_backstage_pass_revoked",
+        "labels": [
+          "Event",
+          "AccessEvent"
+        ],
+        "properties": {
+          "name": "Leo's Backstage Pass Revoked",
+          "time": "8:00 PM"
+        }
+      },
+      {
+        "id": "ev_vent_grate_tampering",
+        "labels": [
+          "Event",
+          "TamperingEvent"
+        ],
+        "properties": {
+          "name": "Vent Grate Tampering",
+          "time": "before the murder"
+        }
+      },
+      {
+        "id": "n_age_old",
+        "labels": [
+          "Value"
+        ],
+        "properties": {
+          "name": "Old"
+        }
+      },
+      {
+        "id": "n_recent_crawl_action",
+        "labels": [
+          "InferredAction"
+        ],
+        "properties": {
+          "name": "Crawled Through Recently"
+        }
+      },
+      {
+        "id": "n_initials_er",
+        "labels": [
+          "Inscription"
+        ],
+        "properties": {
+          "name": "E.R."
+        }
+      },
+      {
+        "id": "n_truth_value_true",
+        "labels": [
+          "Value"
+        ],
+        "properties": {
+          "name": "True"
+        }
+      },
+      {
+        "id": "n_initials_jw",
+        "labels": [
+          "Inscription"
+        ],
+        "properties": {
+          "name": "J.W."
+        }
+      },
+      {
+        "id": "n_floor",
+        "labels": [
+          "Object"
+        ],
+        "properties": {
+          "name": "Dressing Room Floor"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "from": "n_marcus",
+        "rel": "FOUND_DEAD_IN",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e2",
+        "from": "n_candlestick",
+        "rel": "FOUND_IN",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e3",
+        "from": "n_torn_letter",
+        "rel": "FOUND_IN",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_dressing_room"
+          }
+        }
+      },
+      {
+        "id": "e4",
+        "from": "n_vent_grate",
+        "rel": "FOUND_IN",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_dressing_room"
+          }
+        }
+      },
+      {
+        "id": "e5",
+        "from": "n_locked_door",
+        "rel": "FOUND_IN",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_dressing_room"
+          }
+        }
+      },
+      {
+        "id": "e6",
+        "from": "n_silver_compact",
+        "rel": "FOUND_IN",
+        "to": "n_vent_shaft",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_vent_shaft"
+          }
+        }
+      },
+      {
+        "id": "e7",
+        "from": "n_vent_shaft",
+        "rel": "CONNECTS_TO",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_vent_grate"
+          }
+        }
+      },
+      {
+        "id": "e8",
+        "from": "n_vent_shaft",
+        "rel": "CONNECTS_TO",
+        "to": "n_elena_room",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_vent_grate"
+          }
+        }
+      },
+      {
+        "id": "e9",
+        "from": "n_elena",
+        "rel": "HAS_MOTIVE",
+        "to": "n_marcus",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_hearsay"
+        }
+      },
+      {
+        "id": "e10",
+        "from": "n_julian",
+        "rel": "HAS_MOTIVE",
+        "to": "n_marcus",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_hearsay"
+        }
+      },
+      {
+        "id": "e11",
+        "from": "n_leo",
+        "rel": "HAS_MOTIVE",
+        "to": "n_marcus",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_hearsay"
+        }
+      },
+      {
+        "id": "e12",
+        "from": "n_elena",
+        "rel": "STRUCK",
+        "to": "n_marcus",
+        "properties": {
+          "time": "9:05 PM",
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e13",
+        "from": "n_elena",
+        "rel": "OWNS",
+        "to": "n_silver_compact",
+        "properties": {
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_silver_compact"
+          }
+        }
+      },
+      {
+        "id": "e14",
+        "from": "n_elena",
+        "rel": "WAS_IN",
+        "to": "n_elena_room",
+        "properties": {
+          "time": "9:10 PM",
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e15",
+        "from": "n_torn_letter",
+        "rel": "WRITTEN_BY",
+        "to": "n_julian",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_torn_letter"
+          }
+        }
+      },
+      {
+        "id": "e16",
+        "from": "n_leo",
+        "rel": "FIRED_BY",
+        "to": "n_marcus",
+        "properties": {
+          "time": "10:00 AM",
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e17",
+        "from": "n_meridian_theatre",
+        "rel": "HOSTED",
+        "to": "n_opening_night",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e18",
+        "from": "n_opening_night",
+        "rel": "FEATURED_PLAY",
+        "to": "n_shadows_of_guilt",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e19",
+        "from": "n_stage",
+        "rel": "PART_OF",
+        "to": "n_meridian_theatre",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e20",
+        "from": "n_lobby",
+        "rel": "PART_OF",
+        "to": "n_meridian_theatre",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e21",
+        "from": "n_bar",
+        "rel": "PART_OF",
+        "to": "n_meridian_theatre",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e22",
+        "from": "n_backstage",
+        "rel": "PART_OF",
+        "to": "n_meridian_theatre",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e23",
+        "from": "n_dressing_room",
+        "rel": "PART_OF",
+        "to": "n_backstage",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e24",
+        "from": "n_elena_room",
+        "rel": "PART_OF",
+        "to": "n_backstage",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e25",
+        "from": "n_corridor",
+        "rel": "CONNECTS_AREA",
+        "to": "n_backstage",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e26",
+        "from": "n_marcus",
+        "rel": "VICTIM_OF",
+        "to": "ev_murder",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e27",
+        "from": "ev_murder",
+        "rel": "OCCURRED_AT",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e28",
+        "from": "ev_murder",
+        "rel": "USED_WEAPON",
+        "to": "n_candlestick",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e29",
+        "from": "ev_murder",
+        "rel": "OCCURRED_DURING",
+        "to": "n_intermission",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e30",
+        "from": "ev_body_discovery",
+        "rel": "DISCOVERED",
+        "to": "n_body",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e31",
+        "from": "ev_body_discovery",
+        "rel": "OCCURRED_AT",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e32",
+        "from": "ev_body_discovery",
+        "rel": "AFTER",
+        "to": "ev_murder",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e33",
+        "from": "n_body",
+        "rel": "IDENTIFIED_AS",
+        "to": "n_marcus",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e34",
+        "from": "n_candlestick",
+        "rel": "ORIGINATED_FROM",
+        "to": "n_desk",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e35",
+        "from": "n_candlestick",
+        "rel": "HAS_PART",
+        "to": "n_bloodied_end",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e36",
+        "from": "n_bloodied_end",
+        "rel": "FACED",
+        "to": "n_desk",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e37",
+        "from": "n_locked_door",
+        "rel": "LOCKED_FROM",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_dressing_room"
+          }
+        }
+      },
+      {
+        "id": "e38",
+        "from": "n_deadbolt",
+        "rel": "LOCKED",
+        "to": "n_locked_door",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_locked_door"
+          }
+        }
+      },
+      {
+        "id": "e39",
+        "from": "n_key",
+        "rel": "FOUND_IN",
+        "to": "n_jacket_pocket",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_locked_door"
+          }
+        }
+      },
+      {
+        "id": "e40",
+        "from": "n_jacket_pocket",
+        "rel": "BELONGED_TO",
+        "to": "n_marcus",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_locked_door"
+          }
+        }
+      },
+      {
+        "id": "e41",
+        "from": "n_locked_door",
+        "rel": "HAD_NO_SIGN_OF",
+        "to": "n_forced_entry",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_locked_door"
+          }
+        }
+      },
+      {
+        "id": "e42",
+        "from": "n_vent_shaft",
+        "rel": "ONLY_POSSIBLE_ENTRY_TO",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_vent_grate"
+          }
+        }
+      },
+      {
+        "id": "e43",
+        "from": "n_vent_grate",
+        "rel": "COVERED",
+        "to": "n_vent_entrance_marcus",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_dressing_room"
+          }
+        }
+      },
+      {
+        "id": "e44",
+        "from": "n_vent_entrance_marcus",
+        "rel": "OPENED_INTO",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_dressing_room"
+          }
+        }
+      },
+      {
+        "id": "e45",
+        "from": "n_vent_entrance_elena",
+        "rel": "OPENED_INTO",
+        "to": "n_elena_room",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_elena_room"
+          }
+        }
+      },
+      {
+        "id": "e46",
+        "from": "n_vent_shaft",
+        "rel": "RAN_BEHIND",
+        "to": "n_backstage",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_vent_grate"
+          }
+        }
+      },
+      {
+        "id": "e47",
+        "from": "n_vent_grate",
+        "rel": "FOUND_UNSCREWED_IN",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_dressing_room"
+          }
+        }
+      },
+      {
+        "id": "e48",
+        "from": "n_vent_grate",
+        "rel": "LEANED_AGAINST",
+        "to": "n_wall",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_dressing_room"
+          }
+        }
+      },
+      {
+        "id": "e49",
+        "from": "n_vent_grate",
+        "rel": "HAD_MARKS",
+        "to": "n_screwdriver_marks",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_vent_grate"
+          }
+        }
+      },
+      {
+        "id": "e50",
+        "from": "n_screwdriver_marks",
+        "rel": "HAD_AGE",
+        "to": "n_age_old",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_vent_grate"
+          }
+        }
+      },
+      {
+        "id": "e51",
+        "from": "ev_vent_grate_tampering",
+        "rel": "AFFECTED",
+        "to": "n_vent_grate",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_vent_grate"
+          }
+        }
+      },
+      {
+        "id": "e52",
+        "from": "ev_vent_grate_tampering",
+        "rel": "OCCURRED_BEFORE",
+        "to": "ev_murder",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_vent_grate"
+          }
+        }
+      },
+      {
+        "id": "e53",
+        "from": "n_vent_shaft",
+        "rel": "HAD_TRACE",
+        "to": "n_dust_trail",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_vent_shaft"
+          }
+        }
+      },
+      {
+        "id": "e54",
+        "from": "n_dust_trail",
+        "rel": "SUGGESTS_ACTION",
+        "to": "n_recent_crawl_action",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_vent_shaft"
+          }
+        }
+      },
+      {
+        "id": "e55",
+        "from": "n_silver_compact",
+        "rel": "ENGRAVED_WITH",
+        "to": "n_initials_er",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_vent_shaft"
+          }
+        }
+      },
+      {
+        "id": "e56",
+        "from": "n_silver_compact",
+        "rel": "FOUND_BETWEEN",
+        "to": "n_elena_room",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_vent_shaft"
+          }
+        }
+      },
+      {
+        "id": "e57",
+        "from": "n_silver_compact",
+        "rel": "FOUND_BETWEEN",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_vent_shaft"
+          }
+        }
+      },
+      {
+        "id": "e58",
+        "from": "n_marcus",
+        "rel": "CONTROLLED",
+        "to": "n_debt_contracts",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_hearsay"
+        }
+      },
+      {
+        "id": "e59",
+        "from": "n_debt_contracts",
+        "rel": "BOUND",
+        "to": "n_elena",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_hearsay"
+        }
+      },
+      {
+        "id": "e60",
+        "from": "n_marcus",
+        "rel": "CONTROLLED_CAREER_OF",
+        "to": "n_elena",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_hearsay"
+        }
+      },
+      {
+        "id": "e61",
+        "from": "n_julian",
+        "rel": "HELD",
+        "to": "n_fake_credentials",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_hearsay"
+        }
+      },
+      {
+        "id": "e62",
+        "from": "n_fake_credentials",
+        "rel": "RELATED_TO",
+        "to": "n_fraudulent_licence",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_hearsay"
+        }
+      },
+      {
+        "id": "e63",
+        "from": "n_marcus",
+        "rel": "BLACKMAILED",
+        "to": "n_julian",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_hearsay"
+        }
+      },
+      {
+        "id": "e64",
+        "from": "n_blackmail",
+        "rel": "TARGETED",
+        "to": "n_julian",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_hearsay"
+        }
+      },
+      {
+        "id": "e65",
+        "from": "n_blackmail",
+        "rel": "DEMANDED",
+        "to": "n_cash_payments",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_hearsay"
+        }
+      },
+      {
+        "id": "e66",
+        "from": "n_marcus",
+        "rel": "FIRED",
+        "to": "n_leo",
+        "properties": {
+          "time": "10:00 AM",
+          "known_by": "all",
+          "provenance": "public_hearsay"
+        }
+      },
+      {
+        "id": "e67",
+        "from": "ev_leo_firing",
+        "rel": "OCCURRED_DUE_TO",
+        "to": "n_prop_placement_error",
+        "properties": {
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e68",
+        "from": "ev_leo_firing",
+        "rel": "WITNESSED_BY",
+        "to": "n_theatre_crew",
+        "properties": {
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e69",
+        "from": "ev_leo_firing",
+        "rel": "CAUSED",
+        "to": "n_wrongful_termination",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_hearsay"
+        }
+      },
+      {
+        "id": "e70",
+        "from": "n_elena",
+        "rel": "PARTICIPATED_IN",
+        "to": "ev_elena_stage_performance",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e71",
+        "from": "ev_elena_stage_performance",
+        "rel": "OCCURRED_AT",
+        "to": "n_stage",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e72",
+        "from": "ev_elena_stage_performance",
+        "rel": "DURING",
+        "to": "n_act1",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e73",
+        "from": "n_audience_members",
+        "rel": "SAW",
+        "to": "n_elena",
+        "properties": {
+          "time": "7:15 PM - 9:00 PM",
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e74",
+        "from": "n_elena",
+        "rel": "PARTICIPATED_IN",
+        "to": "ev_elena_visit_marcus",
+        "properties": {
+          "time": "7:00 PM",
+          "known_by": [
+            "n_elena",
+            "n_julian"
+          ],
+          "provenance": "direct_observation"
+        }
+      },
+      {
+        "id": "e75",
+        "from": "ev_elena_visit_marcus",
+        "rel": "OCCURRED_AT",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": [
+            "n_elena",
+            "n_julian"
+          ],
+          "provenance": "direct_observation"
+        }
+      },
+      {
+        "id": "e76",
+        "from": "ev_elena_visit_marcus",
+        "rel": "CLAIMED_TOPIC",
+        "to": "n_blocking_notes",
+        "properties": {
+          "known_by": [
+            "n_elena",
+            "n_julian"
+          ],
+          "provenance": "direct_observation"
+        }
+      },
+      {
+        "id": "e77",
+        "from": "n_julian",
+        "rel": "SAW_EVENT",
+        "to": "ev_elena_visit_marcus",
+        "properties": {
+          "time": "7:00 PM",
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "direct_observation"
+        }
+      },
+      {
+        "id": "e78",
+        "from": "n_elena",
+        "rel": "PARTICIPATED_IN",
+        "to": "ev_elena_vent_entry",
+        "properties": {
+          "time": "9:00 PM",
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e79",
+        "from": "ev_elena_vent_entry",
+        "rel": "USED",
+        "to": "n_intermission_blackout",
+        "properties": {
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e80",
+        "from": "ev_elena_vent_entry",
+        "rel": "STARTED_AT",
+        "to": "n_elena_room",
+        "properties": {
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e81",
+        "from": "ev_elena_vent_entry",
+        "rel": "ENTERED",
+        "to": "n_vent_shaft",
+        "properties": {
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e82",
+        "from": "n_elena",
+        "rel": "PERPETRATED",
+        "to": "ev_murder",
+        "properties": {
+          "time": "9:05 PM",
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e83",
+        "from": "ev_murder",
+        "rel": "AFTER",
+        "to": "ev_elena_vent_entry",
+        "properties": {
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e84",
+        "from": "n_elena",
+        "rel": "PARTICIPATED_IN",
+        "to": "ev_elena_vent_return",
+        "properties": {
+          "time": "9:08 PM",
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e85",
+        "from": "ev_elena_vent_return",
+        "rel": "RETURNED_THROUGH",
+        "to": "n_vent_shaft",
+        "properties": {
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e86",
+        "from": "ev_elena_vent_return",
+        "rel": "ENDED_AT",
+        "to": "n_elena_room",
+        "properties": {
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e87",
+        "from": "ev_elena_vent_return",
+        "rel": "AFTER",
+        "to": "ev_murder",
+        "properties": {
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e88",
+        "from": "n_elena",
+        "rel": "PARTICIPATED_IN",
+        "to": "ev_elena_compact_drop",
+        "properties": {
+          "time": "9:08 PM",
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e89",
+        "from": "ev_elena_compact_drop",
+        "rel": "DROPPED",
+        "to": "n_silver_compact",
+        "properties": {
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e90",
+        "from": "ev_elena_compact_drop",
+        "rel": "OCCURRED_IN",
+        "to": "n_vent_shaft",
+        "properties": {
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e91",
+        "from": "ev_elena_compact_drop",
+        "rel": "WAS_ACCIDENTAL",
+        "to": "n_truth_value_true",
+        "properties": {
+          "hidden_from_detective": true,
+          "known_by": [
+            "n_elena"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e92",
+        "from": "n_julian",
+        "rel": "PARTICIPATED_IN",
+        "to": "ev_julian_visit_marcus",
+        "properties": {
+          "time": "6:45 PM",
+          "known_by": [
+            "n_julian",
+            "n_elena"
+          ],
+          "provenance": "direct_observation"
+        }
+      },
+      {
+        "id": "e93",
+        "from": "ev_julian_visit_marcus",
+        "rel": "OCCURRED_AT",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": [
+            "n_julian",
+            "n_elena"
+          ],
+          "provenance": "direct_observation"
+        }
+      },
+      {
+        "id": "e94",
+        "from": "ev_julian_visit_marcus",
+        "rel": "CONFRONTED",
+        "to": "n_marcus",
+        "properties": {
+          "known_by": [
+            "n_julian",
+            "n_elena"
+          ],
+          "provenance": "direct_observation"
+        }
+      },
+      {
+        "id": "e95",
+        "from": "ev_julian_visit_marcus",
+        "rel": "ABOUT",
+        "to": "n_blackmail",
+        "properties": {
+          "known_by": [
+            "n_julian",
+            "n_elena"
+          ],
+          "provenance": "direct_observation"
+        }
+      },
+      {
+        "id": "e96",
+        "from": "n_julian",
+        "rel": "PARTICIPATED_IN",
+        "to": "ev_julian_letter",
+        "properties": {
+          "time": "7:00 PM",
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e97",
+        "from": "ev_julian_letter",
+        "rel": "PRODUCED",
+        "to": "n_torn_letter",
+        "properties": {
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e98",
+        "from": "ev_julian_letter",
+        "rel": "THREATENED_TO_EXPOSE",
+        "to": "n_blackmail",
+        "properties": {
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e99",
+        "from": "ev_julian_letter",
+        "rel": "REFERENCED",
+        "to": "n_fraudulent_licence",
+        "properties": {
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e100",
+        "from": "n_torn_letter",
+        "rel": "SIGNED_WITH_INITIALS",
+        "to": "n_initials_jw",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_torn_letter"
+          }
+        }
+      },
+      {
+        "id": "e101",
+        "from": "n_torn_letter",
+        "rel": "FOUND_IN",
+        "to": "n_bin",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_dressing_room"
+          }
+        }
+      },
+      {
+        "id": "e102",
+        "from": "n_bin",
+        "rel": "LOCATED_IN",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_dressing_room"
+          }
+        }
+      },
+      {
+        "id": "e103",
+        "from": "n_torn_letter",
+        "rel": "REFERENCED",
+        "to": "n_fraudulent_licence",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_item",
+            "target": "n_torn_letter"
+          }
+        }
+      },
+      {
+        "id": "e104",
+        "from": "n_julian",
+        "rel": "PARTICIPATED_IN",
+        "to": "ev_julian_saw_elena",
+        "properties": {
+          "time": "7:05 PM",
+          "known_by": [
+            "n_julian",
+            "n_elena"
+          ],
+          "provenance": "direct_observation"
+        }
+      },
+      {
+        "id": "e105",
+        "from": "ev_julian_saw_elena",
+        "rel": "OBSERVED",
+        "to": "n_elena",
+        "properties": {
+          "known_by": [
+            "n_julian",
+            "n_elena"
+          ],
+          "provenance": "direct_observation"
+        }
+      },
+      {
+        "id": "e106",
+        "from": "ev_julian_saw_elena",
+        "rel": "OCCURRED_AT",
+        "to": "n_corridor",
+        "properties": {
+          "known_by": [
+            "n_julian",
+            "n_elena"
+          ],
+          "provenance": "direct_observation"
+        }
+      },
+      {
+        "id": "e107",
+        "from": "ev_julian_saw_elena",
+        "rel": "NEAR",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": [
+            "n_julian",
+            "n_elena"
+          ],
+          "provenance": "direct_observation"
+        }
+      },
+      {
+        "id": "e108",
+        "from": "n_julian",
+        "rel": "PARTICIPATED_IN",
+        "to": "ev_julian_act1_stalls",
+        "properties": {
+          "time": "7:30 PM - 9:00 PM",
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e109",
+        "from": "ev_julian_act1_stalls",
+        "rel": "OCCURRED_AT",
+        "to": "n_stalls",
+        "properties": {
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e110",
+        "from": "n_audience_members",
+        "rel": "SAW",
+        "to": "n_julian",
+        "properties": {
+          "time": "7:30 PM - 9:00 PM",
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e111",
+        "from": "n_julian",
+        "rel": "PARTICIPATED_IN",
+        "to": "ev_julian_lobby_presence",
+        "properties": {
+          "time": "9:00 PM - 9:30 PM",
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e112",
+        "from": "ev_julian_lobby_presence",
+        "rel": "OCCURRED_AT",
+        "to": "n_lobby",
+        "properties": {
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e113",
+        "from": "n_julian",
+        "rel": "WAS_WITH",
+        "to": "n_barton",
+        "properties": {
+          "time": "9:00 PM - 9:30 PM",
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e114",
+        "from": "n_julian",
+        "rel": "WAS_WITH",
+        "to": "n_finch",
+        "properties": {
+          "time": "9:00 PM - 9:30 PM",
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e115",
+        "from": "n_barton",
+        "rel": "WITNESSED",
+        "to": "ev_julian_lobby_presence",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_lobby"
+          }
+        }
+      },
+      {
+        "id": "e116",
+        "from": "n_finch",
+        "rel": "WITNESSED",
+        "to": "ev_julian_lobby_presence",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_lobby"
+          }
+        }
+      },
+      {
+        "id": "e117",
+        "from": "n_staff_guests",
+        "rel": "CONFIRMED",
+        "to": "ev_julian_lobby_presence",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_lobby"
+          }
+        }
+      },
+      {
+        "id": "e118",
+        "from": "n_julian",
+        "rel": "DISCUSSED",
+        "to": "n_investment_discussion",
+        "properties": {
+          "time": "9:00 PM - 9:30 PM",
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e119",
+        "from": "ev_julian_lobby_presence",
+        "rel": "OVERLAPPED_WITH",
+        "to": "ev_murder",
+        "properties": {
+          "known_by": [
+            "n_julian"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e120",
+        "from": "n_julian",
+        "rel": "DID_NOT_LEAVE",
+        "to": "n_lobby",
+        "properties": {
+          "time": "9:00 PM - 9:30 PM",
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_lobby"
+          }
+        }
+      },
+      {
+        "id": "e121",
+        "from": "n_leo",
+        "rel": "PARTICIPATED_IN",
+        "to": "ev_leo_firing",
+        "properties": {
+          "time": "10:00 AM",
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e122",
+        "from": "ev_leo_firing",
+        "rel": "FIRED_BY",
+        "to": "n_marcus",
+        "properties": {
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e123",
+        "from": "n_leo",
+        "rel": "PARTICIPATED_IN",
+        "to": "ev_leo_bar_presence",
+        "properties": {
+          "time": "8:00 PM - 10:00 PM",
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e124",
+        "from": "ev_leo_bar_presence",
+        "rel": "OCCURRED_AT",
+        "to": "n_bar",
+        "properties": {
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e125",
+        "from": "n_leo",
+        "rel": "SPOKE_WITH",
+        "to": "n_tommy",
+        "properties": {
+          "time": "8:00 PM - 10:00 PM",
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e126",
+        "from": "n_tommy",
+        "rel": "WITNESSED",
+        "to": "ev_leo_bar_presence",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_bar"
+          }
+        }
+      },
+      {
+        "id": "e127",
+        "from": "n_tommy",
+        "rel": "CONFIRMED",
+        "to": "ev_leo_bar_presence",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_bar"
+          }
+        }
+      },
+      {
+        "id": "e128",
+        "from": "n_leo",
+        "rel": "BOUGHT",
+        "to": "n_three_rounds",
+        "properties": {
+          "time": "8:00 PM - 10:00 PM",
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e129",
+        "from": "n_three_rounds",
+        "rel": "PAID_WITH",
+        "to": "n_cash",
+        "properties": {
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_bar"
+          }
+        }
+      },
+      {
+        "id": "e130",
+        "from": "n_leo",
+        "rel": "DID_NOT_LEAVE",
+        "to": "n_bar",
+        "properties": {
+          "time": "8:00 PM - 10:00 PM",
+          "known_by": [],
+          "provenance": "discoverable_evidence",
+          "player_discovery": {
+            "method": "examine_location",
+            "target": "n_bar"
+          }
+        }
+      },
+      {
+        "id": "e131",
+        "from": "n_leo",
+        "rel": "PARTICIPATED_IN",
+        "to": "ev_backstage_pass_revoked",
+        "properties": {
+          "time": "8:00 PM",
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e132",
+        "from": "ev_backstage_pass_revoked",
+        "rel": "REVOKED",
+        "to": "n_backstage_pass",
+        "properties": {
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e133",
+        "from": "n_backstage_pass",
+        "rel": "GRANTED_ACCESS_TO",
+        "to": "n_backstage",
+        "properties": {
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e134",
+        "from": "ev_backstage_pass_revoked",
+        "rel": "PREVENTED_ACCESS_TO",
+        "to": "n_dressing_room",
+        "properties": {
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e135",
+        "from": "ev_leo_bar_presence",
+        "rel": "OVERLAPPED_WITH",
+        "to": "ev_murder",
+        "properties": {
+          "known_by": [
+            "n_leo"
+          ],
+          "provenance": "self_knowledge"
+        }
+      },
+      {
+        "id": "e136",
+        "from": "n_candlestick",
+        "rel": "FOUND_ON",
+        "to": "n_floor",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e137",
+        "from": "n_candlestick",
+        "rel": "FOUND_BESIDE",
+        "to": "n_body",
+        "properties": {
+          "known_by": "all",
+          "provenance": "public_report"
+        }
+      },
+      {
+        "id": "e138",
+        "from": "n_vent_grate",
+        "rel": "REVEALS",
+        "to": "n_vent_shaft",
+        "properties": {}
+      }
+    ]
+  },
+  "suspects": [
+    {
+      "node_id": "n_elena"
+    },
+    {
+      "node_id": "n_julian"
+    },
+    {
+      "node_id": "n_leo"
+    }
+  ],
+  "solution": {
+    "killer_node": "n_elena",
+    "key_evidence_edges": [
+      "e12",
+      "e13",
+      "e82",
+      "e85",
+      "e89"
+    ],
+    "red_herring_edges": [
+      "e15",
+      "e11"
+    ],
+    "proof_graph": {
+      "minimum_score": 5,
+      "groups": [
+        {
+          "id": "compact_link",
+          "edge_ids": [
+            "e6",
+            "e13",
+            "e55"
+          ],
+          "min_required": 2,
+          "weight": 4,
+          "required": true,
+          "description": "The silver compact was found in the ventilation shaft and belongs to Elena."
+        },
+        {
+          "id": "vent_route",
+          "edge_ids": [
+            "e7",
+            "e8",
+            "e42"
+          ],
+          "min_required": 2,
+          "weight": 2,
+          "required": false,
+          "description": "The ventilation shaft connects Marcus's dressing room to Elena's dressing room."
+        },
+        {
+          "id": "locked_room",
+          "edge_ids": [
+            "e5",
+            "e37",
+            "e41"
+          ],
+          "min_required": 1,
+          "weight": 1,
+          "required": false,
+          "description": "The dressing room door was locked from the inside with no forced entry."
+        },
+        {
+          "id": "julian_presence_clears",
+          "edge_ids": [
+            "e112",
+            "e111",
+            "e115",
+            "e116",
+            "e120"
+          ],
+          "min_required": 1,
+          "weight": 1,
+          "required": false,
+          "description": "Julian was in the lobby with witnesses during the relevant window."
+        },
+        {
+          "id": "leo_cleared",
+          "edge_ids": [
+            "e124",
+            "e134",
+            "e123",
+            "e126",
+            "e130"
+          ],
+          "min_required": 1,
+          "weight": 1,
+          "required": false,
+          "description": "Leo was at the bar and lacked backstage access."
+        }
+      ]
+    },
+    "explanation": "Elena entered Marcus's locked dressing room via the ventilation shaft during intermission and struck him with the brass candlestick. The logical chain: locked door with no forced entry → shaft was the only entry point → vent grate was unscrewed → compact with E.R. initials found in shaft → Elena owns the compact. Julian is cleared by his confirmed presence in the lobby with investors Barton and Finch at 9:00-9:30 PM, exactly when the murder occurred. Leo had no backstage access. The torn letter implicating Julian is a red herring — his location is confirmed for the murder time."
+  },
+  "display_names_ja": {
+    "Marcus Vance": "マーカス・ヴァンス",
+    "Elena Rostova": "エレナ・ロストヴァ",
+    "Dr. Julian Wilde": "ジュリアン・ワイルド博士",
+    "Leo Cross": "レオ・クロス",
+    "Marcus's Dressing Room": "マーカスの楽屋",
+    "Elena's Dressing Room": "エレナの楽屋",
+    "Ventilation Shaft": "換気ダクト",
+    "Theatre Lobby": "劇場ロビー",
+    "Theatre Bar": "劇場バー",
+    "Stage": "舞台",
+    "Front Row Stalls": "最前列席",
+    "Brass Candlestick": "真鍮の燭台",
+    "Torn Letter": "破れた手紙",
+    "Silver Compact Mirror": "銀のコンパクトミラー",
+    "Ventilation Grate": "換気口の格子",
+    "Locked Door": "施錠されたドア",
+    "Meridian Theatre": "メリディアン劇場",
+    "Shadows of Guilt": "罪の影",
+    "Backstage": "舞台裏",
+    "Backstage Corridor": "舞台裏の廊下",
+    "Marcus's Desk": "マーカスの机",
+    "Marcus's Bin": "マーカスのゴミ箱",
+    "Wall": "壁",
+    "Marcus's Jacket Pocket": "マーカスの上着のポケット",
+    "Marcus's Dressing Room Key": "マーカスの楽屋の鍵",
+    "Deadbolt": "デッドボルト",
+    "Forced Entry": "押し入りの痕跡",
+    "Marcus's Body": "マーカスの遺体",
+    "Bloodied Candlestick End": "血の付いた燭台の端",
+    "Marcus's Vent Entrance": "マーカスの楽屋側の換気口",
+    "Elena's Vent Entrance": "エレナの楽屋側の換気口",
+    "Old Screwdriver Marks": "古いドライバー痕",
+    "Disturbed Dust Trail": "乱れた埃の跡",
+    "Barton": "バートン",
+    "Finch": "フィンチ",
+    "Tommy Reeves": "トミー・リーヴス",
+    "Audience Members": "観客たち",
+    "Staff and Guests": "スタッフと客",
+    "Theatre Crew": "劇場スタッフ",
+    "Future Theatre Investment Discussion": "劇場投資の相談",
+    "Blocking Notes": "舞台上の動きのメモ",
+    "Blackmail": "恐喝",
+    "Elena's Debt Contracts": "エレナの借金契約書",
+    "Julian's Fake Credentials": "ジュリアンの偽資格",
+    "Fraudulent Medical Licence": "偽の医師免許",
+    "Cash Payments": "現金支払い",
+    "Wrongful Termination": "不当解雇",
+    "Leo's Backstage Pass": "レオの舞台裏パス",
+    "Three Rounds of Drinks": "3杯分の酒",
+    "Cash": "現金",
+    "Minor Prop Placement Error": "小道具配置の小さなミス",
+    "Intermission": "幕間",
+    "Intermission Blackout": "幕間の暗転",
+    "Act 1 Performance": "第1幕の上演",
+    "Opening Night": "初日公演",
+    "Murder of Marcus Vance": "マーカス殺害",
+    "Discovery of Marcus Vance": "マーカス発見",
+    "Elena's Act 1 Stage Performance": "エレナの第1幕出演",
+    "Elena's Visit to Marcus": "エレナのマーカス訪問",
+    "Elena's Vent Entry": "エレナの換気ダクト侵入",
+    "Elena's Vent Return": "エレナの換気ダクト帰還",
+    "Elena Drops the Compact": "エレナがコンパクトを落とす",
+    "Julian's Visit to Marcus": "ジュリアンのマーカス訪問",
+    "Julian Writes the Torn Letter": "ジュリアンが破れた手紙を書く",
+    "Julian Sees Elena Near Marcus": "ジュリアンがマーカス付近のエレナを見る",
+    "Leo's Firing": "レオの解雇",
+    "Leo's Backstage Pass Revoked": "レオの舞台裏パス剥奪",
+    "Vent Grate Tampering": "換気口格子の細工",
+    "Old": "古い",
+    "Crawled Through Recently": "最近這って通った",
+    "E.R.": "E.R.",
+    "True": "真",
+    "J.W.": "J.W.",
+    "Dressing Room Floor": "楽屋の床",
+    "Julian's Act 1 Front Row Presence": "ジュリアンの第1幕最前列での所在",
+    "Julian's Lobby Presence": "ジュリアンのロビーでの所在",
+    "Leo's Bar Presence": "レオのバーでの所在"
+  }
+}
