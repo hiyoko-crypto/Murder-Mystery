@@ -371,7 +371,7 @@ export default function InterrogationPage() {
           sectionEn={lang === 'ja' ? (interrogating ? 'Accusation' : 'Interrogation') : undefined}
           right={
             <>
-              <GoldButton size="sm" label={tt('戻る', 'Back')} icon={<ArrowLeft size={16} />} onClick={() => go(-1)} />
+              <GoldButton size="sm" label={tt('戻る', 'Back')} icon={<ArrowLeft size={16} />} onClick={() => go(-1, 'step')} />
               <NotebookLauncher className="nr-btn--sm" />
             </>
           }

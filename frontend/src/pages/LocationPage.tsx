@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { BookOpen, DoorOpen, Loader2, Lock, Menu, MapPin, MessageSquare, Search, X } from 'lucide-react'
 import { useGame } from '../contexts/GameContext'
@@ -6,15 +6,17 @@ import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
 import { useCaseNotes } from '../contexts/CaseNotesContext'
 import { useSceneTransition } from '../contexts/sceneTransitionContext'
-import { examineLocation, examineItem, fetchBriefing, type BriefingResult } from '../api/examine'
+import { examineItem, fetchBriefing, type BriefingResult } from '../api/examine'
 import { suspectAvatarEmoji } from '../utils/avatar'
 import { portraitUrl } from '../utils/portraits'
 import { chime, discover, paper } from '../utils/sfx'
-import { thumbnailUrl } from '../utils/backgroundMatch'
+import { getExamine, hasVisited, hasVisitedAny, isRevealed, markVisited } from '../utils/gameProgress'
 import ConfirmResetDialog from '../components/ConfirmResetDialog'
 import NotebookLauncher from '../components/notebook/NotebookLauncher'
 import BgCredit from '../components/BgCredit'
 import CaseFileCard from '../components/CaseFileCard'
+import MapView from '../components/MapView'
+import PoirotBox from '../components/PoirotBox'
 import { AppHeader, GoldButton, Panel, PaperCard, SectionTitle, Stamp } from '../components/ui/Noir'
 import './LocationPage.css'
 
@@ -28,6 +30,8 @@ interface Discovery {
   name: string
 }
 
+const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
+
 // Keyed by location id so all local state (open panel, discoveries, overlays)
 // resets when moving to another location.
 export default function LocationPage() {
@@ -38,7 +42,7 @@ export default function LocationPage() {
 function LocationView({ id }: { id: string }) {
   const navigate = useNavigate()
   const { go } = useSceneTransition()
-  const { unlockedLocations, refetchState, resetGame } = useGame()
+  const { unlockedLocations, refetchState, resetGame, holdItems, releaseItem } = useGame()
   const { lang, t, tt } = useLanguage()
   const { scenario, locations: getLocations, items: getItems, suspects: getSuspects, locationBg } = useScenario()
   const { appendHistory } = useCaseNotes()
@@ -52,6 +56,32 @@ function LocationView({ id }: { id: string }) {
   // null until the location has been examined
   const [discoveries, setDiscoveries] = useState<Discovery[] | null>(null)
   const examined = discoveries !== null
+
+  // Poirot (the player) comments on what he sees; the first line depends on whether
+  // this is the first place he has walked into (the crime scene) or a later one.
+  const [poirot, setPoirot] = useState(() => {
+    const name = locations.find(l => l.id === id)?.name ?? ''
+    if (hasVisited(id)) return tt('さて、次はどうしようか。', 'Now, what next?')
+    return hasVisitedAny()
+      ? tt(`ここは${name}か。何か手がかりがあるだろうか。`, `So this is ${name}. Let us see what it holds.`)
+      : tt('ここが殺人の現場か……。空気が重いな。', 'So this is where it happened… The air is heavy.')
+  })
+  const say = setPoirot
+
+  useEffect(() => {
+    markVisited(id)
+  }, [id])
+
+  // Start examining in the background as soon as Poirot arrives: the first Japanese
+  // examine can take a while (the backend translates each clue), and what it finds
+  // stays hidden until the player actually presses Examine.
+  useEffect(() => {
+    let cancelled = false
+    getExamine(id, lang).then(result => {
+      if (result && !cancelled) holdItems(result.newly_found.map(i => i.id))
+    })
+    return () => { cancelled = true }
+  }, [id, lang, holdItems])
 
   // Item detail overlay
   const [selectedItem, setSelectedItem] = useState<Discovery | null>(null)
@@ -71,7 +101,6 @@ function LocationView({ id }: { id: string }) {
   const location = locations.find((l) => l.id === id)
   if (!location) return <div>{t('not.found')}</div>
 
-  const moveLocations   = locations.filter((l) => unlockedLocations.includes(l.id))
   const suspectsHere    = allSuspects.filter((s) => location.suspects.includes(s.id))
 
   const handleExamine = async () => {
@@ -81,19 +110,30 @@ function LocationView({ id }: { id: string }) {
       return
     }
     setPanel('clues')
-    if (examined) return
+    if (examined || examining) return
     setExamining(true)
+    say(tt('……さて、調べてみよう。', 'Now then… let us have a look.'))
+
+    // While the result comes back, Poirot keeps thinking out loud
+    const musings = lang === 'ja'
+      ? ['机の上、床の下……何か見落としていないか。', '小さな違和感こそが、真実への入り口だ。', 'ふむ……もう少し、じっくり見てみよう。']
+      : ['The desk, the floor… is there something I have missed?', 'A small oddity is the doorway to the truth.', 'Hm… let me look a little more closely.']
+    let next = 0
+    const ticker = setInterval(() => say(musings[next++ % musings.length]), 3600)
+
     try {
-      const result = await examineLocation(id, lang)
-      const allItems = [...result.newly_found, ...result.already_found]
-      setDiscoveries(allItems.map(backendItem => ({
-        itemId: backendItem.id,
-        text: backendItem.description,
-        emoji: items.find(i => i.id === backendItem.id)?.emoji ?? '📦',
-        name: backendItem.name,
-      })))
-      if (result.newly_found.length > 0) {
-        discover()
+      const result = await getExamine(id, lang)
+      clearInterval(ticker)
+      if (!result) throw new Error('examine failed')
+
+      const newIds = new Set(result.newly_found.map(i => i.id))
+      const list: Discovery[] = [...result.newly_found, ...result.already_found].map(b => ({
+        itemId: b.id,
+        text: b.description,
+        emoji: items.find(i => i.id === b.id)?.emoji ?? '📦',
+        name: b.name,
+      }))
+      if (newIds.size > 0 && result.newly_found.some(i => !isRevealed(i.id))) {
         appendHistory({
           type: 'examine_location',
           locationId: id,
@@ -103,11 +143,33 @@ function LocationView({ id }: { id: string }) {
             : `Examined ${location.name}, found ${result.newly_found.map(i => i.name).join(', ')}`,
         })
       }
+      setExamining(false)
+
+      if (list.length === 0) {
+        setDiscoveries([])
+        say(tt('なにもないな。', 'Nothing here.'))
+        return
+      }
+      // Show the clues one at a time, with Poirot remarking on each
+      for (let i = 0; i < list.length; i++) {
+        const d = list[i]
+        const fresh = newIds.has(d.itemId) && !isRevealed(d.itemId)
+        releaseItem(d.itemId)
+        setDiscoveries(list.slice(0, i + 1))
+        if (fresh) {
+          discover()
+          say(tt(`${d.name}を発見した。`, `Found it: ${d.name}.`))
+        } else {
+          say(tt(`${d.name}がある。`, `${d.name} is here.`))
+        }
+        await sleep(1500)
+      }
+      say(newIds.size > 0 ? tt('……他にも何かあるかもしれない。', 'There may be more to find…') : tt('もう何も出てこないようだ。', 'Nothing more, it seems.'))
       await refetchState()
     } catch {
-      // leave the panel in its "not yet examined" state so the player can retry
-    } finally {
+      clearInterval(ticker)
       setExamining(false)
+      say(tt('……うまくいかないな。もう一度調べてみよう。', 'Hm, that did not work. Let us try again.'))
     }
   }
 
@@ -181,7 +243,7 @@ function LocationView({ id }: { id: string }) {
 
           {panel !== 'none' && (
             <div className="loc__stage" key={panel}>
-              <Panel className="loc__stage-panel">
+              <Panel className={`loc__stage-panel${panel === 'move' ? ' is-map' : ''}`}>
                 <div className="loc__stage-head">
                   <SectionTitle
                     ja={panel === 'clues' ? tt('手がかり', 'Clues') : panel === 'talk' ? tt('話す相手を選ぶ', 'Who to talk to') : tt('移動先（マップ）', 'Map')}
@@ -232,28 +294,19 @@ function LocationView({ id }: { id: string }) {
                 )}
 
                 {panel === 'move' && (
-                  <div className="loc__cards">
-                    {moveLocations.map((loc) => {
-                      const isCurrent = loc.id === id
-                      return (
-                        <button
-                          key={loc.id}
-                          className={`loc-card loc-card--map${isCurrent ? ' is-current' : ''}`}
-                          onClick={() => go(`/location/${loc.id}`)}
-                          disabled={isCurrent}
-                        >
-                          <span className="loc-card__img" style={{ backgroundImage: `url(${thumbnailUrl(locationBg(loc.id))})` }}>
-                            {isCurrent && <span className="loc-card__here">{tt('現在地', 'Here')}</span>}
-                          </span>
-                          <span className="loc-card__name">{loc.name}</span>
-                        </button>
-                      )
-                    })}
-                  </div>
+                  <MapView
+                    scenarioId={scenario?.scenarioId ?? ''}
+                    locations={locations}
+                    unlocked={unlockedLocations}
+                    currentId={id}
+                    locationBg={locationBg}
+                    onGo={(locId) => go(`/location/${locId}`)}
+                  />
                 )}
               </Panel>
             </div>
           )}
+          <PoirotBox key={poirot} text={poirot} />
         </div>
 
         <Panel className="loc__actions">

@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 
-export type TransitionKind = 'walk' | 'fade'
+export type TransitionKind = 'walk' | 'step' | 'fade'
 
 export interface SceneTransitionValue {
   /** Fade to black (with footsteps for 'walk'), navigate, then fade back in. */

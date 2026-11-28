@@ -1,0 +1,82 @@
+.map-view {
+  position: relative;
+  width: min(100%, calc(60vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  margin: 0 auto;
+  background-color: var(--nr-bg);
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--nr-gold-line);
+  box-shadow: var(--nr-frame);
+}
+
+.map-spot {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--nr-gold-bright);
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9));
+  transition: transform 0.2s;
+}
+
+.map-spot:hover:not(:disabled) {
+  transform: translate(-50%, -108%) scale(1.06);
+}
+
+.map-spot:disabled {
+  cursor: default;
+}
+
+.map-spot__pin {
+  display: inline-flex;
+}
+
+.map-spot__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 12px;
+  background: rgba(14, 11, 8, 0.88);
+  border: 1px solid var(--nr-gold-line);
+  color: var(--nr-text);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.map-spot:hover:not(:disabled) .map-spot__label {
+  border-color: var(--nr-gold-bright);
+  box-shadow: 0 0 14px var(--nr-gold-glow);
+}
+
+.map-spot__label em {
+  padding: 0 6px;
+  background: var(--nr-gold);
+  color: var(--nr-bg);
+  font-style: normal;
+  font-size: 0.72rem;
+}
+
+.map-spot.is-here .map-spot__pin {
+  animation: map-pulse 1.4s ease-in-out infinite;
+}
+
+.map-spot.is-locked {
+  color: var(--nr-text-faint);
+  opacity: 0.75;
+}
+
+.map-spot.is-locked .map-spot__label {
+  color: var(--nr-text-dim);
+}
+
+@keyframes map-pulse {
+  50% { transform: scale(1.25); }
+}

@@ -23,7 +23,7 @@ export const ui: Record<string, Record<Lang, string>> = {
   'interro.send':       { ja: '送信',                    en: 'Send' },
   'interro.present':    { ja: 'を提示する',              en: '— Present' },
   'interro.present.fmt':{ ja: '【証拠提示】',            en: '[Evidence] ' },
-  'interro.detective':  { ja: '探偵',                    en: 'Detective' },
+  'interro.detective':  { ja: 'ポワロ',                  en: 'Poirot' },
 
   /* Endings */
   'ending.confession':  { ja: '— 自白 —',               en: '— Confession —' },

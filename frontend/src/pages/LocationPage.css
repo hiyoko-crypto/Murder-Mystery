@@ -242,6 +242,10 @@
   justify-content: center;
 }
 
+.loc__stage-panel.is-map {
+  max-width: min(1280px, 100%);
+}
+
 .loc__cards {
   display: flex;
   flex-wrap: wrap;

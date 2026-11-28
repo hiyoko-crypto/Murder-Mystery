@@ -14,20 +14,20 @@ import './OpeningPage.css'
 
 const stripEnd = (s: string) => s.replace(/[。.\s]+$/, '')
 
-/** Poirot's opening words, built from the case file so every scenario gets its own. */
+/** Poirot's opening thoughts, built from the case file so every scenario gets its own. */
 function introLines(b: BriefingResult, ja: boolean): string[] {
   return ja
     ? [
-        'やあ、よく来てくれた。……事件だよ、君。',
-        `現場は、${stripEnd(b.scene)}。犯行は${stripEnd(b.time_of_murder)}のことだ。`,
-        `凶器は${stripEnd(b.weapon)}。ふむ、実に興味深い。`,
-        'さあ、灰色の脳細胞を働かせるとしよう。まずは現場を調べ、関係者の話を聞くのだ。',
+        '……事件の知らせか。ふむ、見過ごすわけにはいかないな。',
+        `現場は、${stripEnd(b.scene)}。犯行は${stripEnd(b.time_of_murder)}のことらしい。`,
+        `凶器は${stripEnd(b.weapon)}。実に興味深い。`,
+        'さあ、私の灰色の脳細胞の出番だ。まずは現場を調べ、関係者の話を聞くとしよう。',
       ]
     : [
-        'Ah, mon ami, you have come. We have a case.',
+        '…A case, then. Hm. I cannot let this pass.',
         `The scene: ${stripEnd(b.scene)}. Time of death: ${stripEnd(b.time_of_murder)}.`,
         `The weapon: ${stripEnd(b.weapon)}. Most interesting.`,
-        'Now, let us put the little grey cells to work. First we examine the scene, then we hear the witnesses.',
+        'Now, the little grey cells must work. First the scene, then the witnesses.',
       ]
 }
 
@@ -60,12 +60,20 @@ export default function OpeningPage() {
   const loading = result.key !== requestKey
   const briefing = loading ? null : result.briefing
 
+  const firstLocationId = unlockedLocations[0] ?? ''
+
+  // Poirot starts thinking out loud by himself once the paper has settled
+  useEffect(() => {
+    if (!briefing || !firstLocationId) return
+    const id = setTimeout(() => setIntro(true), 2300)
+    return () => clearTimeout(id)
+  }, [briefing, firstLocationId])
+
   // The paper slides in as soon as the case file is ready
   useEffect(() => {
     if (briefing) paper()
   }, [briefing])
 
-  const firstLocationId = unlockedLocations[0] ?? ''
   const firstLocation = locations(lang).find(l => l.id === firstLocationId)
 
   return (
@@ -103,19 +111,6 @@ export default function OpeningPage() {
             </div>
           )}
 
-          {briefing && !intro && (
-            <div className="opening__start">
-              <GoldButton
-                size="lg"
-                variant="primary"
-                label={tt('捜査開始', 'Begin Investigation')}
-                sub={lang === 'ja' ? 'Begin Investigation' : undefined}
-                chevron
-                onClick={() => setIntro(true)}
-                disabled={!firstLocationId}
-              />
-            </div>
-          )}
         </main>
 
         {briefing && intro && (

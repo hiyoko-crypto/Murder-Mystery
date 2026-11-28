@@ -26,7 +26,7 @@ export default function SceneTransition({ children }: { children: ReactNode }) {
     const later = (fn: () => void, ms: number) => timers.current.push(setTimeout(fn, ms))
 
     setPhase('out')
-    const hold = kind === 'walk' ? footsteps(4, 0.28) : 150
+    const hold = kind === 'walk' ? footsteps(3, 0.25) : kind === 'step' ? footsteps(2, 0.2) : 150
     later(() => {
       setPhase('hold')
       if (typeof to === 'number') navigate(to)

@@ -1,0 +1,19 @@
+{
+  "the_final_act": {
+    "n_stage": { "x": 50, "y": 15 },
+    "n_stalls": { "x": 50, "y": 42 },
+    "n_lobby": { "x": 50, "y": 84 },
+    "n_bar": { "x": 85, "y": 82 },
+    "n_backstage": { "x": 15, "y": 20 },
+    "n_corridor": { "x": 15, "y": 42 },
+    "n_dressing_room": { "x": 9, "y": 62 },
+    "n_elena_room": { "x": 27, "y": 62 },
+    "n_vent_shaft": { "x": 18, "y": 80 }
+  },
+  "z_The_Four_Pillars_of_Murder": {
+    "n_loc_vance_office": { "x": 17, "y": 30 },
+    "n_loc_monitoring_station": { "x": 50, "y": 38 },
+    "n_loc_server_room": { "x": 50, "y": 76 },
+    "n_loc_sector2_sandbox": { "x": 84, "y": 50 }
+  }
+}

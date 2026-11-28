@@ -1,12 +1,17 @@
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react'
 import { resetSession } from '../api/session'
 import { useLanguage } from './LanguageContext'
 import { useCaseNotes } from './CaseNotesContext'
+import { isRevealed, markRevealed, resetProgress } from '../utils/gameProgress'
 import type { Message } from '../types'
 
 interface GameContextValue {
   unlockedLocations: string[]
+  /** Clues the player has been shown (clues fetched ahead of time stay hidden until revealed). */
   foundItems: string[]
+  holdItems: (ids: string[]) => void
+  /** Marks a clue as shown; returns true if it was being held back. */
+  releaseItem: (id: string) => boolean
   locationItemCatalog: Record<string, string[]>
   refetchState: () => Promise<void>
   resetGame: () => Promise<void>
@@ -21,6 +26,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const { resetNotebook } = useCaseNotes()
   const [unlockedLocations, setUnlockedLocations] = useState<string[]>([])
   const [foundItems, setFoundItems] = useState<string[]>([])
+  const [held, setHeld] = useState<string[]>([])
+  const heldRef = useRef<string[]>([])
   const [locationItemCatalog, setLocationItemCatalog] = useState<Record<string, string[]>>({})
   const [conversations, setConversations] = useState<Record<string, Message[]>>({})
 
@@ -46,15 +53,37 @@ export function GameProvider({ children }: { children: ReactNode }) {
     refetchState()
   }, [refetchState])
 
+  const setHeldBoth = useCallback((next: string[]) => {
+    heldRef.current = next
+    setHeld(next)
+  }, [])
+
+  const holdItems = useCallback((ids: string[]) => {
+    const current = heldRef.current
+    const add = ids.filter(id => !isRevealed(id) && !current.includes(id))
+    if (add.length > 0) setHeldBoth([...current, ...add])
+  }, [setHeldBoth])
+
+  const releaseItem = useCallback((id: string) => {
+    const wasHeld = heldRef.current.includes(id)
+    markRevealed(id)
+    if (wasHeld) setHeldBoth(heldRef.current.filter(x => x !== id))
+    return wasHeld
+  }, [setHeldBoth])
+
+  const visibleFound = useMemo(() => foundItems.filter(id => !held.includes(id)), [foundItems, held])
+
   const resetGame = useCallback(async () => {
     try { await resetSession() } catch { /* continue anyway */ }
     setUnlockedLocations([])
     setFoundItems([])
+    resetProgress()
+    setHeldBoth([])
     setLocationItemCatalog({})
     setConversations({})
     resetNotebook()
     await refetchState()
-  }, [refetchState, resetNotebook])
+  }, [refetchState, resetNotebook, setHeldBoth])
 
   const getConversation = useCallback(
     (suspectId: string): Message[] => conversations[suspectId] ?? [],
@@ -70,7 +99,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
   return (
     <GameCtx.Provider value={{
       unlockedLocations,
-      foundItems,
+      foundItems: visibleFound,
+      holdItems,
+      releaseItem,
       locationItemCatalog,
       refetchState,
       resetGame,
