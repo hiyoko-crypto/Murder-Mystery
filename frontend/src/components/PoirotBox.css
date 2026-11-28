@@ -1,21 +1,10 @@
 .poirot-box {
-  min-height: 112px;
+  min-height: 96px;
   margin: 0 32px 14px;
   background: var(--nr-panel-solid);
   flex-shrink: 0;
 }
 
-/* The speaker's name sits inside the box, above the line */
-.poirot-box__who {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-  color: var(--nr-gold-bright);
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-}
 
 .poirot-box__text {
   min-height: 3.4em;

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useLanguage } from '../contexts/LanguageContext'
 import { blip } from '../utils/sfx'
-import { DetectiveMark, Panel } from './ui/Noir'
+import { Panel } from './ui/Noir'
 import './PoirotBox.css'
 
 const CHAR_MS = 32
@@ -11,7 +10,6 @@ const CHAR_MS = 32
  * line; click to show the whole line at once.
  */
 export default function PoirotBox({ text }: { text: string }) {
-  const { tt } = useLanguage()
   const [count, setCount] = useState(0)
 
   useEffect(() => {
@@ -26,10 +24,6 @@ export default function PoirotBox({ text }: { text: string }) {
 
   return (
     <Panel className="poirot-box">
-      <div className="poirot-box__who">
-        <DetectiveMark size={22} />
-        <span>{tt('ポワロ', 'Poirot')}</span>
-      </div>
       <p className="poirot-box__text" onClick={() => setCount(text.length)}>
         {text.slice(0, count)}
       </p>

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { useLanguage } from '../contexts/LanguageContext'
-import { DetectiveMark, Panel } from './ui/Noir'
+import { Panel } from './ui/Noir'
 import { blip } from '../utils/sfx'
 import './PoirotIntro.css'
 
@@ -12,7 +11,6 @@ const CHAR_MS = 38
  * click again for the next one; after the last line `onFinish` is called.
  */
 export default function PoirotIntro({ lines, onFinish }: { lines: string[]; onFinish: () => void }) {
-  const { tt } = useLanguage()
   const [pos, setPos] = useState({ idx: 0, count: 0 })
   const line = lines[pos.idx] ?? ''
   const done = pos.count >= line.length
@@ -36,10 +34,6 @@ export default function PoirotIntro({ lines, onFinish }: { lines: string[]; onFi
   return (
     <div className="poirot-intro" onClick={advance}>
       <Panel className="poirot-intro__box">
-        <div className="poirot-intro__who">
-          <DetectiveMark size={26} />
-          <span>{tt('エルキュール・ポアロ', 'Hercule Poirot')}</span>
-        </div>
         <p className="poirot-intro__text">
           {line.slice(0, pos.count)}
         </p>
