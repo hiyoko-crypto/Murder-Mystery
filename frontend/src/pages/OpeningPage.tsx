@@ -6,6 +6,7 @@ import { useGame } from '../contexts/GameContext'
 import { useScenario } from '../contexts/ScenarioContext'
 import { useSceneTransition } from '../contexts/sceneTransitionContext'
 import { fetchBriefing, type BriefingResult } from '../api/examine'
+import { paper } from '../utils/sfx'
 import CaseFileCard from '../components/CaseFileCard'
 import PoirotIntro from '../components/PoirotIntro'
 import { AppHeader, GoldButton } from '../components/ui/Noir'
@@ -58,6 +59,11 @@ export default function OpeningPage() {
 
   const loading = result.key !== requestKey
   const briefing = loading ? null : result.briefing
+
+  // The paper slides in as soon as the case file is ready
+  useEffect(() => {
+    if (briefing) paper()
+  }, [briefing])
 
   const firstLocationId = unlockedLocations[0] ?? ''
   const firstLocation = locations(lang).find(l => l.id === firstLocationId)

@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react'
 import { ChevronRight } from 'lucide-react'
+import SoundToggle from '../SoundToggle'
 
 /** Detective silhouette (fedora + coat) used next to the POIROT wordmark. */
 export function DetectiveMark({ size = 30 }: { size?: number }) {
@@ -126,7 +127,10 @@ export function AppHeader({ sectionJa, sectionEn, right }: { sectionJa?: string;
           {sectionEn && <span className="nr-section-title__en">{sectionEn}</span>}
         </div>
       )}
-      {right && <div className="nr-header__right">{right}</div>}
+      <div className="nr-header__right">
+        {right}
+        <SoundToggle />
+      </div>
     </header>
   )
 }

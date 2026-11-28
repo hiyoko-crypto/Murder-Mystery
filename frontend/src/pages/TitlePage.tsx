@@ -3,6 +3,7 @@ import { useLanguage } from '../contexts/LanguageContext'
 import { useGame } from '../contexts/GameContext'
 import { BG_LIBRARY } from '../utils/backgroundMatch'
 import { DetectiveMark, GoldButton, OrnamentDivider } from '../components/ui/Noir'
+import SoundToggle from '../components/SoundToggle'
 import type { Lang } from '../i18n'
 import './TitlePage.css'
 
@@ -27,6 +28,7 @@ export default function TitlePage() {
   return (
     <div className="noir">
       <div className="nr-scene title" style={{ backgroundImage: `url(${titleBg})` }}>
+        <SoundToggle className="title__sound" />
         <div className="title__content">
           <div className="title__mark">
             <DetectiveMark size={64} />

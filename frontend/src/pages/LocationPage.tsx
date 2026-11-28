@@ -9,6 +9,7 @@ import { useSceneTransition } from '../contexts/sceneTransitionContext'
 import { examineLocation, examineItem, fetchBriefing, type BriefingResult } from '../api/examine'
 import { suspectAvatarEmoji } from '../utils/avatar'
 import { portraitUrl } from '../utils/portraits'
+import { chime, discover, paper } from '../utils/sfx'
 import { thumbnailUrl } from '../utils/backgroundMatch'
 import ConfirmResetDialog from '../components/ConfirmResetDialog'
 import NotebookLauncher from '../components/notebook/NotebookLauncher'
@@ -92,6 +93,7 @@ function LocationView({ id }: { id: string }) {
         name: backendItem.name,
       })))
       if (result.newly_found.length > 0) {
+        discover()
         appendHistory({
           type: 'examine_location',
           locationId: id,
@@ -120,6 +122,7 @@ function LocationView({ id }: { id: string }) {
       if (res.unlocked_location) {
         const locName = locations.find(l => l.id === res.unlocked_location)?.name ?? res.unlocked_location
         setUnlocked({ id: res.unlocked_location, name: locName })
+        chime()
         appendHistory({
           type: 'unlock_location',
           locationId: res.unlocked_location,
@@ -139,6 +142,7 @@ function LocationView({ id }: { id: string }) {
 
   const handleOpenCaseFile = async () => {
     setShowCaseFile(true)
+    paper()
     if (!briefing && !briefingLoading) {
       setBriefingLoading(true)
       try {

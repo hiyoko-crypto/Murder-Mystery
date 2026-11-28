@@ -10,6 +10,7 @@ import { callIndict } from '../api/examine'
 import { ArrowLeft, ChevronDown, ChevronUp, Gavel, Lock, Plus, Search, Send, X } from 'lucide-react'
 import NotebookLauncher from '../components/notebook/NotebookLauncher'
 import { AppHeader, DetectiveMark, GoldButton, OrnamentDivider, Panel, PaperCard, PortraitSilhouette } from '../components/ui/Noir'
+import { blip, chime, solved, stamp } from '../utils/sfx'
 import { EXPRESSIONS, portraitUrl, suspectIconUrl, type Expression } from '../utils/portraits'
 import type { Message } from '../types'
 import './InterrogationPage.css'
@@ -101,6 +102,7 @@ export default function InterrogationPage() {
     typingTimerRef.current = setInterval(() => {
       i++
       setDisplayedText(msg.text.slice(0, i))
+      if (i % 2 === 0) blip()
       if (i >= msg.text.length) {
         if (typingTimerRef.current) clearInterval(typingTimerRef.current)
         setIsTyping(false)
@@ -202,6 +204,7 @@ export default function InterrogationPage() {
         const text = tt(`🗺️ 新しい場所が解放されました：${locName}`, `🗺️ New area unlocked: ${locName}`)
         setMessages(prev => [...prev, { role: 'system', text }])
         setUnlockNotice({ id: res.unlocked_location, name: locName })
+        chime()
         appendHistory({
           type: 'unlock_location',
           locationId: res.unlocked_location,
@@ -241,7 +244,10 @@ export default function InterrogationPage() {
         )
         setConfessing(true)
         deliverReply(confessionLine, () => {
-          setTimeout(() => setIndictResult({ message: win.message }), 1200)
+          setTimeout(() => {
+            solved()
+            setIndictResult({ message: win.message })
+          }, 1200)
         })
       } else {
         deliverReply({ role: 'suspect', text: res.text })
@@ -262,6 +268,7 @@ export default function InterrogationPage() {
     accusationRef.current = []
     setShowEvidencePanel(false)
     setShowIndictFlash(true)
+    stamp()
     flashTimerRef.current = setTimeout(() => setShowIndictFlash(false), 1100)
 
     const openingLine = tt('犯人はあなただ！', `You're the culprit!`)
