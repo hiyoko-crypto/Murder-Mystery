@@ -25,6 +25,11 @@
   width: 100%;
   max-width: 940px;
   transform: rotate(-0.5deg);
+  animation: nr-slide-in-left 0.95s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.opening__start {
+  animation: nr-fade-up 0.6s ease-out 0.9s both;
 }
 
 .opening__status {

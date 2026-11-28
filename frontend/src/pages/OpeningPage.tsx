@@ -1,16 +1,38 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useGame } from '../contexts/GameContext'
 import { useScenario } from '../contexts/ScenarioContext'
+import { useSceneTransition } from '../contexts/sceneTransitionContext'
 import { fetchBriefing, type BriefingResult } from '../api/examine'
 import CaseFileCard from '../components/CaseFileCard'
+import PoirotIntro from '../components/PoirotIntro'
 import { AppHeader, GoldButton } from '../components/ui/Noir'
 import './OpeningPage.css'
 
+const stripEnd = (s: string) => s.replace(/[。.\s]+$/, '')
+
+/** Poirot's opening words, built from the case file so every scenario gets its own. */
+function introLines(b: BriefingResult, ja: boolean): string[] {
+  return ja
+    ? [
+        'やあ、よく来てくれた。……事件だよ、君。',
+        `現場は、${stripEnd(b.scene)}。犯行は${stripEnd(b.time_of_murder)}のことだ。`,
+        `凶器は${stripEnd(b.weapon)}。ふむ、実に興味深い。`,
+        'さあ、灰色の脳細胞を働かせるとしよう。まずは現場を調べ、関係者の話を聞くのだ。',
+      ]
+    : [
+        'Ah, mon ami, you have come. We have a case.',
+        `The scene: ${stripEnd(b.scene)}. Time of death: ${stripEnd(b.time_of_murder)}.`,
+        `The weapon: ${stripEnd(b.weapon)}. Most interesting.`,
+        'Now, let us put the little grey cells to work. First we examine the scene, then we hear the witnesses.',
+      ]
+}
+
 export default function OpeningPage() {
   const navigate = useNavigate()
+  const { go } = useSceneTransition()
   const { lang, tt } = useLanguage()
   const { unlockedLocations } = useGame()
   const { scenario, loading: scenarioLoading, locations, locationBg } = useScenario()
@@ -20,6 +42,7 @@ export default function OpeningPage() {
   const [attempt, setAttempt] = useState(0)
   const requestKey = `${scenario?.scenarioId ?? ''}|${lang}|${attempt}`
   const [result, setResult] = useState<{ key: string; briefing: BriefingResult | null }>({ key: '', briefing: null })
+  const [intro, setIntro] = useState(false)
 
   useEffect(() => {
     // Wait for ScenarioContext's own fetch to settle first — otherwise this
@@ -54,7 +77,8 @@ export default function OpeningPage() {
         <main className="opening__main">
           {loading && (
             <p className="opening__status">
-              {tt('読み込み中…（シナリオ切替直後は時間がかかることがあります）', 'Loading… (can take a while right after switching scenarios)')}
+              <Loader2 size={26} className="nr-spin" />
+              {tt('事件ファイルを用意しています…', 'Preparing the case file…')}
             </p>
           )}
           {!loading && !briefing && (
@@ -73,16 +97,24 @@ export default function OpeningPage() {
             </div>
           )}
 
-          <GoldButton
-            size="lg"
-            variant="primary"
-            label={tt('捜査開始', 'Begin Investigation')}
-            sub={lang === 'ja' ? 'Start Investigation' : undefined}
-            chevron
-            onClick={() => navigate(`/location/${firstLocationId}`)}
-            disabled={!firstLocationId}
-          />
+          {briefing && !intro && (
+            <div className="opening__start">
+              <GoldButton
+                size="lg"
+                variant="primary"
+                label={tt('捜査開始', 'Begin Investigation')}
+                sub={lang === 'ja' ? 'Begin Investigation' : undefined}
+                chevron
+                onClick={() => setIntro(true)}
+                disabled={!firstLocationId}
+              />
+            </div>
+          )}
         </main>
+
+        {briefing && intro && (
+          <PoirotIntro lines={introLines(briefing, lang === 'ja')} onFinish={() => go(`/location/${firstLocationId}`, 'fade')} />
+        )}
       </div>
     </div>
   )

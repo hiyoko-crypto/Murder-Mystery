@@ -1,0 +1,51 @@
+.poirot-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 4vw 5vh;
+  background: linear-gradient(180deg, transparent 40%, rgba(8, 6, 4, 0.7) 100%);
+  cursor: pointer;
+  animation: nr-fade-in 0.4s ease-out both;
+}
+
+.poirot-intro__box {
+  position: relative;
+  width: 100%;
+  max-width: 980px;
+  min-height: 150px;
+  background: var(--nr-panel-solid);
+}
+
+.poirot-intro__who {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: -34px 0 10px;
+  padding: 6px 18px;
+  background: var(--nr-panel-solid);
+  border: 1px solid var(--nr-gold-line);
+  color: var(--nr-gold-bright);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.poirot-intro__text {
+  font-size: 1.25rem;
+  line-height: 1.9;
+  min-height: 3.8em;
+}
+
+.poirot-intro__next {
+  position: absolute;
+  right: 24px;
+  bottom: 16px;
+  color: var(--nr-gold-bright);
+  animation: nr-bob 1s ease-in-out infinite;
+}
+
+@keyframes nr-bob {
+  50% { transform: translateY(5px); }
+}

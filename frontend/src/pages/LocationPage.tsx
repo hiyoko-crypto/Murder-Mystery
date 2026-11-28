@@ -5,6 +5,7 @@ import { useGame } from '../contexts/GameContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
 import { useCaseNotes } from '../contexts/CaseNotesContext'
+import { useSceneTransition } from '../contexts/sceneTransitionContext'
 import { examineLocation, examineItem, fetchBriefing, type BriefingResult } from '../api/examine'
 import { suspectAvatarEmoji } from '../utils/avatar'
 import { suspectIconUrl } from '../utils/portraits'
@@ -35,6 +36,7 @@ export default function LocationPage() {
 
 function LocationView({ id }: { id: string }) {
   const navigate = useNavigate()
+  const { go } = useSceneTransition()
   const { unlockedLocations, refetchState, resetGame } = useGame()
   const { lang, t, tt } = useLanguage()
   const { scenario, locations: getLocations, items: getItems, suspects: getSuspects, locationBg } = useScenario()
@@ -221,7 +223,7 @@ function LocationView({ id }: { id: string }) {
                       <li key={loc.id}>
                         <button
                           className={`loc__dest${isCurrent ? ' is-current' : ''}`}
-                          onClick={() => navigate(`/location/${loc.id}`)}
+                          onClick={() => go(`/location/${loc.id}`)}
                           disabled={isCurrent}
                         >
                           <span className="loc__dest-thumb" style={{ backgroundImage: `url(${thumbnailUrl(locationBg(loc.id))})` }} />
@@ -283,7 +285,7 @@ function LocationView({ id }: { id: string }) {
                 <Panel className="loc-item__unlock">
                   <Lock size={22} className="loc-item__unlock-icon" />
                   <span>{tt(`新しい場所が解放されました：${unlocked.name}`, `New area unlocked: ${unlocked.name}`)}</span>
-                  <GoldButton size="sm" variant="primary" label={tt('移動する', 'Go there')} chevron onClick={() => navigate(`/location/${unlocked.id}`)} />
+                  <GoldButton size="sm" variant="primary" label={tt('移動する', 'Go there')} chevron onClick={() => go(`/location/${unlocked.id}`)} />
                 </Panel>
               )}
             </div>

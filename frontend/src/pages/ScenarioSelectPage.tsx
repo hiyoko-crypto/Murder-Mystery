@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Users } from 'lucide-react'
+import { ArrowLeft, Loader2, Users } from 'lucide-react'
 import { fetchScenarioList, selectScenario, type ScenarioListEntry } from '../api/scenario'
 import { bakedBriefing } from '../api/examine'
 import scenarioCards from '../data/scenarioCards.json'
@@ -73,7 +73,7 @@ export default function ScenarioSelectPage() {
         />
 
         <main className="scn__main">
-          {loading && <p className="scn__status">{tt('読み込み中…', 'Loading…')}</p>}
+          {loading && <p className="scn__status nr-loading"><Loader2 size={22} className="nr-spin" />{tt('読み込み中…', 'Loading…')}</p>}
           {error && <p className="scn__status is-error">{tt('シナリオの取得に失敗しました', 'Could not load scenarios')}</p>}
           {!loading && !error && scenarios.length === 0 && (
             <p className="scn__status">{tt('シナリオが見つかりません', 'No scenarios found')}</p>

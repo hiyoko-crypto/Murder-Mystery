@@ -476,3 +476,38 @@
   justify-content: center;
   gap: 12px;
 }
+
+/* ── Motion ─────────────────────────────────────────────────────────────── */
+
+/* Every screen fades in when it mounts, so changing screens never pops */
+.noir {
+  animation: nr-fade-in 0.45s ease-out both;
+}
+
+@keyframes nr-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes nr-fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* The paper slides in from off-screen left and settles with its slight tilt */
+@keyframes nr-slide-in-left {
+  from { opacity: 0; transform: translateX(-70vw) rotate(-8deg); }
+  to { opacity: 1; transform: translateX(0) rotate(-0.5deg); }
+}
+
+.nr-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .noir, .opening__file, .opening__start {
+    animation: none;
+  }
+}

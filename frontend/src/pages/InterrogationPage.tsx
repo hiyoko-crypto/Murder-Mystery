@@ -4,6 +4,7 @@ import { useGame } from '../contexts/GameContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
 import { useCaseNotes } from '../contexts/CaseNotesContext'
+import { useSceneTransition } from '../contexts/sceneTransitionContext'
 import { sendChat } from '../api/chat'
 import { callIndict } from '../api/examine'
 import { ArrowLeft, ChevronDown, ChevronUp, Gavel, Lock, Plus, Search, Send, X } from 'lucide-react'
@@ -16,6 +17,7 @@ import './InterrogationPage.css'
 export default function InterrogationPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { go } = useSceneTransition()
   const { foundItems, refetchState, getConversation, setConversation } = useGame()
   const { lang, t, tt } = useLanguage()
   const { suspects: getSuspects, items: getItems, locations: getLocations, locationBg } = useScenario()
@@ -269,9 +271,24 @@ export default function InterrogationPage() {
     startTyping(openingReply)
   }
 
+  // Backing off an accusation that didn't land: the suspect has something to say about it.
+  const EXASPERATED_JA = [
+    '……気は済みましたか、探偵さん。',
+    '証拠もなく人を疑うものではありませんよ。',
+    'まったく……時間の無駄というものです。',
+  ]
+  const EXASPERATED_EN = [
+    '…Are you quite satisfied, Detective?',
+    'One should not accuse people without evidence.',
+    'Honestly… what a waste of time.',
+  ]
+
   const stopInterrogating = () => {
     setInterrogating(false)
     accusationRef.current = []
+    if (confessing) return
+    const pool = lang === 'ja' ? EXASPERATED_JA : EXASPERATED_EN
+    deliverReply({ role: 'suspect', text: pool[Math.floor(Math.random() * pool.length)] })
   }
 
   const handleSend = () => {
@@ -347,7 +364,7 @@ export default function InterrogationPage() {
           sectionEn={lang === 'ja' ? (interrogating ? 'Accusation' : 'Interrogation') : undefined}
           right={
             <>
-              <GoldButton size="sm" label={tt('戻る', 'Back')} icon={<ArrowLeft size={16} />} onClick={() => navigate(-1)} />
+              <GoldButton size="sm" label={tt('戻る', 'Back')} icon={<ArrowLeft size={16} />} onClick={() => go(-1)} />
               <NotebookLauncher className="nr-btn--sm" />
             </>
           }
@@ -405,7 +422,7 @@ export default function InterrogationPage() {
               <Panel className="iv__unlock">
                 <Lock size={20} className="iv__unlock-icon" />
                 <span>{tt(`新しい場所が解放されました：${unlockNotice.name}`, `New area unlocked: ${unlockNotice.name}`)}</span>
-                <GoldButton size="sm" label={tt('移動する', 'Go there')} chevron onClick={() => navigate(`/location/${unlockNotice.id}`)} />
+                <GoldButton size="sm" label={tt('移動する', 'Go there')} chevron onClick={() => go(`/location/${unlockNotice.id}`)} />
               </Panel>
             )}
           </section>
