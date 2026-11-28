@@ -11,16 +11,15 @@
 .loc__body {
   flex: 1;
   min-height: 0;
-  display: grid;
-  grid-template-columns: 1fr minmax(300px, 380px);
-  gap: 28px;
+  display: flex;
+  flex-direction: column;
   padding: 26px 32px 20px;
 }
 
 /* ── Title ── */
 
 .loc__title {
-  align-self: start;
+  align-self: flex-start;
   max-width: 680px;
 }
 
@@ -48,118 +47,22 @@
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.9);
 }
 
-/* ── Side panel ── */
 
-.loc__side {
-  align-self: start;
-  max-height: 100%;
-  overflow-y: auto;
-}
 
-.loc__side-head {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 6px;
-}
 
-.loc__side-head .nr-section-title {
-  flex: 1;
-}
 
-.loc__side-empty {
-  padding: 14px 2px 4px;
-  color: var(--nr-text-dim);
-  font-size: 0.95rem;
-}
 
-.loc__list {
-  list-style: none;
-}
 
-.loc__row,
-.loc__dest {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 10px 6px;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--nr-gold-faint);
-  color: var(--nr-text);
-  font-size: 1rem;
-  text-align: left;
-  transition: background 0.15s;
-}
 
-.loc__row:hover,
-.loc__dest:hover:not(:disabled) {
-  background: var(--nr-gold-faint);
-}
 
-.loc__row-name {
-  flex: 1;
-}
 
-.loc__row-chevron {
-  color: var(--nr-gold);
-}
 
-.loc__thumb {
-  width: 46px;
-  height: 46px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  background: var(--nr-bg-raised);
-  border: 1px solid var(--nr-gold-line);
-}
 
-.loc__thumb--round {
-  border-radius: 50%;
-  overflow: hidden;
-}
 
-.loc__thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 
-.loc__dest {
-  border: 1px solid var(--nr-gold-faint);
-  margin-bottom: 10px;
-  padding: 6px;
-}
 
-.loc__dest:disabled {
-  cursor: default;
-}
 
-.loc__dest.is-current {
-  border-color: var(--nr-gold-bright);
-  box-shadow: 0 0 14px var(--nr-gold-glow);
-}
 
-.loc__dest-thumb {
-  width: 84px;
-  height: 56px;
-  flex-shrink: 0;
-  background-size: cover;
-  background-position: center;
-  filter: sepia(0.2);
-}
-
-.loc__here {
-  padding: 1px 8px;
-  background: var(--nr-gold);
-  color: var(--nr-bg);
-  font-size: 0.78rem;
-  font-weight: 600;
-}
 
 /* ── Action bar ── */
 
@@ -296,4 +199,124 @@
   .loc-item__card {
     flex-direction: column;
   }
+}
+
+/* ── Center stage: clue / suspect / map cards ── */
+
+.loc__stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0 12px;
+  animation: nr-fade-up 0.35s ease-out both;
+}
+
+.loc__stage-panel {
+  width: 100%;
+  max-width: 1100px;
+  max-height: 100%;
+  overflow-y: auto;
+  background: rgba(14, 11, 8, 0.88);
+}
+
+.loc__stage-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.loc__stage-head .nr-section-title {
+  flex: 1;
+}
+
+.loc__stage-msg {
+  padding: 28px 0;
+  text-align: center;
+  color: var(--nr-text-dim);
+}
+
+.loc__stage-msg.nr-loading {
+  justify-content: center;
+}
+
+.loc__cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.loc-card {
+  width: 190px;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background: var(--nr-panel-solid);
+  border: 1px solid var(--nr-gold-line);
+  box-shadow: var(--nr-frame);
+  color: var(--nr-text);
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.loc-card:hover:not(:disabled) {
+  transform: translateY(-5px);
+  border-color: var(--nr-gold-bright);
+  box-shadow: var(--nr-frame), 0 0 20px var(--nr-gold-glow);
+}
+
+.loc-card:disabled {
+  cursor: default;
+}
+
+.loc-card__img {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 210px;
+  margin: 4px 4px 0;
+  overflow: hidden;
+  background: var(--nr-item-bg);
+  background-size: cover;
+  background-position: center;
+  font-size: 4.2rem;
+}
+
+.loc-card__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.loc-card--map .loc-card__img {
+  height: 130px;
+  filter: sepia(0.15);
+}
+
+.loc-card__name {
+  padding: 12px 10px 14px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+}
+
+.loc-card.is-current {
+  border-color: var(--nr-gold-bright);
+  box-shadow: var(--nr-frame), 0 0 16px var(--nr-gold-glow);
+}
+
+.loc-card__here {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 1px 8px;
+  background: var(--nr-gold);
+  color: var(--nr-bg);
+  font-size: 0.78rem;
+  font-weight: 700;
 }

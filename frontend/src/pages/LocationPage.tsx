@@ -1,6 +1,6 @@
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { BookOpen, ChevronRight, DoorOpen, Loader2, Lock, Menu, MapPin, MessageSquare, Search, X } from 'lucide-react'
+import { BookOpen, DoorOpen, Loader2, Lock, Menu, MapPin, MessageSquare, Search, X } from 'lucide-react'
 import { useGame } from '../contexts/GameContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
@@ -8,7 +8,7 @@ import { useCaseNotes } from '../contexts/CaseNotesContext'
 import { useSceneTransition } from '../contexts/sceneTransitionContext'
 import { examineLocation, examineItem, fetchBriefing, type BriefingResult } from '../api/examine'
 import { suspectAvatarEmoji } from '../utils/avatar'
-import { suspectIconUrl } from '../utils/portraits'
+import { portraitUrl } from '../utils/portraits'
 import { thumbnailUrl } from '../utils/backgroundMatch'
 import ConfirmResetDialog from '../components/ConfirmResetDialog'
 import NotebookLauncher from '../components/notebook/NotebookLauncher'
@@ -18,7 +18,7 @@ import { AppHeader, GoldButton, Panel, PaperCard, SectionTitle, Stamp } from '..
 import './LocationPage.css'
 
 /** What the right-hand side panel shows. */
-type SidePanel = 'clues' | 'talk' | 'move'
+type SidePanel = 'none' | 'clues' | 'talk' | 'move'
 
 interface Discovery {
   itemId: string
@@ -46,7 +46,7 @@ function LocationView({ id }: { id: string }) {
   const items       = getItems(lang)
   const allSuspects = getSuspects(lang)
 
-  const [panel, setPanel] = useState<SidePanel>('clues')
+  const [panel, setPanel] = useState<SidePanel>('none')
   const [examining, setExamining] = useState(false)
   // null until the location has been examined
   const [discoveries, setDiscoveries] = useState<Discovery[] | null>(null)
@@ -74,6 +74,11 @@ function LocationView({ id }: { id: string }) {
   const suspectsHere    = allSuspects.filter((s) => location.suspects.includes(s.id))
 
   const handleExamine = async () => {
+    // Pressing Examine again while the clue cards are open closes them
+    if (panel === 'clues' && examined) {
+      setPanel('none')
+      return
+    }
     setPanel('clues')
     if (examined) return
     setExamining(true)
@@ -170,73 +175,81 @@ function LocationView({ id }: { id: string }) {
             {lang === 'en' && location.description && <p className="loc__desc">{location.description}</p>}
           </div>
 
-          <Panel className="loc__side">
-            {panel === 'clues' && (
-              <SidePanelFrame title={tt('手がかり一覧', 'Evidence')} sub={lang === 'ja' ? 'Evidence' : undefined}>
-                {!examined && (
-                  <p className="loc__side-empty">
-                    {examining ? tt('現場を調べている…', 'Searching the scene…') : tt('まだ調べていない。「調べる」で現場を探そう。', 'Not examined yet. Use "Examine" to search the scene.')}
-                  </p>
+          {panel !== 'none' && (
+            <div className="loc__stage" key={panel}>
+              <Panel className="loc__stage-panel">
+                <div className="loc__stage-head">
+                  <SectionTitle
+                    ja={panel === 'clues' ? tt('手がかり', 'Clues') : panel === 'talk' ? tt('話す相手を選ぶ', 'Who to talk to') : tt('移動先（マップ）', 'Map')}
+                    en={lang === 'ja' ? (panel === 'clues' ? 'Evidence' : panel === 'talk' ? 'Talk' : 'Map') : undefined}
+                  />
+                  <button className="nr-close" onClick={() => setPanel('none')} aria-label={tt('閉じる', 'Close')}>
+                    <X size={16} />
+                  </button>
+                </div>
+
+                {panel === 'clues' && (
+                  <>
+                    {!examined && examining && (
+                      <p className="loc__stage-msg nr-loading">
+                        <Loader2 size={24} className="nr-spin" />
+                        {tt('現場を調べている…', 'Searching the scene…')}
+                      </p>
+                    )}
+                    {!examined && !examining && (
+                      <p className="loc__stage-msg">{tt('うまく調べられませんでした。もう一度「調べる」を押してください。', 'Could not examine the scene. Press Examine to try again.')}</p>
+                    )}
+                    {discoveries?.length === 0 && <p className="loc__stage-msg">{t('loc.examine.done0')}</p>}
+                    <div className="loc__cards">
+                      {discoveries?.map((d) => (
+                        <button key={d.itemId} className="loc-card" onClick={() => handleItemClick(d)}>
+                          <span className="loc-card__img">{d.emoji}</span>
+                          <span className="loc-card__name">{d.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
                 )}
-                {discoveries?.length === 0 && <p className="loc__side-empty">{t('loc.examine.done0')}</p>}
-                <ul className="loc__list">
-                  {discoveries?.map((d) => (
-                    <li key={d.itemId}>
-                      <button className="loc__row" onClick={() => handleItemClick(d)}>
-                        <span className="loc__thumb">{d.emoji}</span>
-                        <span className="loc__row-name">{d.name}</span>
-                        <ChevronRight size={18} className="loc__row-chevron" />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </SidePanelFrame>
-            )}
 
-            {panel === 'talk' && (
-              <SidePanelFrame title={tt('話す', 'Talk')} sub={lang === 'ja' ? 'Talk' : undefined} onClose={() => setPanel('clues')}>
-                {suspectsHere.length === 0 && <p className="loc__side-empty">{t('loc.nobody')}</p>}
-                <ul className="loc__list">
-                  {suspectsHere.map((s) => (
-                    <li key={s.id}>
-                      <button className="loc__row" onClick={() => navigate(`/interrogate/${s.id}`)}>
-                        <span className="loc__thumb loc__thumb--round">
-                          {suspectIconUrl(s.id)
-                            ? <img src={suspectIconUrl(s.id)} alt="" />
-                            : suspectAvatarEmoji(s.bio, s.id)}
+                {panel === 'talk' && (
+                  <div className="loc__cards">
+                    {suspectsHere.length === 0 && <p className="loc__stage-msg">{t('loc.nobody')}</p>}
+                    {suspectsHere.map((suspect) => (
+                      <button key={suspect.id} className="loc-card" onClick={() => navigate(`/interrogate/${suspect.id}`)}>
+                        <span className="loc-card__img">
+                          {portraitUrl(suspect.id, 'neutral')
+                            ? <img src={portraitUrl(suspect.id, 'neutral')} alt="" />
+                            : suspectAvatarEmoji(suspect.bio, suspect.id)}
                         </span>
-                        <span className="loc__row-name">{s.name}</span>
-                        <ChevronRight size={18} className="loc__row-chevron" />
+                        <span className="loc-card__name">{suspect.name}</span>
                       </button>
-                    </li>
-                  ))}
-                </ul>
-              </SidePanelFrame>
-            )}
+                    ))}
+                  </div>
+                )}
 
-            {panel === 'move' && (
-              <SidePanelFrame title={tt('移動先を選ぶ', 'Choose Destination')} sub={lang === 'ja' ? 'Move' : undefined} onClose={() => setPanel('clues')}>
-                <ul className="loc__list">
-                  {moveLocations.map((loc) => {
-                    const isCurrent = loc.id === id
-                    return (
-                      <li key={loc.id}>
+                {panel === 'move' && (
+                  <div className="loc__cards">
+                    {moveLocations.map((loc) => {
+                      const isCurrent = loc.id === id
+                      return (
                         <button
-                          className={`loc__dest${isCurrent ? ' is-current' : ''}`}
+                          key={loc.id}
+                          className={`loc-card loc-card--map${isCurrent ? ' is-current' : ''}`}
                           onClick={() => go(`/location/${loc.id}`)}
                           disabled={isCurrent}
                         >
-                          <span className="loc__dest-thumb" style={{ backgroundImage: `url(${thumbnailUrl(locationBg(loc.id))})` }} />
-                          <span className="loc__row-name">{loc.name}</span>
-                          {isCurrent && <span className="loc__here">{tt('現在地', 'Here')}</span>}
+                          <span className="loc-card__img" style={{ backgroundImage: `url(${thumbnailUrl(locationBg(loc.id))})` }}>
+                            {isCurrent && <span className="loc-card__here">{tt('現在地', 'Here')}</span>}
+                          </span>
+                          <span className="loc-card__name">{loc.name}</span>
                         </button>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </SidePanelFrame>
-            )}
-          </Panel>
+                      )
+                    })}
+                  </div>
+                )}
+              </Panel>
+            </div>
+          )}
         </div>
 
         <Panel className="loc__actions">
@@ -249,10 +262,10 @@ function LocationView({ id }: { id: string }) {
           <GoldButton
             label={t('loc.talk')}
             icon={<MessageSquare size={28} />}
-            onClick={() => setPanel('talk')}
+            onClick={() => setPanel(p => (p === 'talk' ? 'none' : 'talk'))}
             disabled={suspectsHere.length === 0}
           />
-          <GoldButton label={tt('移動', 'Move')} icon={<DoorOpen size={28} />} onClick={() => setPanel('move')} />
+          <GoldButton label={tt('移動', 'Move')} icon={<DoorOpen size={28} />} onClick={() => setPanel(p => (p === 'move' ? 'none' : 'move'))} />
           <span className="loc__actions-sep" />
           <GoldButton variant="paper" label={tt('事件概要', 'Case File')} icon={<BookOpen size={24} />} onClick={handleOpenCaseFile} />
           <NotebookLauncher className="nr-btn--teal" />
@@ -296,8 +309,8 @@ function LocationView({ id }: { id: string }) {
         {showCaseFile && (
           <div className="nr-scrim" onClick={() => setShowCaseFile(false)}>
             <div className="loc-casefile" onClick={e => e.stopPropagation()}>
-              {briefingLoading && <p className="loc__side-empty">{tt('読み込み中…', 'Loading…')}</p>}
-              {!briefingLoading && !briefing && <p className="loc__side-empty">{tt('事件概要を読み込めませんでした。', 'Could not load the case file.')}</p>}
+              {briefingLoading && <p className="loc__stage-msg">{tt('読み込み中…', 'Loading…')}</p>}
+              {!briefingLoading && !briefing && <p className="loc__stage-msg">{tt('事件概要を読み込めませんでした。', 'Could not load the case file.')}</p>}
               {briefing && <CaseFileCard briefing={briefing} />}
               <button className="nr-close nr-close--paper loc-casefile__close" onClick={() => setShowCaseFile(false)} aria-label={tt('閉じる', 'Close')}>
                 <X size={18} />
@@ -315,23 +328,6 @@ function LocationView({ id }: { id: string }) {
 
         {!selectedItem && !showCaseFile && <BgCredit locationId={location.id} className="loc-credit" />}
       </div>
-    </div>
-  )
-}
-
-function SidePanelFrame({ title, sub, onClose, children }: { title: string; sub?: string; onClose?: () => void; children: ReactNode }) {
-  const { tt } = useLanguage()
-  return (
-    <div className="loc__side-inner">
-      <div className="loc__side-head">
-        <SectionTitle ja={title} en={sub} />
-        {onClose && (
-          <button className="nr-close" onClick={onClose} aria-label={tt('閉じる', 'Close')}>
-            <X size={16} />
-          </button>
-        )}
-      </div>
-      {children}
     </div>
   )
 }
