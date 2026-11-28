@@ -68,15 +68,6 @@
   animation: map-pulse 1.4s ease-in-out infinite;
 }
 
-.map-spot.is-locked {
-  color: var(--nr-text-faint);
-  opacity: 0.75;
-}
-
-.map-spot.is-locked .map-spot__label {
-  color: var(--nr-text-dim);
-}
-
 @keyframes map-pulse {
   50% { transform: scale(1.25); }
 }

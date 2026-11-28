@@ -1,4 +1,4 @@
-import { MapPin, Lock } from 'lucide-react'
+import { MapPin } from 'lucide-react'
 import mapsData from '../data/maps.json'
 import { useLanguage } from '../contexts/LanguageContext'
 import { thumbnailUrl } from '../utils/backgroundMatch'
@@ -30,7 +30,8 @@ export default function MapView({ scenarioId, locations, unlocked, currentId, lo
   const { tt } = useLanguage()
   const spots = (mapsData as Record<string, Record<string, Spot>>)[scenarioId] ?? {}
   const image = mapImage(scenarioId)
-  const placed = locations.filter(l => spots[l.id])
+  // Only places the player can reach right now are marked
+  const placed = locations.filter(l => spots[l.id] && unlocked.includes(l.id))
 
   if (!image || placed.length === 0) {
     return (
@@ -58,20 +59,19 @@ export default function MapView({ scenarioId, locations, unlocked, currentId, lo
   return (
     <div className="map-view" style={{ backgroundImage: `url(${image})` }}>
       {placed.map(loc => {
-        const open = unlocked.includes(loc.id)
         const here = loc.id === currentId
         return (
           <button
             key={loc.id}
-            className={`map-spot${here ? ' is-here' : ''}${open ? '' : ' is-locked'}`}
+            className={`map-spot${here ? ' is-here' : ''}`}
             style={{ left: `${spots[loc.id].x}%`, top: `${spots[loc.id].y}%` }}
             onClick={() => onGo(loc.id)}
-            disabled={!open || here}
-            title={open ? loc.name : tt('まだ行けない場所', 'Not yet reachable')}
+            disabled={here}
+            title={loc.name}
           >
-            <span className="map-spot__pin">{open ? <MapPin size={26} /> : <Lock size={20} />}</span>
+            <span className="map-spot__pin"><MapPin size={26} /></span>
             <span className="map-spot__label">
-              {open ? loc.name : '？？？'}
+              {loc.name}
               {here && <em>{tt('現在地', 'Here')}</em>}
             </span>
           </button>
