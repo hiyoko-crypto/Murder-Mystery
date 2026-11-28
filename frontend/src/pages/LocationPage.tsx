@@ -205,7 +205,6 @@ function LocationView({ id }: { id: string }) {
 
   const handleOpenCaseFile = async () => {
     setShowCaseFile(true)
-    paper()
     if (!briefing && !briefingLoading) {
       setBriefingLoading(true)
       try {

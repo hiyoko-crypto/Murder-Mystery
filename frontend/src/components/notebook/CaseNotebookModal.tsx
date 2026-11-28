@@ -141,11 +141,14 @@ export default function CaseNotebookModal({ onClose }: { onClose: () => void }) 
           ))}
         </div>
         <div className="nb-page">
-          {tab === 'history' && <HistoryList />}
-          {tab === 'evidence' && <EvidenceTab />}
-          {tab === 'relationships' && <RelationshipBoard />}
-          {tab === 'timeline' && <TimelineBoard />}
-          {tab === 'memo' && <MemoTab />}
+          {/* Remounted per tab so each tab "turns" in like a page */}
+          <div className="nb-sheet" key={tab}>
+            {tab === 'history' && <HistoryList />}
+            {tab === 'evidence' && <EvidenceTab />}
+            {tab === 'relationships' && <RelationshipBoard />}
+            {tab === 'timeline' && <TimelineBoard />}
+            {tab === 'memo' && <MemoTab />}
+          </div>
         </div>
       </div>
     </div>,
