@@ -149,8 +149,13 @@ export function CaseNotesProvider({ children }: { children: ReactNode }) {
     if (susp.length === 0) return
     setHasSeeded(true)
 
+    // Suspects come back already translated from getSuspects(); the victim has to go
+    // through the scenario's Japanese display-name table the same way.
+    const victimName = scenario.victim
+      ? (lang === 'ja' ? scenario.displayNamesJa?.[scenario.victim.name] : undefined) ?? scenario.victim.name
+      : ''
     const victimNode: RelationshipNode[] = scenario.victim
-      ? [{ id: scenario.victim.id, label: scenario.victim.name, x: 320, y: 240 }]
+      ? [{ id: scenario.victim.id, label: victimName, x: 320, y: 240 }]
       : []
     const suspectPositions = circlePositions(susp.length)
     setRelationshipNodes([
