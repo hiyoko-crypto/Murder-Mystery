@@ -4,9 +4,9 @@
     "n_stalls": { "x": 57, "y": 54 },
     "n_backstage": { "x": 25, "y": 27 },
     "n_corridor": { "x": 25, "y": 49 },
-    "n_dressing_room": { "x": 17, "y": 65 },
-    "n_elena_room": { "x": 27.5, "y": 65 },
-    "n_vent_shaft": { "x": 22, "y": 79 },
+    "n_dressing_room": { "x": 17, "y": 61 },
+    "n_elena_room": { "x": 27.5, "y": 72 },
+    "n_vent_shaft": { "x": 22, "y": 84 },
     "n_lobby": { "x": 46, "y": 82 },
     "n_bar": { "x": 79, "y": 78 }
   },

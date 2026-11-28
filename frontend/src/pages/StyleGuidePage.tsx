@@ -3,6 +3,8 @@ import { BookOpen, DoorOpen, Menu, MessageSquare, NotebookPen, Search } from 'lu
 import { BG_LIBRARY } from '../utils/backgroundMatch'
 import { AppHeader, GoldButton, OrnamentDivider, Panel, PaperCard, SectionTitle, Stamp } from '../components/ui/Noir'
 import CaseFileCard from '../components/CaseFileCard'
+import MapView from '../components/MapView'
+import mapsData from '../data/maps.json'
 import { bakedBriefing, type BriefingResult } from '../api/examine'
 import CaseNotebookModal from '../components/notebook/CaseNotebookModal'
 import './StyleGuidePage.css'
@@ -18,8 +20,43 @@ const sampleBriefing: BriefingResult = bakedBriefing('the_final_act', 'ja') ?? {
 
 const sampleClues = ['真鍮の燭台', '破られた手紙', '銀のコンパクトミラー', '換気口の格子']
 
+// Japanese names for /style-guide?map=<scenarioId>, which shows a map with every place unlocked
+const MAP_NAMES: Record<string, Record<string, string>> = {
+  the_final_act: {
+    n_stage: '舞台', n_stalls: '客席', n_backstage: '舞台裏', n_corridor: '廊下',
+    n_dressing_room: 'マーカスの楽屋', n_elena_room: 'エレナの楽屋', n_vent_shaft: '換気ダクト',
+    n_lobby: 'ロビー', n_bar: 'バー',
+  },
+  z_The_Four_Pillars_of_Murder: {
+    n_loc_vance_office: 'ヴァンス博士の書斎', n_loc_monitoring_station: 'モニタリング室',
+    n_loc_sector2_sandbox: 'デジタル空間', n_loc_server_room: 'サーバー室',
+  },
+}
+
 export default function StyleGuidePage() {
   const navigate = useNavigate()
+  const mapId = new URLSearchParams(window.location.search).get('map')
+  if (mapId && MAP_NAMES[mapId]) {
+    const names = MAP_NAMES[mapId]
+    const ids = Object.keys((mapsData as Record<string, object>)[mapId] ?? {})
+    const locations = ids.map(id => ({ id, name: names[id] ?? id, description: '', suspects: [] }))
+    return (
+      <div className="noir">
+        <div className="nr-scene" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ width: 'min(100%, calc((100vh - 170px) * 16 / 9))' }}>
+          <MapView
+            scenarioId={mapId}
+            locations={locations}
+            unlocked={ids}
+            currentId={ids[0]}
+            locationBg={() => ''}
+            onGo={() => {}}
+          />
+          </div>
+        </div>
+      </div>
+    )
+  }
   // /style-guide?notebook opens the notebook modal on load (for screenshots).
   const showNotebook = new URLSearchParams(window.location.search).has('notebook')
 

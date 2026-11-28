@@ -241,9 +241,9 @@ function LocationView({ id }: { id: string }) {
             {lang === 'en' && location.description && <p className="loc__desc">{location.description}</p>}
           </div>
 
-          {panel !== 'none' && (
+          {(panel === 'clues' || panel === 'talk') && (
             <div className="loc__stage" key={panel}>
-              <Panel className={`loc__stage-panel${panel === 'move' ? ' is-map' : ''}`}>
+              <Panel className="loc__stage-panel">
                 <div className="loc__stage-head">
                   <SectionTitle
                     ja={panel === 'clues' ? tt('手がかり', 'Clues') : panel === 'talk' ? tt('話す相手を選ぶ', 'Who to talk to') : tt('移動先（マップ）', 'Map')}
@@ -293,16 +293,6 @@ function LocationView({ id }: { id: string }) {
                   </div>
                 )}
 
-                {panel === 'move' && (
-                  <MapView
-                    scenarioId={scenario?.scenarioId ?? ''}
-                    locations={locations}
-                    unlocked={unlockedLocations}
-                    currentId={id}
-                    locationBg={locationBg}
-                    onGo={(locId) => go(`/location/${locId}`)}
-                  />
-                )}
               </Panel>
             </div>
           )}
@@ -328,6 +318,28 @@ function LocationView({ id }: { id: string }) {
           <GoldButton variant="paper" label={tt('事件概要', 'Case File')} icon={<BookOpen size={24} />} onClick={handleOpenCaseFile} />
           <NotebookLauncher className="nr-btn--teal" />
         </Panel>
+
+        {/* ── Map: pick where to walk next ── */}
+        {panel === 'move' && (
+          <div className="nr-scrim loc-map-scrim" onClick={() => setPanel('none')}>
+            <div className="loc-map" onClick={e => e.stopPropagation()}>
+              <div className="loc-map__head">
+                <SectionTitle ja={tt('どこへ向かう？', 'Where to?')} en={lang === 'ja' ? 'Map' : undefined} />
+                <button className="nr-close" onClick={() => setPanel('none')} aria-label={tt('閉じる', 'Close')}>
+                  <X size={16} />
+                </button>
+              </div>
+              <MapView
+                scenarioId={scenario?.scenarioId ?? ''}
+                locations={locations}
+                unlocked={unlockedLocations}
+                currentId={id}
+                locationBg={locationBg}
+                onGo={(locId) => go(`/location/${locId}`)}
+              />
+            </div>
+          </div>
+        )}
 
         {/* ── Item detail ── */}
         {selectedItem && (

@@ -1,6 +1,6 @@
 .map-view {
   position: relative;
-  width: min(100%, calc(60vh * 16 / 9));
+  width: 100%;
   aspect-ratio: 16 / 9;
   margin: 0 auto;
   background-color: var(--nr-bg);
