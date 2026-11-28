@@ -290,7 +290,10 @@ function LocationView({ id }: { id: string }) {
             onClick={() => setPanel(p => (p === 'talk' ? 'none' : 'talk'))}
             disabled={suspectsHere.length === 0}
           />
-          <GoldButton label={tt('移動', 'Move')} icon={<DoorOpen size={28} />} onClick={() => setPanel(p => (p === 'move' ? 'none' : 'move'))} />
+          <GoldButton label={tt('移動', 'Move')} icon={<DoorOpen size={28} />} onClick={() => {
+              if (panel !== 'move') paper()
+              setPanel(p => (p === 'move' ? 'none' : 'move'))
+            }} />
           <span className="loc__actions-sep" />
           <GoldButton variant="paper" label={tt('事件概要', 'Case File')} icon={<BookOpen size={24} />} onClick={handleOpenCaseFile} />
           <NotebookLauncher className="nr-btn--teal" />

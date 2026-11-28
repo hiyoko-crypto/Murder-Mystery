@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { blip } from '../utils/sfx'
 import './ThoughtBubble.css'
 
 const CHAR_MS = 26
@@ -10,10 +9,7 @@ export default function ThoughtBubble({ text, onTap }: { text: string; onTap: ()
   const [count, setCount] = useState(0)
 
   useEffect(() => {
-    let ticks = 0
     const id = setInterval(() => {
-      ticks++
-      if (ticks <= text.length && ticks % 3 === 0) blip()
       setCount(c => Math.min(c + 1, text.length))
     }, CHAR_MS)
     return () => clearInterval(id)

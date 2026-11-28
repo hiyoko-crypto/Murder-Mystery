@@ -250,6 +250,30 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  animation: loc-map-unfold 0.75s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* The map unfolds from the middle, like a sheet opened on a table */
+@keyframes loc-map-unfold {
+  from {
+    opacity: 0;
+    transform: scale(0.82) rotate(-2deg);
+    clip-path: inset(0 50% 0 50%);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loc-map {
+    animation: none;
+  }
 }
 
 .loc-map__head {

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { Panel } from './ui/Noir'
-import { blip } from '../utils/sfx'
 import './PoirotIntro.css'
 
 const CHAR_MS = 38
@@ -16,10 +15,7 @@ export default function PoirotIntro({ lines, onFinish }: { lines: string[]; onFi
   const done = pos.count >= line.length
 
   useEffect(() => {
-    let ticks = 0
     const id = setInterval(() => {
-      ticks++
-      if (ticks <= line.length && ticks % 2 === 0) blip()
       setPos(p => ({ ...p, count: Math.min(p.count + 1, line.length) }))
     }, CHAR_MS)
     return () => clearInterval(id)

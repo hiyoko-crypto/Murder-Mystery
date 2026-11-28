@@ -169,16 +169,6 @@ export function click(): void {
   tone(c, { freq: 170, slideTo: 110, at: t, length: 0.06, volume: 0.1 })
 }
 
-/** One typewriter key (called every few characters of typed text). */
-export function blip(): void {
-  const c = audio()
-  if (!c) return
-  const t = c.currentTime
-  const v = 0.7 + Math.random() * 0.5
-  noise(c, { at: t, length: 0.02, volume: 0.05 * v, freq: 3200, q: 0.7, filter: 'highpass' })
-  tone(c, { freq: 150 + Math.random() * 30, slideTo: 90, at: t, length: 0.035, volume: 0.045 * v })
-}
-
 /** Paper being slid across a desk / a file opening. */
 export function paper(): void {
   const c = audio()

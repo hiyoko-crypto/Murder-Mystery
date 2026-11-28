@@ -10,7 +10,7 @@ import { callIndict } from '../api/examine'
 import { ArrowLeft, ChevronDown, ChevronUp, Gavel, Lock, Plus, Search, Send, X } from 'lucide-react'
 import NotebookLauncher from '../components/notebook/NotebookLauncher'
 import { AppHeader, DetectiveMark, GoldButton, OrnamentDivider, Panel, PaperCard, PortraitSilhouette } from '../components/ui/Noir'
-import { blip, chime, solved, stamp } from '../utils/sfx'
+import { chime, solved, stamp } from '../utils/sfx'
 import { EXPRESSIONS, portraitUrl, suspectIconUrl, type Expression } from '../utils/portraits'
 import type { Message } from '../types'
 import './InterrogationPage.css'
@@ -102,7 +102,6 @@ export default function InterrogationPage() {
     typingTimerRef.current = setInterval(() => {
       i++
       setDisplayedText(msg.text.slice(0, i))
-      if (i % 2 === 0) blip()
       if (i >= msg.text.length) {
         if (typingTimerRef.current) clearInterval(typingTimerRef.current)
         setIsTyping(false)
