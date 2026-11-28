@@ -1,19 +1,19 @@
 {
   "the_final_act": {
-    "n_stage": { "x": 57, "y": 33 },
-    "n_stalls": { "x": 57, "y": 58 },
-    "n_backstage": { "x": 26, "y": 36 },
-    "n_corridor": { "x": 25, "y": 52 },
-    "n_dressing_room": { "x": 17, "y": 69 },
-    "n_elena_room": { "x": 27.5, "y": 69 },
-    "n_vent_shaft": { "x": 22, "y": 86 },
-    "n_lobby": { "x": 46, "y": 88 },
-    "n_bar": { "x": 79, "y": 82 }
+    "n_stage": { "x": 57, "y": 24 },
+    "n_stalls": { "x": 57, "y": 54 },
+    "n_backstage": { "x": 25, "y": 27 },
+    "n_corridor": { "x": 25, "y": 49 },
+    "n_dressing_room": { "x": 17, "y": 65 },
+    "n_elena_room": { "x": 27.5, "y": 65 },
+    "n_vent_shaft": { "x": 22, "y": 79 },
+    "n_lobby": { "x": 46, "y": 82 },
+    "n_bar": { "x": 79, "y": 78 }
   },
   "z_The_Four_Pillars_of_Murder": {
-    "n_loc_vance_office": { "x": 25.6, "y": 36 },
-    "n_loc_monitoring_station": { "x": 51.6, "y": 32 },
-    "n_loc_sector2_sandbox": { "x": 77, "y": 60 },
-    "n_loc_server_room": { "x": 51, "y": 91 }
+    "n_loc_vance_office": { "x": 25.5, "y": 28 },
+    "n_loc_monitoring_station": { "x": 51.5, "y": 24 },
+    "n_loc_sector2_sandbox": { "x": 78, "y": 50 },
+    "n_loc_server_room": { "x": 50.5, "y": 74 }
   }
 }
