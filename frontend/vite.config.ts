@@ -5,6 +5,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
+      // Ollama の稼働確認用（フロントから直接問い合わせる。バックエンドは経由しない）
+      '/ollama': {
+        target: 'http://127.0.0.1:11434',
+        rewrite: (path: string) => path.replace(/^\/ollama/, ''),
+      },
       // 明示的に 127.0.0.1 を指定する — "localhost" は ::1 にも解決され、
       // このマシンでは別の何か（WSL/Docker関連らしき最小サービス）が
       // [::1]:8000 を掴んでいて、そちらに転送されると本物のAPIが404になる。
