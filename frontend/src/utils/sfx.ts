@@ -204,6 +204,16 @@ export function chime(): void {
   bell(c, 196, c.currentTime, 2.6, 0.13)
 }
 
+/** A clear two-note ping: an idea flashes (pressing Examine). */
+export function ping(): void {
+  const c = audio()
+  if (!c) return
+  const t = c.currentTime
+  tone(c, { freq: 1175, at: t, length: 0.28, volume: 0.1 })
+  tone(c, { freq: 1760, at: t + 0.09, length: 0.9, volume: 0.12 })
+  tone(c, { freq: 3520, at: t + 0.09, length: 0.35, volume: 0.03 })
+}
+
 /** A soft minor-third figure: a clue was found. */
 export function discover(): void {
   const c = audio()
