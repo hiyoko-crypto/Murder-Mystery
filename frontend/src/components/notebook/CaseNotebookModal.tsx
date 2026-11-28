@@ -6,6 +6,7 @@ import { useCaseNotes } from '../../contexts/CaseNotesContext'
 import { useGame } from '../../contexts/GameContext'
 import { useScenario } from '../../contexts/ScenarioContext'
 import { SectionTitle } from '../ui/Noir'
+import ItemIcon from '../ItemIcon'
 import { renderMiniMarkdown } from '../../utils/miniMarkdown'
 import RelationshipBoard from './RelationshipBoard'
 import TimelineBoard from './TimelineBoard'
@@ -78,7 +79,7 @@ function EvidenceTab() {
               className={`nb-evidence__row${item.id === selected?.id ? ' is-active' : ''}`}
               onClick={() => setSelectedId(item.id)}
             >
-              <span className="nb-evidence__thumb">{item.emoji}</span>
+              <span className="nb-evidence__thumb"><ItemIcon itemId={item.id} emoji={item.emoji} /></span>
               <span>{item.name}</span>
             </button>
           </li>
@@ -87,7 +88,7 @@ function EvidenceTab() {
       {selected && (
         <div className="nb-evidence__detail">
           <h3>{selected.name}</h3>
-          <div className="nb-evidence__photo">{selected.emoji}</div>
+          <div className="nb-evidence__photo"><ItemIcon itemId={selected.id} emoji={selected.emoji} /></div>
           <p>{itemDescriptions[selected.id] || selected.detail || selected.discoveryText}</p>
         </div>
       )}

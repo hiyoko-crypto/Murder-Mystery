@@ -11,6 +11,7 @@ import { ArrowLeft, ChevronDown, ChevronUp, Gavel, Lock, Plus, Search, Send, X }
 import NotebookLauncher from '../components/notebook/NotebookLauncher'
 import { AppHeader, DetectiveMark, GoldButton, OrnamentDivider, Panel, PaperCard, PortraitSilhouette } from '../components/ui/Noir'
 import { chime, solved, stamp } from '../utils/sfx'
+import ItemIcon from '../components/ItemIcon'
 import { EXPRESSIONS, portraitUrl, suspectIconUrl, type Expression } from '../utils/portraits'
 import type { Message } from '../types'
 import './InterrogationPage.css'
@@ -485,7 +486,7 @@ export default function InterrogationPage() {
                         onClick={() => handleSelectEvidence(item.id)}
                         title={item.name}
                       >
-                        <span className="iv__evidence-thumb">{item.emoji}</span>
+                        <span className="iv__evidence-thumb"><ItemIcon itemId={item.id} emoji={item.emoji} /></span>
                         <span className="iv__evidence-name">{item.name}</span>
                       </button>
                     ))}
@@ -496,7 +497,7 @@ export default function InterrogationPage() {
 
             {selectedEvidence && (
               <div className="iv__chip">
-                <span>{selectedEvidence.emoji} {selectedEvidence.name}</span>
+                <span><ItemIcon itemId={selectedEvidence.id} emoji={selectedEvidence.emoji} className="item-icon--inline" /> {selectedEvidence.name}</span>
                 <button onClick={() => setSelectedEvidence(null)} title={tt('証拠を外す', 'Remove evidence')}>
                   <X size={14} />
                 </button>

@@ -187,7 +187,8 @@
 }
 
 .nb-evidence__photo {
-  height: 220px;
+  overflow: hidden;
+  height: 240px;
   display: flex;
   align-items: center;
   justify-content: center;
