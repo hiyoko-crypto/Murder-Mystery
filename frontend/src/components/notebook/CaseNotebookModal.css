@@ -7,52 +7,14 @@
   z-index: 2000;
 }
 
-/* The notebook opens like a book: hinged on its left edge, swinging open */
-.nb-overlay {
-  perspective: 1800px;
-}
-
-@keyframes nb-open {
-  from {
-    opacity: 0;
-    transform: rotateY(-68deg) scale(0.92);
-  }
-  to {
-    opacity: 1;
-    transform: rotateY(0) scale(1);
-  }
-}
-
-@keyframes nb-turn {
-  from {
-    opacity: 0;
-    transform: translateX(34px) rotateY(-14deg);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0) rotateY(0);
-  }
-}
-
 .nb-sheet {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  transform-origin: left center;
-  animation: nb-turn 0.45s ease-out both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .nb-panel,
-  .nb-sheet {
-    animation: none !important;
-  }
 }
 
 .nb-panel {
-  transform-origin: left center;
-  animation: nb-open 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   width: 100%;
   max-width: 1040px;
   height: min(760px, 90vh);
@@ -164,8 +126,8 @@
 }
 
 .nb-evidence__thumb {
-  width: 52px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -188,7 +150,8 @@
 
 .nb-evidence__photo {
   overflow: hidden;
-  height: 240px;
+  aspect-ratio: 1 / 1;
+  width: min(100%, 300px);
   display: flex;
   align-items: center;
   justify-content: center;

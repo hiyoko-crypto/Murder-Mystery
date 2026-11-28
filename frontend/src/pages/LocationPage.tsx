@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { BookOpen, DoorOpen, Loader2, Menu, MapPin, MessageSquare, Search, X } from 'lucide-react'
+import { BookOpen, DoorOpen, Loader2, Menu, MapPin, MessageSquare, Search, Unlock, X } from 'lucide-react'
 import { useGame } from '../contexts/GameContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
@@ -10,7 +10,7 @@ import { examineItem, fetchBriefing, type BriefingResult } from '../api/examine'
 import { suspectAvatarEmoji } from '../utils/avatar'
 import { portraitUrl } from '../utils/portraits'
 import { chime, discover, paper, ping } from '../utils/sfx'
-import { getExamine, hasVisited, hasVisitedAny, isRevealed, markVisited } from '../utils/gameProgress'
+import { getExamine, hasSeenOnMap, hasVisited, hasVisitedAny, isRevealed, markSeenOnMap, markVisited } from '../utils/gameProgress'
 import ConfirmResetDialog from '../components/ConfirmResetDialog'
 import NotebookLauncher from '../components/notebook/NotebookLauncher'
 import BgCredit from '../components/BgCredit'
@@ -18,7 +18,8 @@ import CaseFileCard from '../components/CaseFileCard'
 import MapView from '../components/MapView'
 import PoirotBox from '../components/PoirotBox'
 import ThoughtBubble from '../components/ThoughtBubble'
-import { AppHeader, GoldButton, Panel, SectionTitle } from '../components/ui/Noir'
+import { AppHeader, GoldButton, OrnamentDivider, Panel, SectionTitle } from '../components/ui/Noir'
+import ItemIcon from '../components/ItemIcon'
 import './LocationPage.css'
 
 /** What the right-hand side panel shows. */
@@ -52,9 +53,13 @@ function LocationView({ id }: { id: string }) {
 
   const [panel, setPanel] = useState<SidePanel>('none')
   const [examining, setExamining] = useState(false)
-  // null until the location has been examined
-  const [discoveries, setDiscoveries] = useState<Discovery[] | null>(null)
-  const examined = discoveries !== null
+  // Each press of Examine shows one more clue; nothing happens on its own
+  const cluesRef = useRef<Discovery[] | null>(null)
+  const cursorRef = useRef(0)
+  const freshRef = useRef<Set<string>>(new Set())
+  const [shown, setShown] = useState<Discovery | null>(null)
+  const [unlockBanner, setUnlockBanner] = useState<string | null>(null)
+  const [mapNew, setMapNew] = useState<string[]>([])
 
   // Poirot (the player) comments on what he sees; the first line depends on whether
   // this is the first place he has walked into (the crime scene) or a later one.
@@ -82,9 +87,14 @@ function LocationView({ id }: { id: string }) {
     return () => { cancelled = true }
   }, [id, lang, holdItems])
 
-  // What Poirot is thinking, shown near the top of the scene; a tap moves on
+  // What Poirot is thinking while he waits for the search to finish
   const [thought, setThought] = useState<string | null>(null)
-  const skipRef = useRef<(() => void) | null>(null)
+
+  useEffect(() => {
+    if (!unlockBanner) return
+    const timer = setTimeout(() => setUnlockBanner(null), 3600)
+    return () => clearTimeout(timer)
+  }, [unlockBanner])
 
   // Case File overlay
   const [showCaseFile, setShowCaseFile] = useState(false)
@@ -101,13 +111,13 @@ function LocationView({ id }: { id: string }) {
   const suspectsHere    = allSuspects.filter((s) => location.suspects.includes(s.id))
 
   // Looking at a clue also "examines" it on the backend, which can open a new place.
-  // This runs in the background while Poirot thinks about the clue.
   const examineClueInBackground = async (d: Discovery) => {
     try {
       const res = await examineItem(d.itemId, lang)
       if (!res.unlocked_location) return
       const locName = locations.find(l => l.id === res.unlocked_location)?.name ?? res.unlocked_location
       chime()
+      setUnlockBanner(locName)
       appendHistory({
         type: 'unlock_location',
         locationId: res.unlocked_location,
@@ -116,91 +126,73 @@ function LocationView({ id }: { id: string }) {
           ? `${d.name}を調べ、${locName}が解放された`
           : `Examining ${d.name} unlocked ${locName}`,
       })
-      say(tt(`……${locName}へ行けるようだ。`, `…It seems I can get to ${locName} now.`))
       await refetchState()
     } catch {
       // the clue still counts as found
     }
   }
 
+  // One press = one step: the first press searches the room, each press after that shows
+  // the next clue (picture on top, details below), and the last one says there is nothing more.
   const handleExamine = async () => {
     if (examining) return
-    if (examined) {
-      say(tt('ここはもう調べ尽くした。', 'I have searched everywhere here.'))
+    setPanel('none')
+    ping()
+
+    if (!cluesRef.current) {
+      setExamining(true)
+      say(tt('……さて、調べてみよう。', 'Now then… let us have a look.'))
+      const musings = lang === 'ja'
+        ? ['机の上、床の下……何か見落としていないか。', '小さな違和感こそが、真実への入り口だ。', 'ふむ……もう少し、じっくり見てみよう。']
+        : ['The desk, the floor… is there something I have missed?', 'A small oddity is the doorway to the truth.', 'Hm… let me look a little more closely.']
+      let next = 0
+      setThought(musings[next++])
+      const ticker = setInterval(() => setThought(musings[next++ % musings.length]), 3800)
+      try {
+        const result = await getExamine(id, lang)
+        if (!result) throw new Error('examine failed')
+        cluesRef.current = [...result.newly_found, ...result.already_found].map(b => ({
+          itemId: b.id,
+          text: b.description,
+          emoji: items.find(i => i.id === b.id)?.emoji ?? '📦',
+          name: b.name,
+        }))
+        freshRef.current = new Set(result.newly_found.map(i => i.id))
+      } catch {
+        say(tt('……うまくいかないな。もう一度調べてみよう。', 'Hm, that did not work. Let us try again.'))
+        return
+      } finally {
+        clearInterval(ticker)
+        setThought(null)
+        setExamining(false)
+      }
+    }
+
+    const clues = cluesRef.current
+    if (cursorRef.current >= clues.length) {
+      setShown(null)
+      say(clues.length === 0 ? tt('なにもないな。', 'Nothing here.') : tt('もう何も出てこないようだ。', 'Nothing more, it seems.'))
       return
     }
-    setPanel('none')
-    setExamining(true)
-    ping()
-    say(tt('……さて、調べてみよう。', 'Now then… let us have a look.'))
-
-    // While the result comes back, Poirot keeps thinking
-    const musings = lang === 'ja'
-      ? ['机の上、床の下……何か見落としていないか。', '小さな違和感こそが、真実への入り口だ。', 'ふむ……もう少し、じっくり見てみよう。']
-      : ['The desk, the floor… is there something I have missed?', 'A small oddity is the doorway to the truth.', 'Hm… let me look a little more closely.']
-    let next = 0
-    setThought(musings[next++])
-    const ticker = setInterval(() => setThought(musings[next++ % musings.length]), 3800)
-    // A tap (or the timeout) moves on to the next thought
-    const pause = (ms: number) => new Promise<void>(resolve => {
-      const timer = setTimeout(() => { skipRef.current = null; resolve() }, ms)
-      skipRef.current = () => { clearTimeout(timer); skipRef.current = null; resolve() }
-    })
-
-    try {
-      const result = await getExamine(id, lang)
-      clearInterval(ticker)
-      if (!result) throw new Error('examine failed')
-
-      const newIds = new Set(result.newly_found.map(i => i.id))
-      const list: Discovery[] = [...result.newly_found, ...result.already_found].map(b => ({
-        itemId: b.id,
-        text: b.description,
-        emoji: items.find(i => i.id === b.id)?.emoji ?? '📦',
-        name: b.name,
-      }))
-      if (result.newly_found.some(i => !isRevealed(i.id))) {
-        appendHistory({
-          type: 'examine_location',
-          locationId: id,
-          itemIds: result.newly_found.map(i => i.id),
-          summary: lang === 'ja'
-            ? `${location.name}を調べ、${result.newly_found.map(i => i.name).join('、')}を発見`
-            : `Examined ${location.name}, found ${result.newly_found.map(i => i.name).join(', ')}`,
-        })
-      }
-      setExamining(false)
-      setDiscoveries(list)
-
-      if (list.length === 0) {
-        setThought(null)
-        say(tt('なにもないな。', 'Nothing here.'))
-        return
-      }
-      // One clue at a time: a line in the dialogue box, the details as a thought
-      let background: Promise<void> = Promise.resolve()
-      for (const d of list) {
-        const fresh = newIds.has(d.itemId) && !isRevealed(d.itemId)
-        releaseItem(d.itemId)
-        if (fresh) {
-          discover()
-          say(tt(`${d.name}を発見した。`, `Found it: ${d.name}.`))
-        } else {
-          say(tt(`${d.name}がある。`, `${d.name} is here.`))
-        }
-        setThought(d.text || null)
-        background = background.then(() => examineClueInBackground(d))
-        await pause(d.text ? Math.min(7000, Math.max(2800, d.text.length * 55 + 1200)) : 1500)
-      }
-      setThought(null)
-      say(newIds.size > 0 ? tt('……他にも何かあるかもしれない。', 'There may be more to find…') : tt('もう何も出てこないようだ。', 'Nothing more, it seems.'))
-      await refetchState()
-    } catch {
-      clearInterval(ticker)
-      setThought(null)
-      setExamining(false)
-      say(tt('……うまくいかないな。もう一度調べてみよう。', 'Hm, that did not work. Let us try again.'))
+    const d = clues[cursorRef.current++]
+    const fresh = freshRef.current.has(d.itemId) && !isRevealed(d.itemId)
+    releaseItem(d.itemId)
+    setShown(d)
+    if (fresh) {
+      discover()
+      say(tt(`${d.name}を発見した。`, `Found it: ${d.name}.`))
+      appendHistory({
+        type: 'examine_location',
+        locationId: id,
+        itemIds: [d.itemId],
+        summary: lang === 'ja' ? `${location.name}を調べ、${d.name}を発見` : `Examined ${location.name}, found ${d.name}`,
+      })
+    } else {
+      say(tt(`${d.name}がある。`, `${d.name} is here.`))
     }
+    void examineClueInBackground(d)
+    if (cursorRef.current < clues.length) return
+    await refetchState()
   }
 
   const handleOpenCaseFile = async () => {
@@ -231,7 +223,32 @@ function LocationView({ id }: { id: string }) {
           }
         />
 
-        {thought && <ThoughtBubble key={thought} text={thought} onTap={() => skipRef.current?.()} />}
+        {thought && <ThoughtBubble key={thought} text={thought} onTap={() => setThought(null)} />}
+
+        {/* The clue Poirot is looking at: picture on top, details below */}
+        {shown && (
+          <div className="clue-showcase" key={shown.itemId} onClick={() => setShown(null)}>
+            <Panel className="clue-showcase__panel">
+              <div className="clue-showcase__img">
+                <ItemIcon itemId={shown.itemId} emoji={shown.emoji} />
+              </div>
+              <h3 className="clue-showcase__name">{shown.name}</h3>
+              {shown.text && <p className="clue-showcase__text">{shown.text}</p>}
+            </Panel>
+          </div>
+        )}
+
+        {/* A new place opened up: say so across the whole screen */}
+        {unlockBanner && (
+          <div className="unlock-banner" onClick={() => setUnlockBanner(null)}>
+            <div className="unlock-banner__inner">
+              <Unlock size={46} />
+              <p className="unlock-banner__label">{tt('新しい場所が解放された', 'NEW AREA UNLOCKED')}</p>
+              <OrnamentDivider style={{ width: 360 }} />
+              <h2 className="unlock-banner__name">{unlockBanner}</h2>
+            </div>
+          </div>
+        )}
 
         <div className="loc__body">
           <div className="loc__title">
@@ -286,11 +303,20 @@ function LocationView({ id }: { id: string }) {
           <GoldButton
             label={t('loc.talk')}
             icon={<MessageSquare size={28} />}
-            onClick={() => setPanel(p => (p === 'talk' ? 'none' : 'talk'))}
+            onClick={() => {
+              setShown(null)
+              setPanel(p => (p === 'talk' ? 'none' : 'talk'))
+            }}
             disabled={suspectsHere.length === 0}
           />
           <GoldButton label={tt('移動', 'Move')} icon={<DoorOpen size={28} />} onClick={() => {
-              if (panel !== 'move') paper()
+              if (panel !== 'move') {
+                paper()
+                setShown(null)
+                // Places that became reachable since the map was last opened get a NEW badge, once
+                setMapNew(unlockedLocations.filter(l => l !== id && !hasSeenOnMap(l)))
+                markSeenOnMap(unlockedLocations)
+              }
               setPanel(p => (p === 'move' ? 'none' : 'move'))
             }} />
           <span className="loc__actions-sep" />
@@ -314,6 +340,7 @@ function LocationView({ id }: { id: string }) {
                 unlocked={unlockedLocations}
                 currentId={id}
                 locationBg={locationBg}
+                newIds={mapNew}
                 onGo={(locId) => go(`/location/${locId}`)}
               />
             </div>

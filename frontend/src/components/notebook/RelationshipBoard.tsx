@@ -215,14 +215,22 @@ export default function RelationshipBoard() {
   } = useCaseNotes()
 
   const instanceRef = useRef<ReactFlowInstance | null>(null)
-  const [nodes, setNodes] = useState<Node[]>(() => toFlowNodes(relationshipNodes, victimId))
+  // A saved victim label may still be the scenario's raw English name; show the Japanese one.
+  const victimRawName = scenario?.victim?.name
+  const victimJaName = victimRawName ? scenario?.displayNamesJa?.[victimRawName] : undefined
+  const shownNodes = useMemo(
+    () => relationshipNodes.map(n =>
+      lang === 'ja' && n.id === victimId && n.label === victimRawName && victimJaName ? { ...n, label: victimJaName } : n),
+    [relationshipNodes, lang, victimId, victimRawName, victimJaName],
+  )
+  const [nodes, setNodes] = useState<Node[]>(() => toFlowNodes(shownNodes, victimId))
   const [editor, setEditor] = useState<EdgeEditorState | null>(null)
   const [customLabel, setCustomLabel] = useState('')
   const [customColor, setCustomColor] = useState(SWATCHES[0])
 
   useEffect(() => {
-    setNodes(toFlowNodes(relationshipNodes, victimId))
-  }, [relationshipNodes, victimId])
+    setNodes(toFlowNodes(shownNodes, victimId))
+  }, [shownNodes, victimId])
 
   // The edge's label doubles as its drag handle (see FannedEdge) — a plain
   // click with no real movement lands here to open the same editor a click

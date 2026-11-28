@@ -11,6 +11,7 @@ import { examineLocation, type ExamineLocationResult } from '../api/examine'
 
 const examineCache = new Map<string, Promise<ExamineLocationResult | null>>()
 const revealed = new Set<string>()
+const seenOnMap = new Set<string>()
 const VISITED_KEY = 'poirot_visited_locations'
 
 /** One examine request per (language, location); later callers share it. */
@@ -61,9 +62,19 @@ export function markVisited(locationId: string): void {
   }
 }
 
+/** Places the player has already seen listed on the map (so "NEW" shows only once). */
+export function hasSeenOnMap(locationId: string): boolean {
+  return seenOnMap.has(locationId)
+}
+
+export function markSeenOnMap(ids: string[]): void {
+  ids.forEach(id => seenOnMap.add(id))
+}
+
 export function resetProgress(): void {
   examineCache.clear()
   revealed.clear()
+  seenOnMap.clear()
   try {
     sessionStorage.removeItem(VISITED_KEY)
   } catch {

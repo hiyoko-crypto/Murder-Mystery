@@ -22,11 +22,13 @@ interface Props {
   currentId: string
   locationBg: (locationId: string) => string
   onGo: (locationId: string) => void
+  /** Places that just became reachable; they get a NEW badge. */
+  newIds?: string[]
 }
 
 /** The map: the scenario's illustrated plan with its places as buttons. Until the
  *  art exists for a scenario, the unlocked places are shown as photo cards instead. */
-export default function MapView({ scenarioId, locations, unlocked, currentId, locationBg, onGo }: Props) {
+export default function MapView({ scenarioId, locations, unlocked, currentId, locationBg, onGo, newIds = [] }: Props) {
   const { tt } = useLanguage()
   const spots = (mapsData as Record<string, Record<string, Spot>>)[scenarioId] ?? {}
   const image = mapImage(scenarioId)
@@ -47,6 +49,7 @@ export default function MapView({ scenarioId, locations, unlocked, currentId, lo
             >
               <span className="loc-card__img" style={{ backgroundImage: `url(${thumbnailUrl(locationBg(loc.id))})` }}>
                 {isCurrent && <span className="loc-card__here">{tt('現在地', 'Here')}</span>}
+                {newIds.includes(loc.id) && <span className="loc-card__here">NEW</span>}
               </span>
               <span className="loc-card__name">{loc.name}</span>
             </button>
@@ -73,6 +76,7 @@ export default function MapView({ scenarioId, locations, unlocked, currentId, lo
             <span className="map-spot__label">
               {loc.name}
               {here && <em>{tt('現在地', 'Here')}</em>}
+              {newIds.includes(loc.id) && <em className="map-spot__new">NEW</em>}
             </span>
           </button>
         )
