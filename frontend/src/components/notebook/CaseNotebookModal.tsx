@@ -59,7 +59,7 @@ function MemoTab() {
 /** Found evidence: list on the left page, the selected item on the right. */
 function EvidenceTab() {
   const { lang } = useLanguage()
-  const { foundItems } = useGame()
+  const { foundItems, itemDescriptions } = useGame()
   const { items } = useScenario()
   const found = items(lang).filter(item => foundItems.includes(item.id))
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -88,7 +88,7 @@ function EvidenceTab() {
         <div className="nb-evidence__detail">
           <h3>{selected.name}</h3>
           <div className="nb-evidence__photo">{selected.emoji}</div>
-          <p>{selected.detail || selected.discoveryText}</p>
+          <p>{itemDescriptions[selected.id] || selected.detail || selected.discoveryText}</p>
         </div>
       )}
     </div>

@@ -13,6 +13,8 @@ interface GameContextValue {
   /** Marks a clue as shown; returns true if it was being held back. */
   releaseItem: (id: string) => boolean
   locationItemCatalog: Record<string, string[]>
+  /** Descriptions of found clues in the current language (translated by the backend). */
+  itemDescriptions: Record<string, string>
   refetchState: () => Promise<void>
   resetGame: () => Promise<void>
   getConversation: (suspectId: string) => Message[]
@@ -26,6 +28,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const { resetNotebook } = useCaseNotes()
   const [unlockedLocations, setUnlockedLocations] = useState<string[]>([])
   const [foundItems, setFoundItems] = useState<string[]>([])
+  const [itemDescriptions, setItemDescriptions] = useState<Record<string, string>>({})
   const [held, setHeld] = useState<string[]>([])
   const heldRef = useRef<string[]>([])
   const [locationItemCatalog, setLocationItemCatalog] = useState<Record<string, string[]>>({})
@@ -43,6 +46,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
       )
       setFoundItems(
         (data.found_items ?? []).map((i: { id: string }) => i.id)
+      )
+      setItemDescriptions(
+        Object.fromEntries((data.found_items ?? []).map((i: { id: string; description?: string }) => [i.id, i.description ?? '']))
       )
     } catch {
       // network error — keep existing state
@@ -77,6 +83,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     try { await resetSession() } catch { /* continue anyway */ }
     setUnlockedLocations([])
     setFoundItems([])
+    setItemDescriptions({})
     resetProgress()
     setHeldBoth([])
     setLocationItemCatalog({})
@@ -103,6 +110,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       holdItems,
       releaseItem,
       locationItemCatalog,
+      itemDescriptions,
       refetchState,
       resetGame,
       getConversation,
