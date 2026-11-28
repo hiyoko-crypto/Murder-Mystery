@@ -306,8 +306,9 @@ function LocationView({ id }: { id: string }) {
               </Panel>
             </div>
           )}
-          <PoirotBox key={poirot} text={poirot} />
         </div>
+
+        <PoirotBox key={poirot} text={poirot} />
 
         <Panel className="loc__actions">
           <GoldButton
