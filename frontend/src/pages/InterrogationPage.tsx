@@ -356,12 +356,6 @@ export default function InterrogationPage() {
         <div className="iv__body">
           {/* ── Left: character + dialogue ── */}
           <section className="iv__stage">
-            {interrogating && (
-              <div className="iv__accuse-title">
-                <span className="nr-gold-text">{tt('犯人はあなただ', 'You are the culprit')}</span>
-                <span className="iv__accuse-name">— {suspect.name} —</span>
-              </div>
-            )}
 
             {/* Portrait slot: silhouette until the 2D portraits exist. */}
             <div className="iv__portrait" aria-hidden="true">

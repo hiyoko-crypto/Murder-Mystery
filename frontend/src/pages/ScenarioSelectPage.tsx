@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Users } from 'lucide-react'
 import { fetchScenarioList, selectScenario, type ScenarioListEntry } from '../api/scenario'
 import { bakedBriefing } from '../api/examine'
+import scenarioCards from '../data/scenarioCards.json'
 import { useScenario } from '../contexts/ScenarioContext'
 import { useGame } from '../contexts/GameContext'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -39,8 +40,11 @@ export default function ScenarioSelectPage() {
   // which card is currently being selected.
   const cards = useMemo(() => scenarios.map((s) => {
     const info = bakedBriefing(s.id, lang)
-    const thumb = thumbnailUrl(matchBackground(info?.scene ?? s.id, info?.setting ?? '').url)
-    return { ...s, info, thumb }
+    const card = (scenarioCards as Record<string, { bg?: string } & Record<string, { tagline?: string }>>)[s.id]
+    // Hand-written tagline and thumbnail hint win over the briefing's raw setting text
+    const tagline = card?.[lang]?.tagline ?? info?.setting
+    const thumb = thumbnailUrl(matchBackground(card?.bg ?? info?.scene ?? s.id, card?.bg ? '' : info?.setting ?? '').url)
+    return { ...s, info, thumb, tagline }
   }), [scenarios, lang])
 
   const handleSelect = async (id: string) => {
@@ -77,7 +81,7 @@ export default function ScenarioSelectPage() {
 
           {!loading && !error && (
             <div className="scn__grid">
-              {cards.map(({ info, thumb, ...s }) => {
+              {cards.map(({ info, thumb, tagline, ...s }) => {
                 return (
                   <button
                     key={s.id}
@@ -88,7 +92,7 @@ export default function ScenarioSelectPage() {
                     <span className="scn__thumb" style={{ backgroundImage: `url(${thumb})` }} />
                     <span className="scn__body">
                       <span className="scn__title">{info?.title ?? scenarioLabel(s.id)}</span>
-                      {info && <span className="scn__summary">{info.setting}</span>}
+                      {tagline && <span className="scn__summary">{tagline}</span>}
                       <span className="scn__meta">
                         {info && (
                           <span className="scn__suspects">

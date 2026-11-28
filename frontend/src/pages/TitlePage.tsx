@@ -52,8 +52,8 @@ export default function TitlePage() {
           <GoldButton
             size="lg"
             variant="primary"
-            label={lang === 'ja' ? 'ゲーム開始' : 'Start Game'}
-            sub={lang === 'ja' ? 'Start Game' : undefined}
+            label={lang === 'ja' ? 'ゲーム開始' : 'Game Start'}
+            sub={lang === 'ja' ? 'Game Start' : undefined}
             chevron
             onClick={handleStart}
           />

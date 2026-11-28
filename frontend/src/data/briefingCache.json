@@ -9,23 +9,41 @@
       "weapon": "Brass candlestick (found on the floor, bloodied)",
       "scene": "Marcus's private dressing room, backstage at the Meridian Theatre.",
       "suspects": [
-        { "id": "n_elena", "name": "Elena Rostova" },
-        { "id": "n_julian", "name": "Dr. Julian Wilde" },
-        { "id": "n_leo", "name": "Leo Cross" }
+        {
+          "id": "n_elena",
+          "name": "Elena Rostova"
+        },
+        {
+          "id": "n_julian",
+          "name": "Dr. Julian Wilde"
+        },
+        {
+          "id": "n_leo",
+          "name": "Leo Cross"
+        }
       ]
     },
     "ja": {
       "title": "最終幕",
-      "setting": "メリディアン劇場、市街地。『罪の影』初日公演。幕間の暗転中、午後 21 時 05 分頃殺人が発生した。観客は 400 名、キャストとクルー合わせて約 30 名がいた。",
-      "victim": "マーカス・ヴァンスは、幕間の間、午後 9 時 5 分頃には私設の楽屋で死体が発見されました。彼は真鍮の燭台で打たれ死亡しており、その部屋は内側から施錠されていました。",
-      "time_of_murder": "午後 21 時頃 5 分",
-      "time_discovered": "午後 9 時 20 分",
-      "weapon": "真鍮の燭台（床にあり、血が付いている）",
-      "scene": "マーカスの楽屋、メリディアン劇場舞台裏。",
+      "setting": "市街地のメリディアン劇場。『罪の影』初日公演の幕間、午後9時5分ごろに殺人が起きた。客席は400人、キャストとスタッフは約30人。",
+      "victim": "演出家のマーカス・ヴァンスが、幕間のあいだに自分の楽屋で死んでいるのが見つかった。凶器は真鍮の燭台で、部屋は内側から鍵がかけられていた。",
+      "time_of_murder": "午後9時5分ごろ",
+      "time_discovered": "午後9時20分",
+      "weapon": "真鍮の燭台（血のついたまま床に落ちていた）",
+      "scene": "メリディアン劇場の裏手にある、マーカスの専用楽屋。",
       "suspects": [
-        { "id": "n_elena", "name": "エレナ・ロストヴァ" },
-        { "id": "n_julian", "name": "ジュリアン・ワイルド博士" },
-        { "id": "n_leo", "name": "レオ・クロス" }
+        {
+          "id": "n_elena",
+          "name": "エレナ・ロストヴァ"
+        },
+        {
+          "id": "n_julian",
+          "name": "ジュリアン・ワイルド博士"
+        },
+        {
+          "id": "n_leo",
+          "name": "レオ・クロス"
+        }
       ]
     }
   },
@@ -39,25 +57,49 @@
       "weapon": "Automated Server Rack 4-B",
       "scene": "A high-security, temperature-controlled server vault filled with humming mainframes, accessible only via biometric scanning.",
       "suspects": [
-        { "id": "n_logic", "name": "Logic-01" },
-        { "id": "n_muse", "name": "Muse-7" },
-        { "id": "n_guardia", "name": "Guardia" },
-        { "id": "n_nexus", "name": "Nexus-V" }
+        {
+          "id": "n_logic",
+          "name": "Logic-01"
+        },
+        {
+          "id": "n_muse",
+          "name": "Muse-7"
+        },
+        {
+          "id": "n_guardia",
+          "name": "Guardia"
+        },
+        {
+          "id": "n_nexus",
+          "name": "Nexus-V"
+        }
       ]
     },
     "ja": {
       "title": "エルキュール・ポアロ：機械の中の幽霊",
-      "setting": "ブレッチリー・マナー サーバー室",
-      "victim": "ブレッチリー邸の封鎖された零下サーバー室内で、伝説的な AI 先駆者だったドクター・アレクサンダー・ヴァンズが重く自動運転されるサーバーラックに瞬時に潰されて発見されました。",
-      "time_of_murder": "22 時 00 分",
-      "time_discovered": "22 時 05 分",
-      "weapon": "自動サーバーラック 4B",
-      "scene": "生体認証スキャンのみでアクセス可能な、高セキュリティかつ温度管理されたサーバー金庫。唸るメインフレームが並んでいる。",
+      "setting": "ブレッチリー・マナーのサーバー室。",
+      "victim": "AI研究の伝説的な第一人者、アリスター・ヴァンス博士が、ブレッチリー邸の零下に冷やされた密閉サーバー室で死んでいるのが見つかった。自動で動く重いサーバーラックに押しつぶされたのだ。",
+      "time_of_murder": "22:00ごろ",
+      "time_discovered": "22:05",
+      "weapon": "自動式サーバーラック4-B",
+      "scene": "生体認証でしか入れない、高セキュリティで温度管理された金庫室のようなサーバー室。うなりを上げるメインフレームがずらりと並んでいる。",
       "suspects": [
-        { "id": "n_logic", "name": "Logic-01" },
-        { "id": "n_muse", "name": "Muse-7" },
-        { "id": "n_guardia", "name": "Guardia" },
-        { "id": "n_nexus", "name": "Nexus-V" }
+        {
+          "id": "n_logic",
+          "name": "Logic-01"
+        },
+        {
+          "id": "n_muse",
+          "name": "Muse-7"
+        },
+        {
+          "id": "n_guardia",
+          "name": "Guardia"
+        },
+        {
+          "id": "n_nexus",
+          "name": "Nexus-V"
+        }
       ]
     }
   }

@@ -92,7 +92,7 @@ interface GoldButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode
   chevron?: boolean
   size?: 'sm' | 'md' | 'lg'
-  variant?: 'default' | 'primary' | 'danger'
+  variant?: 'default' | 'primary' | 'danger' | 'paper' | 'teal'
 }
 
 export function GoldButton({ label, sub, icon, chevron, size = 'md', variant = 'default', className = '', type = 'button', ...rest }: GoldButtonProps) {

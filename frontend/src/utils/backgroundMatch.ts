@@ -163,11 +163,16 @@ const NAME_WEIGHT = 2
 // that, but \b only means anything for \w (ASCII-word) keywords — multi-word
 // phrases ("dressing room") and CJK keywords are specific enough already, so
 // they keep using substring matching (CJK text has no spaces to bound on).
+// Longer words that contain a short keyword by accident ("サーバー" contains "バー").
+const KEYWORD_EXCLUDES: Record<string, string[]> = { 'バー': ['サーバー'] }
+
 function containsKeyword(text: string, keyword: string): boolean {
   if (/^[a-z]+$/.test(keyword)) {
     return new RegExp(`\\b${keyword}\\b`).test(text)
   }
-  return text.includes(keyword)
+  let haystack = text
+  for (const word of KEYWORD_EXCLUDES[keyword] ?? []) haystack = haystack.split(word).join('')
+  return haystack.includes(keyword)
 }
 
 /** Smaller variant of a library photo, for thumbnails (library URLs are w=1200). */

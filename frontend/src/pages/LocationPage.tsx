@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { BookOpen, ChevronRight, DoorOpen, Lock, Menu, MapPin, MessageSquare, Search, X } from 'lucide-react'
+import { BookOpen, ChevronRight, DoorOpen, Loader2, Lock, Menu, MapPin, MessageSquare, Search, X } from 'lucide-react'
 import { useGame } from '../contexts/GameContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useScenario } from '../contexts/ScenarioContext'
@@ -35,7 +35,7 @@ export default function LocationPage() {
 
 function LocationView({ id }: { id: string }) {
   const navigate = useNavigate()
-  const { foundItems, unlockedLocations, locationItemCatalog, refetchState, resetGame } = useGame()
+  const { unlockedLocations, refetchState, resetGame } = useGame()
   const { lang, t, tt } = useLanguage()
   const { scenario, locations: getLocations, items: getItems, suspects: getSuspects, locationBg } = useScenario()
   const { appendHistory } = useCaseNotes()
@@ -68,10 +68,7 @@ function LocationView({ id }: { id: string }) {
   const location = locations.find((l) => l.id === id)
   if (!location) return <div>{t('not.found')}</div>
 
-  const locationItemIds = locationItemCatalog[location.id] ?? []
-  const locationItems   = items.filter((item) => locationItemIds.includes(item.id))
   const moveLocations   = locations.filter((l) => unlockedLocations.includes(l.id))
-  const foundCount      = locationItems.filter((item) => foundItems.includes(item.id)).length
   const suspectsHere    = allSuspects.filter((s) => location.suspects.includes(s.id))
 
   const handleExamine = async () => {
@@ -151,16 +148,11 @@ function LocationView({ id }: { id: string }) {
     navigate('/')
   }
 
-  const examineHint = examining
-    ? tt('調査中…', 'Examining…')
-    : foundCount > 0 ? `${foundCount} ${t('loc.found.hint')}` : t('loc.examine.hint')
 
   return (
     <div className="noir">
       <div className="nr-scene loc" style={{ backgroundImage: `url(${locationBg(location.id)})` }}>
         <AppHeader
-          sectionJa={tt('現場', 'Investigation')}
-          sectionEn={lang === 'ja' ? 'Investigation' : undefined}
           right={
             <GoldButton size="sm" label={tt('メインメニュー', 'Main Menu')} icon={<Menu size={16} />} onClick={() => setShowMenuConfirm(true)} />
           }
@@ -246,18 +238,22 @@ function LocationView({ id }: { id: string }) {
         </div>
 
         <Panel className="loc__actions">
-          <GoldButton label={t('loc.examine')} sub={examineHint} icon={<Search size={24} />} onClick={handleExamine} disabled={examining} />
+          <GoldButton
+            label={t('loc.examine')}
+            icon={examining ? <Loader2 size={28} className="nr-spin" /> : <Search size={28} />}
+            onClick={handleExamine}
+            disabled={examining}
+          />
           <GoldButton
             label={t('loc.talk')}
-            sub={suspectsHere.length === 0 ? t('loc.nobody') : `${suspectsHere.length} ${t('loc.people')}`}
-            icon={<MessageSquare size={24} />}
+            icon={<MessageSquare size={28} />}
             onClick={() => setPanel('talk')}
             disabled={suspectsHere.length === 0}
           />
-          <GoldButton label={tt('移動', 'Move')} sub={tt('別の場所へ', 'Go elsewhere')} icon={<DoorOpen size={24} />} onClick={() => setPanel('move')} />
+          <GoldButton label={tt('移動', 'Move')} icon={<DoorOpen size={28} />} onClick={() => setPanel('move')} />
           <span className="loc__actions-sep" />
-          <GoldButton label={tt('事件概要', 'Case File')} icon={<BookOpen size={20} />} onClick={handleOpenCaseFile} />
-          <NotebookLauncher />
+          <GoldButton variant="paper" label={tt('事件概要', 'Case File')} icon={<BookOpen size={24} />} onClick={handleOpenCaseFile} />
+          <NotebookLauncher className="nr-btn--teal" />
         </Panel>
 
         {/* ── Item detail ── */}

@@ -46,17 +46,6 @@
   gap: 12px;
 }
 
-.iv__accuse-title {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
 
 .iv__accuse-title .nr-gold-text {
   font-weight: 900;
@@ -64,10 +53,6 @@
   letter-spacing: 0.2em;
 }
 
-.iv__accuse-name {
-  color: var(--nr-gold-bright);
-  letter-spacing: 0.2em;
-}
 
 /* Portrait slot. Holds an emoji for now; a 2D portrait <img> will replace it. */
 /* The portrait fills the stage and runs down behind the name plate and

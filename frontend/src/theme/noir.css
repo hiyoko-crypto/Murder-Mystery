@@ -238,6 +238,46 @@
   color: #f1c4b8;
 }
 
+/* Case file: cream paper, dark ink */
+.nr-btn--paper {
+  background: linear-gradient(180deg, #e8d6ae 0%, #cdb88c 100%);
+  border-color: #8a6a3a;
+  box-shadow: inset 0 0 0 3px #cdb88c, inset 0 0 0 4px rgba(90, 70, 48, 0.35);
+  color: var(--nr-ink);
+  font-weight: 700;
+}
+.nr-btn--paper .nr-btn__icon {
+  color: var(--nr-ink-soft);
+}
+.nr-btn--paper:hover:not(:disabled) {
+  border-color: #5a4630;
+  color: #000;
+  box-shadow: inset 0 0 0 3px #d9c69c, inset 0 0 0 4px rgba(90, 70, 48, 0.5), 0 0 16px rgba(230, 198, 126, 0.4);
+}
+
+/* Notebook: deep teal, mint accents */
+.nr-btn--teal {
+  background: linear-gradient(180deg, #17403e 0%, #0b1f1f 100%);
+  border-color: #4aa39a;
+  box-shadow: inset 0 0 0 3px #0b1f1f, inset 0 0 0 4px rgba(74, 163, 154, 0.3);
+  color: #a6e6dc;
+}
+.nr-btn--teal .nr-btn__icon {
+  color: #6fd0c4;
+}
+.nr-btn--teal:hover:not(:disabled) {
+  border-color: #8fe3d6;
+  color: #e4fffb;
+  box-shadow: inset 0 0 0 3px #0b1f1f, inset 0 0 0 4px rgba(143, 227, 214, 0.5), 0 0 18px rgba(111, 208, 196, 0.4);
+}
+
+.nr-spin {
+  animation: nr-spin 1s linear infinite;
+}
+@keyframes nr-spin {
+  to { transform: rotate(360deg); }
+}
+
 .nr-btn__icon {
   display: inline-flex;
   color: var(--nr-gold);

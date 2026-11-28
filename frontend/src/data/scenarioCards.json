@@ -1,0 +1,20 @@
+{
+  "the_final_act": {
+    "bg": "theatre stage",
+    "ja": {
+      "tagline": "開演中の劇場で起きた殺人。幕間の楽屋で見つかった被害者と、3人の容疑者。"
+    },
+    "en": {
+      "tagline": "A murder on opening night. The victim is found in a locked dressing room during intermission, and three people wanted him gone."
+    }
+  },
+  "z_The_Four_Pillars_of_Murder": {
+    "bg": "server room",
+    "ja": {
+      "tagline": "AI研究所のサーバー室で、開発者が機械に押しつぶされて死んだ。容疑者は、4体のAI。"
+    },
+    "en": {
+      "tagline": "The AI pioneer is crushed in a sealed server room. The only suspects are four AIs."
+    }
+  }
+}
